@@ -70,12 +70,12 @@
 
         /* Tarjeta de Navegación */
         .nav-card {
-            width: 110px;
-            height: 92px; /* Proporción 1.2:1 aprox (110 / 92 ≈ 1.19) */
+            width: 82px; /* Reducción de tamaño ~25% */
+            height: 72px; /* Proporción compacta, casi cuadrada */
             background-color: #ffffff;
             color: #333;
-            padding: 10px;
-            border-radius: 15px; /* Bordes redondeados suaves */
+            padding: 8px;
+            border-radius: 12px; /* Bordes redondeados proporcionales */
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -88,25 +88,32 @@
         }
 
         .nav-card .emoji {
-            font-size: 2em; /* Emojis a color grandes */
-            margin-bottom: 5px;
+            font-size: 1.4em; /* Emoji más compacto */
+            margin-bottom: 3px;
             display: flex;
             align-items: center;
             justify-content: center;
         }
 
+        .nav-card span {
+            font-weight: 700;
+            font-size: 0.72em; /* Texto más pequeño para el nuevo tamaño */
+            text-align: center;
+            line-height: 1.1;
+        }
+
         /* Estilo para el icono especial del Tablero */
         .tablero-icon {
-            width: 40px;
-            height: 40px;
+            width: 32px;
+            height: 32px;
             background-color: #CC2121;
-            border-radius: 10px;
+            border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-bottom: 5px;
+            margin-bottom: 3px;
             color: white;
-            font-size: 1.1em;
+            font-size: 0.9em;
             box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
 
@@ -429,7 +436,7 @@
         <div class="nav-scroll">
             <div class="nav-card active" onclick="navigate('tablero', this)">
                 <div class="tablero-icon">
-                    <span style="font-size: 1.5em;">📊</span>
+                    <span style="font-size: 1.2em;">📊</span>
                 </div>
                 <span>TABLERO</span>
             </div>
