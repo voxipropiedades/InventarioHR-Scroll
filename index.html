@@ -89,13 +89,38 @@
         .nav-card .emoji {
             font-size: 1.8em;
             margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        .nav-card span {
-            font-weight: 700;
-            font-size: 0.85em;
-            text-align: center;
-            line-height: 1.2;
+        /* Estilo para el icono especial del Tablero */
+        .tablero-icon {
+            width: 45px;
+            height: 45px;
+            background-color: #d32f2f;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 5px;
+            color: white;
+            font-size: 1.2em;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        .social-card-img {
+            width: 40px;
+            height: 40px;
+            object-fit: contain;
+            margin-bottom: 8px;
+        }
+
+        .nav-card .icon-img {
+            width: 35px;
+            height: 35px;
+            object-fit: contain;
+            margin-bottom: 5px;
         }
 
         /* Estado ACTIVO */
@@ -378,8 +403,11 @@
     <nav class="nav-wrapper">
         <div class="nav-scroll">
             <div class="nav-card active" onclick="navigate('tablero', this)">
-                <span class="emoji">🏠</span>
-                <span>Tablero</span>
+                <div class="tablero-icon">
+                    <i class="fas fa-chart-pie" style="margin-right:2px;"></i>
+                    <i class="fas fa-chart-column"></i>
+                </div>
+                <span>TABLERO</span>
             </div>
             <div class="nav-card" onclick="navigate('inventario', this)">
                 <span class="emoji">📦</span>
@@ -441,21 +469,21 @@
                 <!-- 📲 CONEXIÓN RÁPIDA A REDES -->
                 <div class="metrics-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 25px;">
                     <a href="https://wa.me/" target="_blank" style="text-decoration: none;">
-                        <div class="metric-card" style="border-bottom-color: #25D366; background-color: rgba(37, 211, 102, 0.1);">
-                            <span class="value">📲</span>
-                            <span class="label" style="color: #ffffff;">WhatsApp</span>
+                        <div class="metric-card" style="border-bottom-color: #25D366; background-color: rgba(255, 255, 255, 0.9); display: flex; flex-direction: column; align-items: center;">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" class="social-card-img" alt="WhatsApp">
+                            <span class="label" style="color: #333;">WhatsApp</span>
                         </div>
                     </a>
                     <a href="https://www.facebook.com/" target="_blank" style="text-decoration: none;">
-                        <div class="metric-card" style="border-bottom-color: #1877F2; background-color: rgba(24, 119, 242, 0.1);">
-                            <span class="value">📘</span>
-                            <span class="label" style="color: #ffffff;">Facebook</span>
+                        <div class="metric-card" style="border-bottom-color: #1877F2; background-color: rgba(255, 255, 255, 0.9); display: flex; flex-direction: column; align-items: center;">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/0/05/Facebook_Logo_%282019%29.png" class="social-card-img" alt="Facebook">
+                            <span class="label" style="color: #333;">Facebook</span>
                         </div>
                     </a>
                     <a href="https://www.tiktok.com/" target="_blank" style="text-decoration: none;">
-                        <div class="metric-card" style="border-bottom-color: #000000; background-color: rgba(0, 0, 0, 0.2);">
-                            <span class="value">🎵</span>
-                            <span class="label" style="color: #ffffff;">TikTok</span>
+                        <div class="metric-card" style="border-bottom-color: #000000; background-color: rgba(255, 255, 255, 0.9); display: flex; flex-direction: column; align-items: center;">
+                            <img src="https://upload.wikimedia.org/wikipedia/en/a/a9/TikTok_logo.svg" class="social-card-img" alt="TikTok">
+                            <span class="label" style="color: #333;">TikTok</span>
                         </div>
                     </a>
                 </div>
