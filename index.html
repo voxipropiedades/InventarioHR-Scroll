@@ -1507,6 +1507,7 @@
             btnVoice.style.display = 'none';
         }
 
+        
         // --- MÓDULO PROSPECTOS ---
         function renderProspectos() {
             const list = document.getElementById('prospectos-list');
@@ -1530,6 +1531,7 @@
                             <div>
                                 <h4 style="margin:0; color:#d32f2f;">${emojis[p.tipo] || '👤'} ${p.nombre}</h4>
                                 <p style="margin:5px 0; font-size:0.85em; color:#333;"><strong>Tipo:</strong> ${p.tipo}</p>
+                                <p style="margin:5px 0; font-size:0.85em; color:#333;"><strong>📅 Registro:</strong> ${p.fecha || 'N/A'}</p>
                                 <p style="margin:5px 0; font-size:0.85em; color:#333;"><strong>📞 Tel:</strong> ${p.tel}</p>
                                 <p style="margin:5px 0; font-size:0.8em; color:#666;">${p.notas}</p>
                             </div>
@@ -1550,7 +1552,15 @@
             if (!nombre || !tel) return alert("Por favor completa al menos el nombre y teléfono.");
 
             const pros = JSON.parse(localStorage.getItem('hr_prospectos') || '[]');
-            pros.push({ nombre, tipo, tel, notas, id: Date.now() });
+            const nuevoPros = { 
+                nombre, 
+                tipo, 
+                tel, 
+                notas, 
+                fecha: new Date().toLocaleDateString(),
+                id: Date.now() 
+            };
+            pros.push(nuevoPros);
             localStorage.setItem('hr_prospectos', JSON.stringify(pros));
             
             renderProspectos();
@@ -1569,6 +1579,7 @@
             localStorage.setItem('hr_prospectos', JSON.stringify(pros));
             renderProspectos();
         }
+
 
         function renderCitas() {
             const list = document.getElementById('citas-list');
@@ -1703,5 +1714,6 @@
     </script>
 </body>
 </html>
+
 
 
