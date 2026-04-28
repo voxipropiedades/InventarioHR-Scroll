@@ -749,11 +749,11 @@
             </div>
 
             <div class="form-group">
-                <label>FOTO VINCULADA A UBICACIÓN</label>
-                <button class="btn-capture" onclick="document.getElementById('photo-input').click()">
+                <label>FOTOS DE LA PROPIEDAD (MÁX 20)</label>
+                <button class="btn-capture" onclick="document.getElementById('photo-input').click()" style="margin-bottom:5px;">CÁMARA</button><button class="btn-capture" onclick="document.getElementById('gallery-input').click()" style="background:#455a64;">GALERÍA</button>
                     <i class="fas fa-camera"></i> TOMAR FOTO
                 </button>
-                <input type="file" id="photo-input" accept="image/*" style="display:none;">
+                <input type="file" id="photo-input" accept="image/*" capture="environment" style="display:none;"><input type="file" id="gallery-input" accept="image/*" multiple style="display:none;"><div id="photo-preview-container" style="display:flex; gap:5px; flex-wrap:wrap; margin-top:10px;"></div>
             </div>
 
             <div class="form-group">
@@ -1156,17 +1156,29 @@
         }
 
         // Manejo de foto
-        document.getElementById('photo-input').addEventListener('change', function(e) {
-            if (e.target.files && e.target.files[0]) {
+        let tempPhotos = [];
+        function handleFiles(e) {
+            const files = Array.from(e.target.files);
+            files.forEach(file => {
+                if(tempPhotos.length >= 20) return;
                 const reader = new FileReader();
-                reader.onload = function(event) {
-                    currentProperty.photo = event.target.result;
-                }
-                reader.readAsDataURL(e.target.files[0]);
-            }
-        });
+                reader.onload = (ev) => {
+                    tempPhotos.push(ev.target.result);
+                    const container = document.getElementById("photo-preview-container");
+                    if(container) {
+                       const img = document.createElement("img");
+                       img.src = ev.target.result;
+                       img.style = "width:60px;height:60px;object-fit:cover;border-radius:5px;";
+                       container.appendChild(img);
+                    }
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+        document.getElementById("photo-input").addEventListener("change", handleFiles);
+        if(document.getElementById("gallery-input")) document.getElementById("gallery-input").addEventListener("change", handleFiles);
 
-        function guardarInventario() {
+        function guardarInventario() {\n            currentProperty.photos = [...tempPhotos];
             // Capturar datos básicos
             currentProperty.tipo = document.getElementById('tipo-propiedad').value || 'Propiedad';
             currentProperty.precio = document.getElementById('precio-total').value || '0';
