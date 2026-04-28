@@ -1599,18 +1599,7 @@ function sfot(d){return d.filter(function(p){return!p.photo||p.photo==='';});}
 function sgps(d){return d.filter(function(p){return!p.gps||p.gps==='No capturado'||p.gps.trim()==='';});}
 function sdup(d){var v={},r=[];d.forEach(function(p,i){var k=(p.gps||'')+'|'+(p.precio||'')+'|'+(p.tipo||'');if(v[k]!==undefined)r.push(p);else v[k]=i;});return r;}
 
-/* ── SEED datos prueba si vacío ── */
-(function(){
-  if(!D().length){
-    localStorage.setItem('hr_inventario',JSON.stringify([
-      {tipo:'🏢 Terreno',precio:'350000',gps:'20.123,-98.456',desc:'Terreno Acayuca esquina',photo:'data:x',tel:'7711111111',creditos:['Efectivo']},
-      {tipo:'🏠 Casa',precio:'850000',gps:'20.234,-98.567',desc:'',photo:'',tel:'771',creditos:['Infonavit']},
-      {tipo:'🏢 Terreno',precio:'350000',gps:'20.123,-98.456',desc:'Terreno Acayuca esquina',photo:'data:x',tel:'7711111111',creditos:['Efectivo']},
-      {tipo:'🌾 Parcela',precio:'0',gps:'No capturado',desc:'',photo:'',tel:'',creditos:[]},
-      {tipo:'🏠 Casa',precio:'1200000',gps:'20.345,-98.678',desc:'Casa 3 recámaras zona militar',photo:'data:x',tel:'7712222222',creditos:['Bancario']}
-    ]));
-  }
-})();
+
 
 /* ── TABLERO ── */
 function iaDash(){
@@ -1769,8 +1758,8 @@ function iaAutoMsg(){
   var si=sinc(d).length,sf=sfot(d).length,sd=sdup(d).length;
   var msg;
   if(!d.length){
-    msg='👋 Hola, soy tu asistente IA.<br>Aún no hay propiedades. ¡Empieza a agregar!';
-    iaB(msg);
+    iaB('📦 No hay propiedades registradas.<br><br>Agrega tu primera propiedad usando el formulario de <b>Inventario</b>.','ib');
+    return;
   } else {
     msg='🧠 <b>Inventario analizado:</b><br>📦 <b>'+d.length+'</b> propiedades';
     if(si)msg+='<br>⚠️ <b>'+si+'</b> incompleta(s)';
