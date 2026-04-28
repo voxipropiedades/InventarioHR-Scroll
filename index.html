@@ -820,11 +820,48 @@
 
         <!-- Secciones Adicionales -->
         <section id="section-prospectos" class="app-section">
+
             <div class="card">
-                <div class="section-title"><i class="fas fa-bullseye"></i> Prospectos</div>
-                <p>Lista de prospectos militares y de contado...</p>
+                <div class="section-title"><i class="fas fa-user-plus"></i> Agregar Prospecto</div>
+                <div class="form-group">
+                    <input type="text" id="pr-nombre" placeholder="Nombre completo" style="width:100%;padding:12px;border:1.5px solid #ddd;border-radius:10px;font-size:.95em;margin-bottom:8px;outline:none;">
+                    <input type="tel" id="pr-tel" placeholder="Teléfono" style="width:100%;padding:12px;border:1.5px solid #ddd;border-radius:10px;font-size:.95em;margin-bottom:8px;outline:none;">
+                    <select id="pr-credito" style="width:100%;padding:12px;border:1.5px solid #ddd;border-radius:10px;font-size:.95em;margin-bottom:8px;outline:none;background:#fff;">
+                        <option value="">-- Tipo de crédito --</option>
+                        <option value="Efectivo">Efectivo</option>
+                        <option value="ISSFAM">ISSFAM</option>
+                        <option value="Banjercito">Banjercito</option>
+                        <option value="CFE">CFE</option>
+                        <option value="Infonavit">Infonavit</option>
+                        <option value="FOVISSSTE">FOVISSSTE</option>
+                    </select>
+                    <input type="text" id="pr-monto" placeholder="Monto disponible (ej. 850000)" style="width:100%;padding:12px;border:1.5px solid #ddd;border-radius:10px;font-size:.95em;margin-bottom:8px;outline:none;">
+                    <button class="btn-main" onclick="prGuardar()">
+                        <i class="fas fa-save"></i> GUARDAR PROSPECTO
+                    </button>
+                    <div id="pr-alerta" style="display:none;margin-top:10px;padding:10px 14px;background:#ffebee;border-left:4px solid #d32f2f;border-radius:8px;font-size:.87em;color:#b71c1c;"></div>
+                </div>
             </div>
+
+            <div id="pr-lista"></div>
+
         </section>
+
+        <style>
+        .pr-grupo{background:#fff;border-radius:14px;margin-bottom:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.1);}
+        .pr-gh{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;cursor:pointer;background:#fff;border-bottom:1px solid #f0f0f0;}
+        .pr-gh h3{margin:0;font-size:.95em;color:#d32f2f;font-weight:800;}
+        .pr-count{background:#d32f2f;color:#fff;border-radius:20px;padding:2px 10px;font-size:.75em;font-weight:700;margin-left:8px;}
+        .pr-gb{display:none;padding:10px;}
+        .pr-gb.open{display:block;}
+        .pr-card{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:#fafafa;border-radius:10px;margin-bottom:7px;border-left:4px solid #d32f2f;}
+        .pr-info .pr-nom{font-weight:700;font-size:.9em;color:#222;}
+        .pr-info .pr-det{font-size:.78em;color:#666;margin-top:2px;}
+        .pr-acts{display:flex;gap:6px;}
+        .pr-call{background:#25D366;color:#fff;border:none;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:.85em;}
+        .pr-del{background:#ffebee;color:#d32f2f;border:none;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:.85em;}
+        .pr-empty{text-align:center;padding:20px;color:#999;font-size:.88em;}
+        </style>
 
         <section id="section-contactos" class="app-section">
             <div class="card">
@@ -1832,6 +1869,85 @@ function abrirMapsDesdeInput() {
   var url = 'https://www.google.com/maps?q=' + encodeURIComponent(gps);
   window.open(url, '_blank');
 }
+
+
+/* MÓDULO PROSPECTOS */
+var PR_KEY='hr_prospectos';
+var PR_TIPOS=['Efectivo','ISSFAM','Banjercito','CFE','Infonavit','FOVISSSTE'];
+function prGet(){return JSON.parse(localStorage.getItem(PR_KEY)||'[]');}
+function prSet(d){localStorage.setItem(PR_KEY,JSON.stringify(d));}
+
+function prGuardar(){
+  var n=document.getElementById('pr-nombre').value||'';
+  var t=document.getElementById('pr-tel').value||'';
+  var c=document.getElementById('pr-credito').value||'';
+  var m=document.getElementById('pr-monto').value||'';
+  var al=document.getElementById('pr-alerta');
+  var err=[];
+  if(!n.trim())err.push('Nombre obligatorio');
+  if(!t.trim())err.push('Telefono obligatorio');
+  if(!c)err.push('Selecciona tipo de credito');
+  if(m&&isNaN(m.replace(/[$,\s]/g,'')))err.push('Monto debe ser numerico');
+  if(err.length){al.innerHTML=err.join(' &nbsp;|&nbsp; ');al.style.display='block';setTimeout(function(){al.style.display='none';},4000);return;}
+  al.style.display='none';
+  var d=prGet();
+  d.push({id:Date.now(),nombre:n.trim(),tel:t.trim(),credito:c,monto:m.replace(/[$,\s]/g,'')||'0'});
+  prSet(d);
+  document.getElementById('pr-nombre').value='';
+  document.getElementById('pr-tel').value='';
+  document.getElementById('pr-credito').value='';
+  document.getElementById('pr-monto').value='';
+  prRender();
+}
+
+function prDel(id){
+  if(!confirm('Eliminar prospecto?'))return;
+  prSet(prGet().filter(function(p){return p.id!==id;}));
+  prRender();
+}
+
+function prToggle(key){
+  var b=document.getElementById('prb-'+key);
+  if(b)b.classList.toggle('open');
+}
+
+function prRender(){
+  var lista=document.getElementById('pr-lista');
+  if(!lista)return;
+  var data=prGet();
+  if(!data.length){lista.innerHTML='<div class="card pr-empty">No hay prospectos registrados.<br>Agrega tu primer cliente arriba.</div>';return;}
+  var out='';
+  PR_TIPOS.forEach(function(tipo){
+    var g=data.filter(function(p){return p.credito===tipo;});
+    if(!g.length)return;
+    var key=tipo.replace(/\s/g,'_');
+    var items=g.map(function(p){
+      var monto=parseInt(p.monto||0).toLocaleString('es-MX');
+      return '<div class="pr-card">'
+        +'<div class="pr-info"><div class="pr-nom">'+p.nombre+'</div>'
+        +'<div class="pr-det">'+p.tel+' &nbsp;|&nbsp; $'+monto+'</div></div>'
+        +'<div class="pr-acts">'
+        +'<button class="pr-call" onclick="window.open('tel:'+p.tel+'')">📞</button>'
+        +'<button class="pr-del" onclick="prDel('+p.id+')">🗑️</button>'
+        +'</div></div>';
+    }).join('');
+    out+='<div class="pr-grupo">'
+      +'<div class="pr-gh" onclick="prToggle(''+key+'')">'
+      +'<h3>'+tipo+'<span class="pr-count">'+g.length+'</span></h3>'
+      +'<span style="color:#d32f2f;">&#9660;</span>'
+      +'</div>'
+      +'<div class="pr-gb open" id="prb-'+key+'">'+items+'</div>'
+      +'</div>';
+  });
+  lista.innerHTML=out;
+}
+
+/* Hook switchSection para re-renderizar prospectos al navegar */
+var _swOrig=window.switchSection;
+if(typeof _swOrig==='function'){
+  window.switchSection=function(s,el){_swOrig(s,el);if(s==='prospectos')prRender();};
+}
+document.addEventListener('DOMContentLoaded',function(){prRender();});
 
 /* ── INIT ── */
 function iaInit(){iaDash();setTimeout(iaAutoMsg,900);}
