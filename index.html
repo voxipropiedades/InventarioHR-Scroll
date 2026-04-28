@@ -633,7 +633,7 @@
                     <option value="">Seleccione...</option>
                     <option value="🏠 Casa">🏠 Casa</option>
                     <option value="🏢 Terreno">🏢 Terreno</option>
-                    <option value="🐄 Rancho">🐄 Rancho</option>
+                    <option value="🐄 Parcela">🐄 Parcela</option>
                     <option value="🏭 Local / Bodega">🏭 Local / Bodega</option>
                 </select>
             </div>
@@ -1009,7 +1009,7 @@
             
             if (tipo === '🏠 Casa') {
                 document.getElementById('campos-casa').style.display = 'block';
-            } else if (tipo === '🏢 Terreno' || tipo === '🐄 Rancho') {
+            } else if (tipo === '🏢 Terreno' || tipo === '🐄 Parcela') {
                 document.getElementById('campos-terreno').style.display = 'block';
             }
         }
@@ -1157,8 +1157,14 @@
             
             const terrenosEl = document.getElementById('count-terrenos');
             if (terrenosEl) {
-                const terrenos = data.filter(p => p.tipo === '🏢 Terreno' || p.tipo === '🐄 Rancho').length;
+                const terrenos = data.filter(p => p.tipo === '🏢 Terreno').length;
                 terrenosEl.innerText = terrenos;
+            }
+
+            const parcelasEl = document.getElementById('count-parcelas');
+            if (parcelasEl) {
+                const parcelas = data.filter(p => p.tipo === '🐄 Parcela').length;
+                parcelasEl.innerText = parcelas;
             }
 
             if (data.length === 0) {
