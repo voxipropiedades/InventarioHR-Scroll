@@ -528,15 +528,14 @@
 
             <!-- 3. PRÓXIMAS CITAS -->
             <div class="card">
-                <div class="section-title"><i class="fas fa-calendar-check"></i> Próximas Citas</div>
-                <div id="appointments-list">
-                    <div class="alarm-item">
-                        <div class="alarm-info">
-                            <h4>Cierre Terreno Acayuca</h4>
-                            <span>Hoy, 16:30 PM - Sr. Martínez</span>
-                        </div>
-                        <button class="btn-delete"><i class="fas fa-edit"></i></button>
-                    </div>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                    <div class="section-title" style="margin:0;"><i class="fas fa-calendar-check"></i> Próximas Citas</div>
+                    <button class="btn-main" style="margin:0; padding:5px 10px; font-size:0.8em; width:auto;" onclick="nuevaCitaShortcut()">
+                        <i class="fas fa-plus"></i> AGREGAR
+                    </button>
+                </div>
+                <div id="dashboard-citas-list">
+                    <p style="font-size:0.85em; color:#999;">Cargando citas...</p>
                 </div>
             </div>
 
@@ -719,7 +718,7 @@
                 
                 <!-- Área Total debajo de las medidas -->
                 <div class="form-group" style="background: #e3f2fd; padding: 15px; border-radius: 12px; border: 3px solid #2196f3; margin-top: 10px;">
-                    <label style="color: #0d47a1; font-weight: bold; font-size: 1em;">ÁREA TOTAL (SUMA DE LADOS)</label>
+                    <label style="color: #0d47a1; font-weight: bold; font-size: 1em;">ÁREA TOTAL (M² CALCULADOS)</label>
                     <input type="number" id="m2-totales" placeholder="0.00" oninput="calcularMetro()" style="font-size: 1.5em; font-weight: bold; color: #d32f2f; background: white; text-align: center;">
                 </div>
             </div>
@@ -854,8 +853,32 @@
 
         <section id="section-citas" class="app-section">
             <div class="card">
-                <div class="section-title"><i class="fas fa-calendar-alt"></i> Citas Programadas</div>
-                <p>Próximos cierres y visitas.</p>
+                <div class="section-title"><i class="fas fa-calendar-alt"></i> Programar Nueva Cita</div>
+                <input type="hidden" id="cita-id">
+                <div class="form-group">
+                    <label>Nombre del Cliente:</label>
+                    <input type="text" id="cita-cliente" placeholder="Ej. Juan Pérez">
+                </div>
+                <div class="form-group">
+                    <label>Fecha y Hora:</label>
+                    <input type="datetime-local" id="cita-fecha">
+                </div>
+                <div class="form-group">
+                    <label>Propiedad de Interés:</label>
+                    <input type="text" id="cita-propiedad" placeholder="Ej. Casa en Acayuca">
+                </div>
+                <div class="form-group">
+                    <label>Notas / Objetivo:</label>
+                    <textarea id="cita-notas" rows="2" placeholder="Ej. Mostrar escrituras, cierre de trato..."></textarea>
+                </div>
+                <button class="btn-main" onclick="guardarCita()">AGENDAR CITA</button>
+            </div>
+
+            <div class="card" style="margin-top: 20px;">
+                <div class="section-title"><i class="fas fa-list-ul"></i> Agenda de Citas</div>
+                <div id="citas-list">
+                    <p style="text-align:center; padding:20px; color:#666;">No hay citas programadas.</p>
+                </div>
             </div>
         </section>
 
@@ -1009,7 +1032,7 @@
             
             if (tipo === '🏠 Casa') {
                 document.getElementById('campos-casa').style.display = 'block';
-            } else if (tipo === '🏢 Terreno' || tipo === '🐄 Parcela') {
+            } else if (tipo === '🏢 Terreno' || tipo === '🌾 Parcela') {
                 document.getElementById('campos-terreno').style.display = 'block';
             }
         }
@@ -1019,20 +1042,33 @@
             const s = parseFloat(document.getElementById('m-sur').value) || 0;
             const e = parseFloat(document.getElementById('m-este').value) || 0;
             const o = parseFloat(document.getElementById('m-oeste').value) || 0;
-            // El usuario solicitó específicamente la SUMA de las 4 medidas
-            const area = n + s + e + o;
+            
+            // Cálculo de Área (Superficie) aproximada para terrenos irregulares
+            // Se usa el promedio de lados opuestos (Fórmula del Agrimensor)
+            let superficie = 0;
+            if (n > 0 && s > 0 && e > 0 && o > 0) {
+                superficie = ((n + s) / 2) * ((e + o) / 2);
+            } else if (n > 0 && e > 0) {
+                // Rectángulo simple si solo hay 2 medidas
+                superficie = n * e;
+            }
+            
             const m2Input = document.getElementById('m2-totales');
             if (m2Input) {
-                m2Input.value = area > 0 ? area.toFixed(2) : "";
+                m2Input.value = superficie > 0 ? superficie.toFixed(2) : "";
                 calcularMetro();
             }
         }
 
         function calcularMetro() {
             const total = parseFloat(document.getElementById('precio-total').value) || 0;
-            const m2 = parseFloat(document.getElementById('m2-totales').value) || 1;
-            const precioM2 = (total / m2).toFixed(2);
-            document.getElementById('precio-m2').value = `$${precioM2}`;
+            const m2 = parseFloat(document.getElementById('m2-totales').value) || 0;
+            if (m2 > 0) {
+                const precioM2 = (total / m2).toFixed(2);
+                document.getElementById('precio-m2').value = `$${precioM2}`;
+            } else {
+                document.getElementById('precio-m2').value = `$0.00`;
+            }
         }
 
         function getGPS() {
@@ -1089,20 +1125,21 @@
                 currentProperty.casaRec = document.getElementById('casa-rec').value || '';
             }
 
-            // Captura condicional Terreno
-            if (currentProperty.tipo === '🏢 Terreno') {
+            // Captura condicional Terreno / Parcela
+            if (currentProperty.tipo === '🏢 Terreno' || currentProperty.tipo === '🌾 Parcela') {
                 currentProperty.terrenoM2 = document.getElementById('terreno-m2').value || '';
                 currentProperty.terrenoProyectado = document.getElementById('terreno-proyectado-check').value || '';
                 currentProperty.terrenoM2Proy = document.getElementById('terreno-m2-proy').value || '';
             }
 
             // Verificar guardado por defecto
-            const defaultMethod = localStorage.getItem('hr_save_default');
-            if (defaultMethod) {
-                confirmSave(defaultMethod, true);
-            } else {
-                document.getElementById('modal-save').classList.add('active');
+            let defaultMethod = localStorage.getItem('hr_save_default');
+            if (!defaultMethod) {
+                // Forzar Nube por defecto en Modo Socio
+                localStorage.setItem('hr_save_default', 'nube');
+                defaultMethod = 'nube';
             }
+            confirmSave(defaultMethod, true);
         }
 
         function confirmSave(method, isDefault = false) {
@@ -1163,7 +1200,7 @@
 
             const parcelasEl = document.getElementById('count-parcelas');
             if (parcelasEl) {
-                const parcelas = data.filter(p => p.tipo === '🐄 Parcela').length;
+                const parcelas = data.filter(p => p.tipo === '🌾 Parcela').length;
                 parcelasEl.innerText = parcelas;
             }
 
@@ -1201,7 +1238,10 @@
         }
 
         // Cargar inventario al iniciar
-        document.addEventListener('DOMContentLoaded', renderInventario);
+        document.addEventListener('DOMContentLoaded', () => {
+            renderInventario();
+            renderCitas();
+        });
 
         function showToast(msg) {
             const toast = document.getElementById('toast-success');
@@ -1224,16 +1264,16 @@
                     infoExtra += `📝 *DETALLES CONST:* ${currentProperty.casaExistente}\n`;
                 }
                 infoExtra += `🏢 *PISOS:* ${currentProperty.casaPisos} | 🛏️ *REC:* ${currentProperty.casaRec}\n`;
-            } else if (currentProperty.tipo === '🏢 Terreno') {
+            } else if (currentProperty.tipo === '🏢 Terreno' || currentProperty.tipo === '🌾 Parcela') {
                 infoExtra = `📐 *M² TERRENO:* ${currentProperty.terrenoM2}\n`;
                 if (currentProperty.terrenoProyectado === 'Si') {
                     infoExtra += `🏗️ *CONST. PROYECTADA:* ${currentProperty.terrenoM2Proy} m²\n`;
                 }
             }
 
-            const texto = `🌟 *FICHA TÉCNICA - ASESORÍA INMOBILIARIA HR*\n\n` +
-                          `Hola, le comparto la información de la propiedad de su interés:\n\n` +
-                          `🏠 *TIPO:* ${currentProperty.tipo.toUpperCase()}\n` +
+            const texto = `🌟 *ASESORÍA INMOBILIARIA PROFESIONAL - HR*\n\n` +
+                          `Hola, es un gusto saludarle. Le comparto la ficha técnica de la propiedad solicitada:\n\n` +
+                          `📍 *TIPO:* ${currentProperty.tipo.toUpperCase()}\n` +
                           `💰 *PRECIO:* $${currentProperty.precio}\n\n` +
                           `${infoExtra}\n` +
                           `📏 *MEDIDAS Y COLINDANCIAS:* \n` +
@@ -1242,12 +1282,11 @@
                           `• ESTE: ${currentProperty.este}\n` +
                           `• OESTE: ${currentProperty.oeste}\n\n` +
                           `📐 *ÁREA TOTAL CALCULADA:* ${currentProperty.m2} m²\n\n` +
-                          `💳 *MÉTODOS DE PAGO / CRÉDITOS:* ${currentProperty.creditos.join(', ') || 'A convenir'}\n\n` +
-                          `📍 *UBICACIÓN GPS:* ${mapsUrl}\n\n` +
+                          `💳 *MÉTODOS DE PAGO:* ${currentProperty.creditos.join(", ") || "Efectivo / Créditos"}\n` +
+                          `🗺️ *UBICACIÓN GPS:* ${mapsUrl}\n\n` +
                           `📝 *DESCRIPCIÓN:* ${currentProperty.desc}\n\n` +
-                          `📞 *TELÉFONO DE CONTACTO:* ${currentProperty.tel}\n\n` +
-                          `_Quedo a sus órdenes para cualquier duda o para agendar una visita._\n` +
-                          `*Atentamente, su Asesor Inmobiliario HR*`;
+                          `📞 *CONTACTO:* ${currentProperty.tel}\n\n` +
+                          `¿Le gustaría agendar una cita para conocer la propiedad? Quedo a sus órdenes.`;
             
             const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(texto)}`;
             window.open(url, '_blank');
@@ -1351,6 +1390,136 @@
             };
         } else {
             btnVoice.style.display = 'none';
+        }
+        function renderCitas() {
+            const list = document.getElementById('citas-list');
+            const dashboardList = document.getElementById('dashboard-citas-list');
+            if (!list) return;
+
+            let citas = JSON.parse(localStorage.getItem('hr_citas') || '[]');
+            
+            // Asegurar que todas tengan ID
+            let changed = false;
+            citas = citas.map(c => {
+                if (!c.id) {
+                    c.id = c.timestamp || Date.now() + Math.random();
+                    changed = true;
+                }
+                return c;
+            });
+            if (changed) localStorage.setItem('hr_citas', JSON.stringify(citas));
+
+            // Ordenar por fecha
+            citas.sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
+
+            const html = citas.length === 0 
+                ? '<p style="text-align:center; padding:20px; color:#666;">No hay citas programadas.</p>'
+                : citas.map((c) => `
+                    <div class="card" style="margin-bottom:10px; border-left: 5px solid #d32f2f;">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                            <div>
+                                <h4 style="margin:0; color:#d32f2f;">${c.cliente}</h4>
+                                <p style="margin:5px 0; font-size:0.9em;"><strong>📅 Fecha:</strong> ${new Date(c.fecha).toLocaleString()}</p>
+                                <p style="margin:5px 0; font-size:0.9em;"><strong>🏠 Propiedad:</strong> ${c.propiedad}</p>
+                                <p style="margin:5px 0; font-size:0.85em; color:#666;">${c.notas}</p>
+                            </div>
+                            <div style="display:flex; gap:10px;">
+                                <button onclick="editarCita('${c.id}')" style="background:none; border:none; color:#2196F3; cursor:pointer;"><i class="fas fa-edit"></i></button>
+                                <button onclick="eliminarCita('${c.id}')" style="background:none; border:none; color:#d32f2f; cursor:pointer;"><i class="fas fa-trash"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+
+            list.innerHTML = html;
+            if (dashboardList) {
+                dashboardList.innerHTML = html === '<p style="text-align:center; padding:20px; color:#666;">No hay citas programadas.</p>' 
+                    ? '<p style="font-size:0.85em; color:#999;">Sin citas próximas.</p>' 
+                    : html;
+            }
+        }
+
+        function editarCita(id) {
+            const citas = JSON.parse(localStorage.getItem('hr_citas') || '[]');
+            const cita = citas.find(c => String(c.id) === String(id));
+            if (!cita) return;
+
+            document.getElementById('cita-id').value = cita.id;
+            document.getElementById('cita-cliente').value = cita.cliente;
+            document.getElementById('cita-fecha').value = cita.fecha;
+            document.getElementById('cita-propiedad').value = cita.propiedad;
+            document.getElementById('cita-notas').value = cita.notas;
+
+            // Hacer scroll al formulario
+            document.getElementById('section-citas').scrollTop = 0;
+            // Opcional: Cambiar texto del botón
+            document.querySelector('#section-citas .btn-main').innerText = "ACTUALIZAR CITA";
+        }
+
+        function guardarCita() {
+            const id = document.getElementById('cita-id').value;
+            const cliente = document.getElementById('cita-cliente').value;
+            const fecha = document.getElementById('cita-fecha').value;
+            const propiedad = document.getElementById('cita-propiedad').value;
+            const notas = document.getElementById('cita-notas').value;
+
+            if (!cliente || !fecha) return alert("Por favor completa nombre y fecha.");
+
+            let citas = JSON.parse(localStorage.getItem('hr_citas') || '[]');
+
+            if (id) {
+                // Editar existente
+                citas = citas.map(c => {
+                    if (String(c.id) === String(id)) {
+                        return { ...c, cliente, fecha, propiedad, notas };
+                    }
+                    return c;
+                });
+                showToast("Cita actualizada correctamente");
+            } else {
+                // Nueva cita
+                citas.push({ 
+                    id: Date.now(), 
+                    cliente, 
+                    fecha, 
+                    propiedad, 
+                    notas, 
+                    timestamp: new Date().getTime() 
+                });
+                showToast("Cita agendada correctamente");
+            }
+
+            localStorage.setItem('hr_citas', JSON.stringify(citas));
+
+            // Limpiar form
+            document.getElementById('cita-id').value = '';
+            document.getElementById('cita-cliente').value = '';
+            document.getElementById('cita-fecha').value = '';
+            document.getElementById('cita-propiedad').value = '';
+            document.getElementById('cita-notas').value = '';
+            document.querySelector('#section-citas .btn-main').innerText = "AGENDAR CITA";
+
+            renderCitas();
+        }
+
+        function eliminarCita(id) {
+            if (!confirm("¿Eliminar esta cita?")) return;
+            let citas = JSON.parse(localStorage.getItem('hr_citas') || '[]');
+            citas = citas.filter(c => String(c.id) !== String(id));
+            localStorage.setItem('hr_citas', JSON.stringify(citas));
+            renderCitas();
+        }
+
+        function nuevaCitaShortcut() {
+            // Limpiar form
+            document.getElementById('cita-id').value = '';
+            document.getElementById('cita-cliente').value = '';
+            document.getElementById('cita-fecha').value = '';
+            document.getElementById('cita-propiedad').value = '';
+            document.getElementById('cita-notas').value = '';
+            document.querySelector('#section-citas .btn-main').innerText = "AGENDAR CITA";
+            
+            switchSection('citas', document.querySelector('.nav-item[onclick*="citas"]'));
         }
     </script>
 </body>
