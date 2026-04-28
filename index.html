@@ -2,25 +2,6 @@
 <html lang="es">
 <head>
     <script>
-        (function() {
-            const CURRENT_VERSION = '2.2.0';
-            const storedVersion = localStorage.getItem('hr_app_version');
-            
-            if (storedVersion !== CURRENT_VERSION) {
-                localStorage.setItem('hr_app_version', CURRENT_VERSION);
-                // Limpiar cachés de aplicación
-                if ('serviceWorker' in navigator) {
-                    navigator.serviceWorker.getRegistrations().then(function(registrations) {
-                        for(let registration of registrations) { registration.unregister(); }
-                    });
-                }
-                // Forzar recarga completa desde el servidor
-                window.location.href = window.location.pathname + '?v=' + Date.now();
-            }
-        })();
-    </script>
-
-    <script>
         const APP_VERSION = '2.0.0';
         console.log("InventarioHR Version:", APP_VERSION);
         
@@ -33,7 +14,7 @@
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>InventarioHR</title>
+    <title>InventarioHR ✅ ACTUALIZADO</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -1089,7 +1070,7 @@
             alarms.push({ desc, time, id: Date.now() });
             localStorage.setItem('hr_alarmas', JSON.stringify(alarms));
             
-            
+            renderAlarms();
             showToast("Alarma creada correctamente");
 
             document.getElementById('alarm-desc').value = '';
@@ -1100,7 +1081,7 @@
             const alarms = JSON.parse(localStorage.getItem('hr_alarmas') || '[]');
             alarms.splice(index, 1);
             localStorage.setItem('hr_alarmas', JSON.stringify(alarms));
-            
+            renderAlarms();
         }
 </h4>
                     <span>${new Date(time).toLocaleString()}</span>
@@ -1258,9 +1239,9 @@
 
             // Actualizar lista
             renderInventario();
-            
-            
-            
+            renderAlarms();
+            renderStrategy();
+            renderProspectos();
 
             // Mostrar módulo de salida de éxito
             const mod = document.getElementById('modulo-salida');
@@ -1371,10 +1352,10 @@
         // Cargar inventario al iniciar
         document.addEventListener('DOMContentLoaded', () => {
             renderInventario();
-            
-            
-            
-            
+            renderAlarms();
+            renderStrategy();
+            renderProspectos();
+            renderCitas();
         });
 
         function showToast(msg) {
@@ -1582,7 +1563,7 @@
             pros.push(nuevoPros);
             localStorage.setItem('hr_prospectos', JSON.stringify(pros));
             
-            
+            renderProspectos();
             showToast("Prospecto registrado con éxito");
 
             // Limpiar
@@ -1596,7 +1577,7 @@
             const pros = JSON.parse(localStorage.getItem('hr_prospectos') || '[]');
             pros.splice(index, 1);
             localStorage.setItem('hr_prospectos', JSON.stringify(pros));
-            
+            renderProspectos();
         }
 
 
@@ -1708,7 +1689,7 @@
             document.getElementById('cita-notas').value = '';
             document.querySelector('#section-citas .btn-main').innerText = "AGENDAR CITA";
 
-            
+            renderCitas();
         }
 
         function eliminarCita(id) {
@@ -1716,7 +1697,7 @@
             let citas = JSON.parse(localStorage.getItem('hr_citas') || '[]');
             citas = citas.filter(c => String(c.id) !== String(id));
             localStorage.setItem('hr_citas', JSON.stringify(citas));
-            
+            renderCitas();
         }
 
         function nuevaCitaShortcut() {
@@ -1731,15 +1712,7 @@
             switchSection('citas', document.querySelector('.nav-item[onclick*="citas"]'));
         }
     </script>
-<script>
-        window.addEventListener('load', () => {
-            renderStrategy();
-            renderAlarms();
-            renderProspectos();
-            renderCitas();
-            renderInventario();
-        });
-</script></body>
+</body>
 </html>
 
 
