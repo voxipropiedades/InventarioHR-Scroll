@@ -217,6 +217,94 @@
             display: block;
         }
 
+        .add-form {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-group label {
+            font-weight: 700;
+            font-size: 0.9em;
+            color: #87CEEB;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            height: 50px;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.2);
+            background: #fff;
+            color: #333;
+            padding: 0 15px;
+            font-size: 1em;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .photo-upload {
+            border: 2px dashed rgba(255,255,255,0.3);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            background: rgba(255,255,255,0.05);
+        }
+
+        .calc-box {
+            background: rgba(135, 206, 235, 0.1);
+            padding: 15px;
+            border-radius: 12px;
+            border: 1px solid #87CEEB;
+            margin-top: 10px;
+        }
+
+        .calc-box h3 {
+            font-size: 1em;
+            margin-bottom: 10px;
+            color: #87CEEB;
+        }
+
+        .btn-gps {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            height: 50px;
+            border-radius: 8px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            cursor: pointer;
+            margin-bottom: 5px;
+        }
+
+        .cond-section {
+            display: none;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            padding-top: 15px;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .cond-section.visible {
+            display: flex;
+        }
+
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
@@ -441,7 +529,7 @@
                 <span>TABLERO</span>
             </div>
             <div class="nav-card" onclick="navigate('inventario', this)">
-                <span class="emoji">📦</span>
+                <span class="emoji">🏡</span>
                 <span>Inventario</span>
             </div>
             <div class="nav-card" onclick="navigate('prospectos', this)">
@@ -565,7 +653,122 @@
                 </div>
             </div>
             
-            <div id="inventario" class="screen"><h1>📦 Inventario</h1><div class="placeholder-card">Gestión de bienes.</div></div>
+            <div id="inventario" class="screen">
+                <h1>🏡 Inventario</h1>
+                
+                <div class="add-form">
+                    <h2 style="color: #87CEEB;">➕ AGREGAR NUEVO</h2>
+                    
+                    <!-- Fotos y Multimedia -->
+                    <div class="photo-upload" onclick="document.getElementById('photo-input').click()">
+                        <span style="font-size: 2em;">📸</span><br>
+                        <span style="font-size: 0.9em; font-weight: 700;">SUBIR / TOMAR FOTOS</span>
+                        <input type="file" id="photo-input" multiple accept="image/*" style="display:none">
+                    </div>
+
+                    <!-- GPS -->
+                    <button class="btn-gps" onclick="obtenerGPS()">
+                        📍 OBTENER UBICACIÓN GPS
+                    </button>
+                    <input type="text" id="gps-coords" placeholder="Coordenadas GPS" readonly>
+
+                    <!-- Tipo de Propiedad -->
+                    <div class="form-group">
+                        <label>TIPO DE PROPIEDAD</label>
+                        <select id="tipo-propiedad" onchange="toggleForm(this.value)">
+                            <option value="">Seleccionar...</option>
+                            <option value="casa">🏠 Casa</option>
+                            <option value="terreno">📐 Terreno</option>
+                            <option value="terreno_construir">🏗️ Terreno para construir</option>
+                            <option value="parcela">🚜 Parcela</option>
+                        </select>
+                    </div>
+
+                    <!-- CAMPOS DINÁMICOS: CASA -->
+                    <div id="campos-casa" class="cond-section">
+                        <div class="form-row">
+                            <div class="form-group"><label>PISOS</label><input type="number" placeholder="0"></div>
+                            <div class="form-group"><label>RECÁMARAS</label><input type="number" placeholder="0"></div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group"><label>BAÑOS</label><input type="number" placeholder="0"></div>
+                            <div class="form-group"><label>M² CONST.</label><input type="number" id="m2-const" placeholder="0"></div>
+                        </div>
+                        <div class="form-group">
+                            <label>CISTERNA / VENTANAS / PUERTAS</label>
+                            <textarea placeholder="Detalles de construcción..."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>MATERIAL DE PUERTAS / BARDEADO</label>
+                            <input type="text" placeholder="Ej: Madera, Herrería...">
+                        </div>
+                        <div class="form-group">
+                            <label>SERVICIOS</label>
+                            <select multiple style="height:auto;">
+                                <option>Luz</option>
+                                <option>Agua</option>
+                                <option>Drenaje / Fosa</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- CAMPOS DINÁMICOS: PARCELA -->
+                    <div id="campos-parcela" class="cond-section">
+                        <div class="form-group"><label>M² TOTALES</label><input type="number" id="m2-totales" placeholder="0" oninput="calcularPrecio()"></div>
+                        <div class="form-group"><label>DISTANCIA A SERVICIOS</label><input type="text" placeholder="Ej: 500m"></div>
+                        <div class="form-group"><label>TIPO DE DOCUMENTO</label><input type="text" placeholder="Ej: Título, Escritura"></div>
+                        <div class="form-group"><label>USO DE SUELO</label><input type="text" placeholder="Ej: Agrícola"></div>
+                    </div>
+
+                    <!-- MEDIDAS (Común) -->
+                    <div class="form-group">
+                        <label>📏 MEDIDAS Y COLINDANCIAS</label>
+                        <div class="form-row">
+                            <input type="text" placeholder="NORTE">
+                            <input type="text" placeholder="SUR">
+                        </div>
+                        <div class="form-row">
+                            <input type="text" placeholder="ESTE">
+                            <input type="text" placeholder="OESTE">
+                        </div>
+                    </div>
+
+                    <!-- CÁLCULOS -->
+                    <div class="calc-box">
+                        <h3>💰 CÁLCULOS AUTOMÁTICOS</h3>
+                        <div class="form-group">
+                            <label>PRECIO TOTAL ($)</label>
+                            <input type="number" id="precio-total" placeholder="0" oninput="calcularMetro()">
+                        </div>
+                        <div class="form-group">
+                            <label>PRECIO POR M² ($)</label>
+                            <input type="number" id="precio-metro" placeholder="0" oninput="calcularTotal()">
+                        </div>
+                        <div class="form-group" style="margin-top:10px;">
+                            <label>MARGEN DE GANANCIA (%)</label>
+                            <input type="number" id="margen-ganancia" placeholder="10">
+                        </div>
+                    </div>
+
+                    <!-- REGISTRO RÁPIDO -->
+                    <div class="add-form" style="background: rgba(255,165,0,0.1); border: 1px solid orange;">
+                        <h2 style="color: orange; font-size: 1.1em;">⚡ REGISTRO RÁPIDO</h2>
+                        <div class="form-group">
+                            <label>TELÉFONO</label>
+                            <input type="tel" placeholder="771...">
+                        </div>
+                        <div class="form-group">
+                            <label>DESCRIPCIÓN (DICTADO POR VOZ)</label>
+                            <div style="display:flex; gap:5px;">
+                                <textarea id="dictado-desc" style="flex:1;" placeholder="Pulsa micro para hablar..."></textarea>
+                                <button type="button" onclick="startVoice('dictado-desc')" style="width:50px; background:#CC2121; border:none; border-radius:8px; color:white;">🎤</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="btn-search" style="background:#4CAF50; color:white; font-size: 1.2em; margin-top:20px;">GUARDAR EN INVENTARIO</button>
+                </div>
+            </div>
             <div id="prospectos" class="screen"><h1>🎯 Prospectos</h1><div class="placeholder-card">Seguimiento de clientes.</div></div>
             <div id="contactos" class="screen"><h1>📞 Contactos</h1><div class="placeholder-card">Números de teléfono.</div></div>
             <div id="archivos" class="screen"><h1>📁 Archivos</h1><div class="placeholder-card">Documentos guardados.</div></div>
@@ -592,6 +795,49 @@
             const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
             recognition.lang = 'es-MX';
             recognition.onresult = (event) => document.getElementById('main-search').value = event.results[0][0].transcript;
+            recognition.start();
+        }
+
+        function toggleForm(tipo) {
+            document.querySelectorAll('.cond-section').forEach(s => s.classList.remove('visible'));
+            if(tipo === 'casa' || tipo === 'terreno_construir') {
+                document.getElementById('campos-casa').classList.add('visible');
+            }
+            if(tipo === 'parcela' || tipo === 'terreno' || tipo === 'terreno_construir') {
+                document.getElementById('campos-parcela').classList.add('visible');
+            }
+        }
+
+        function obtenerGPS() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition((pos) => {
+                    document.getElementById('gps-coords').value = `${pos.coords.latitude}, ${pos.coords.longitude}`;
+                }, () => alert("Error al obtener GPS. Activa permisos."));
+            }
+        }
+
+        function calcularMetro() {
+            const total = document.getElementById('precio-total').value;
+            const m2 = document.getElementById('m2-totales').value || document.getElementById('m2-const').value;
+            if(total && m2 && m2 > 0) {
+                document.getElementById('precio-metro').value = (total / m2).toFixed(2);
+            }
+        }
+
+        function calcularTotal() {
+            const metro = document.getElementById('precio-metro').value;
+            const m2 = document.getElementById('m2-totales').value || document.getElementById('m2-const').value;
+            if(metro && m2 && m2 > 0) {
+                document.getElementById('precio-total').value = (metro * m2).toFixed(2);
+            }
+        }
+
+        function startVoice(id) {
+            const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+            recognition.lang = 'es-MX';
+            recognition.onresult = (event) => {
+                document.getElementById(id).value = event.results[0][0].transcript;
+            };
             recognition.start();
         }
 
