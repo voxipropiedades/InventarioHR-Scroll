@@ -1831,21 +1831,13 @@ document.addEventListener('DOMContentLoaded',function(){
 });
 
 
-/* ── LIMPIADOR datos de prueba (ejecución única) ── */
+/* ── LIMPIADOR v2: borra datos si versión < 2 ── */
 (function(){
-  var d = JSON.parse(localStorage.getItem('hr_inventario') || '[]');
-  if (!d.length) return;
-  // Detectar si son los datos de prueba por sus valores únicos
-  var esPrueba = d.every(function(p){
-    return (
-      (p.gps === '20.123,-98.456' || p.gps === '20.234,-98.567' ||
-       p.gps === '20.345,-98.678' || p.gps === 'No capturado') &&
-      (p.tel === '7711111111' || p.tel === '7712222222' || p.tel === '771' || p.tel === '')
-    );
-  });
-  if (esPrueba) {
+  var version = localStorage.getItem('hr_version');
+  if (version !== '2') {
     localStorage.removeItem('hr_inventario');
-    console.log('[IA] Datos de prueba eliminados del localStorage');
+    localStorage.setItem('hr_version', '2');
+    console.log('[IA] Inventario reseteado a version limpia');
   }
 })();
 
