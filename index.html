@@ -1,20 +1,9 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <script>
-        const APP_VERSION = '2.0.0';
-        console.log("InventarioHR Version:", APP_VERSION);
-        
-        // Limpieza de caché si cambia la versión
-        if (localStorage.getItem('hr_version') !== APP_VERSION) {
-            localStorage.setItem('hr_version', APP_VERSION);
-            // Opcional: localStorage.clear(); // Solo si hay cambios estructurales graves
-        }
-    </script>
-
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>InventarioHR ✅ ACTUALIZADO</title>
+    <title>InventarioHR</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -827,44 +816,12 @@
         </section>
 
         <!-- Secciones Adicionales -->
-        
         <section id="section-prospectos" class="app-section">
             <div class="card">
-                <div class="section-title"><i class="fas fa-bullseye"></i> Agregar Nuevo Prospecto</div>
-                <div class="form-group">
-                    <label>Nombre del Prospecto:</label>
-                    <input type="text" id="pros-nombre" placeholder="Ej. Juan Pérez">
-                </div>
-                <div class="form-group">
-                    <label>Tipo de Crédito / Cliente:</label>
-                    <select id="pros-tipo" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ddd; background: white;">
-                        <option value="Militar">🎖️ Militar (ISSFAM)</option>
-                        <option value="Efectivo">💵 Efectivo</option>
-                        <option value="Infonavit">🏠 Infonavit</option>
-                        <option value="Fovissste">🏦 Fovissste</option>
-                        <option value="CFE">⚡ CFE</option>
-                        <option value="Bancario">💳 Bancario</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Teléfono:</label>
-                    <input type="tel" id="pros-tel" placeholder="Ej. 7711234567">
-                </div>
-                <div class="form-group">
-                    <label>Notas:</label>
-                    <textarea id="pros-notas" rows="2" placeholder="Ej. Interesado en casa de Acayuca..."></textarea>
-                </div>
-                <button class="btn-main" onclick="guardarProspecto()">REGISTRAR PROSPECTO</button>
-            </div>
-
-            <div class="card" style="margin-top: 20px;">
-                <div class="section-title"><i class="fas fa-users"></i> Lista de Prospectos</div>
-                <div id="prospectos-list">
-                    <p style="text-align:center; padding:20px; color:#666;">No hay prospectos registrados.</p>
-                </div>
+                <div class="section-title"><i class="fas fa-bullseye"></i> Prospectos</div>
+                <p>Lista de prospectos militares y de contado...</p>
             </div>
         </section>
-
 
         <section id="section-contactos" class="app-section">
             <div class="card">
@@ -1042,48 +999,17 @@
             }
         }
 
-        
-        function renderAlarms() {
-            const list = document.getElementById('alarms-list');
-            if (!list) return;
-            const alarms = JSON.parse(localStorage.getItem('hr_alarmas') || '[]');
-            
-            list.innerHTML = alarms.length === 0 
-                ? '<p style="text-align:center; padding:10px; color:#999; font-size:0.8em;">No hay alarmas activas.</p>'
-                : alarms.map((a, i) => `
-                    <div class="alarm-item">
-                        <div class="alarm-info">
-                            <h4>${a.desc}</h4>
-                            <span>${new Date(a.time).toLocaleString()}</span>
-                        </div>
-                        <button class="btn-delete" onclick="deleteAlarm(${i})"><i class="fas fa-trash"></i></button>
-                    </div>
-                `).join('');
-        }
-
         function createAlarm() {
             const desc = document.getElementById('alarm-desc').value;
             const time = document.getElementById('alarm-time').value;
             if (!desc || !time) return alert("Completa descripción y fecha.");
 
-            const alarms = JSON.parse(localStorage.getItem('hr_alarmas') || '[]');
-            alarms.push({ desc, time, id: Date.now() });
-            localStorage.setItem('hr_alarmas', JSON.stringify(alarms));
-            
-            renderAlarms();
-            showToast("Alarma creada correctamente");
-
-            document.getElementById('alarm-desc').value = '';
-            document.getElementById('alarm-time').value = '';
-        }
-
-        function deleteAlarm(index) {
-            const alarms = JSON.parse(localStorage.getItem('hr_alarmas') || '[]');
-            alarms.splice(index, 1);
-            localStorage.setItem('hr_alarmas', JSON.stringify(alarms));
-            renderAlarms();
-        }
-</h4>
+            const alarmList = document.getElementById('alarms-list');
+            const item = document.createElement('div');
+            item.className = 'alarm-item';
+            item.innerHTML = `
+                <div class="alarm-info">
+                    <h4>${desc}</h4>
                     <span>${new Date(time).toLocaleString()}</span>
                 </div>
                 <button class="btn-delete" onclick="this.parentElement.remove()"><i class="fas fa-trash"></i></button>
@@ -1239,9 +1165,6 @@
 
             // Actualizar lista
             renderInventario();
-            renderAlarms();
-            renderStrategy();
-            renderProspectos();
 
             // Mostrar módulo de salida de éxito
             const mod = document.getElementById('modulo-salida');
@@ -1252,41 +1175,6 @@
             setTimeout(() => {
                 mod.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }, 500);
-        }
-
-        
-        function renderStrategy() {
-            const panel = document.getElementById('smart-panel-content');
-            const dailyPanel = document.getElementById('socio-strategy');
-            if (!panel && !dailyPanel) return;
-
-            const strategies = [
-                { m: "La disciplina es el puente entre las metas y el éxito.", e: "Hoy enfócate en prospectos de Issfam. Tienen excelente historial de crédito." },
-                { m: "Vender no es convencer, es ayudar a tomar decisiones.", e: "Revisa tu inventario de terrenos. Hay clientes con efectivo buscando opciones seguras." },
-                { m: "El éxito inmobiliario depende de la ubicación y el seguimiento.", e: "Envía un mensaje de seguimiento a los 3 prospectos más antiguos. No los dejes enfriar." },
-                { m: "Haz un cliente, no una venta.", e: "Hoy es buen día para captar nuevas propiedades en Zapotlán. La zona está creciendo." },
-                { m: "Tu actitud determina tu altitud.", e: "Prepara tus fichas técnicas en PDF. El profesionalismo cierra tratos." },
-                { m: "No esperes el momento perfecto, tómalo y hazlo perfecto.", e: "Llama a tus leads de Fovissste. El cierre de mes es clave para trámites." },
-                { m: "La confianza se gana con honestidad.", e: "Verifica los precios por m². Asegúrate de estar competitivo en el mercado de Acayuca." }
-            ];
-
-            // Selección basada en el día del año
-            const now = new Date();
-            const start = new Date(now.getFullYear(), 0, 0);
-            const diff = now - start;
-            const oneDay = 1000 * 60 * 60 * 24;
-            const dayOfYear = Math.floor(diff / oneDay);
-            const index = dayOfYear % strategies.length;
-            const today = strategies[index];
-
-            const html = `
-                <p style="margin-bottom: 8px;"><strong>🔥 Motivación:</strong> "${today.m}"</p>
-                <hr style="border: 0; border-top: 1px solid #ffe0b2; margin: 10px 0;">
-                <p><strong>💡 Estrategia:</strong> ${today.e}</p>
-            `;
-            
-            if (panel) panel.innerHTML = html;
-            if (dailyPanel) dailyPanel.innerText = today.e;
         }
 
         function renderInventario() {
@@ -1352,9 +1240,6 @@
         // Cargar inventario al iniciar
         document.addEventListener('DOMContentLoaded', () => {
             renderInventario();
-            renderAlarms();
-            renderStrategy();
-            renderProspectos();
             renderCitas();
         });
 
@@ -1506,81 +1391,6 @@
         } else {
             btnVoice.style.display = 'none';
         }
-
-        
-        // --- MÓDULO PROSPECTOS ---
-        function renderProspectos() {
-            const list = document.getElementById('prospectos-list');
-            if (!list) return;
-            const pros = JSON.parse(localStorage.getItem('hr_prospectos') || '[]');
-            
-            const emojis = {
-                'Militar': '🎖️',
-                'Efectivo': '💵',
-                'Infonavit': '🏠',
-                'Fovissste': '🏦',
-                'CFE': '⚡',
-                'Bancario': '💳'
-            };
-
-            list.innerHTML = pros.length === 0 
-                ? '<p style="text-align:center; padding:20px; color:#666;">No hay prospectos registrados.</p>'
-                : pros.map((p, i) => `
-                    <div class="card" style="margin-bottom:10px; border-left: 5px solid #d32f2f; background: #fff;">
-                        <div style="display:flex; justify-content:space-between; align-items:center;">
-                            <div>
-                                <h4 style="margin:0; color:#d32f2f;">${emojis[p.tipo] || '👤'} ${p.nombre}</h4>
-                                <p style="margin:5px 0; font-size:0.85em; color:#333;"><strong>Tipo:</strong> ${p.tipo}</p>
-                                <p style="margin:5px 0; font-size:0.85em; color:#333;"><strong>📅 Registro:</strong> ${p.fecha || 'N/A'}</p>
-                                <p style="margin:5px 0; font-size:0.85em; color:#333;"><strong>📞 Tel:</strong> ${p.tel}</p>
-                                <p style="margin:5px 0; font-size:0.8em; color:#666;">${p.notas}</p>
-                            </div>
-                            <div style="display:flex; gap:10px;">
-                                <button onclick="eliminarProspecto(${i})" style="background:none; border:none; color:#d32f2f; cursor:pointer;"><i class="fas fa-trash"></i></button>
-                            </div>
-                        </div>
-                    </div>
-                `).join('');
-        }
-
-        function guardarProspecto() {
-            const nombre = document.getElementById('pros-nombre').value;
-            const tipo = document.getElementById('pros-tipo').value;
-            const tel = document.getElementById('pros-tel').value;
-            const notas = document.getElementById('pros-notas').value;
-
-            if (!nombre || !tel) return alert("Por favor completa al menos el nombre y teléfono.");
-
-            const pros = JSON.parse(localStorage.getItem('hr_prospectos') || '[]');
-            const nuevoPros = { 
-                nombre, 
-                tipo, 
-                tel, 
-                notas, 
-                fecha: new Date().toLocaleDateString(),
-                id: Date.now() 
-            };
-            pros.push(nuevoPros);
-            localStorage.setItem('hr_prospectos', JSON.stringify(pros));
-            
-            renderProspectos();
-            showToast("Prospecto registrado con éxito");
-
-            // Limpiar
-            document.getElementById('pros-nombre').value = '';
-            document.getElementById('pros-tel').value = '';
-            document.getElementById('pros-notas').value = '';
-        }
-
-        function eliminarProspecto(index) {
-            if (!confirm("¿Eliminar este prospecto?")) return;
-            const pros = JSON.parse(localStorage.getItem('hr_prospectos') || '[]');
-            pros.splice(index, 1);
-            localStorage.setItem('hr_prospectos', JSON.stringify(pros));
-            renderProspectos();
-        }
-
-
         function renderCitas() {
             const list = document.getElementById('citas-list');
             const dashboardList = document.getElementById('dashboard-citas-list');
@@ -1712,9 +1522,706 @@
             switchSection('citas', document.querySelector('.nav-item[onclick*="citas"]'));
         }
     </script>
+
+
+<!-- ============================================================ -->
+<!-- MÓDULO IA - INVENTARIO HR                                    -->
+<!-- PEGAR JUSTO ANTES DE </body> en tu index.html               -->
+<!-- ============================================================ -->
+
+<!-- 1. BOTÓN FLOTANTE IA -->
+<button id="btn-ia-float" onclick="toggleIAChat()" title="Asistente IA">
+  🤖
+</button>
+
+<!-- 2. CHAT IA -->
+<div id="ia-chat-container">
+  <div id="ia-chat-header">
+    <div style="display:flex; align-items:center; gap:10px;">
+      <span style="font-size:1.4em;">🤖</span>
+      <div>
+        <strong>Asistente IA</strong>
+        <div style="font-size:0.75em; opacity:0.8;">InventarioHR · Siempre activo</div>
+      </div>
+    </div>
+    <button onclick="toggleIAChat()" id="ia-close-btn">✕</button>
+  </div>
+
+  <!-- Acciones Rápidas -->
+  <div id="ia-quick-actions">
+    <button class="ia-qa-btn" onclick="iaAccion('contar')">📊 Contar</button>
+    <button class="ia-qa-btn" onclick="iaAccion('incompletos')">⚠️ Incompletos</button>
+    <button class="ia-qa-btn" onclick="iaAccion('duplicados')">🔍 Duplicados</button>
+    <button class="ia-qa-btn" onclick="iaAccion('sin_imagen')">🖼️ Sin foto</button>
+    <button class="ia-qa-btn" onclick="iaAccion('analisis')">🧠 Análisis</button>
+    <button class="ia-qa-btn" onclick="iaAccion('reporte')">📋 Reporte</button>
+  </div>
+
+  <!-- Área de mensajes -->
+  <div id="ia-messages">
+    <div class="ia-msg ia-bot">
+      👋 ¡Hola! Soy tu asistente de inventario.<br>
+      Puedo analizar propiedades, detectar errores y sugerirte acciones.<br><br>
+      <strong>¿Qué deseas hacer?</strong>
+    </div>
+  </div>
+
+  <!-- Input -->
+  <div id="ia-input-area">
+    <input type="text" id="ia-input" placeholder="Escríbeme lo que necesitas..." onkeydown="if(event.key==='Enter') iaEnviar()">
+    <button onclick="iaEnviar()" id="ia-send-btn">➤</button>
+  </div>
+</div>
+
+<!-- 3. ESTILOS IA -->
+<style>
+  #btn-ia-float {
+    position: fixed;
+    bottom: 25px;
+    right: 20px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #d32f2f, #b71c1c);
+    border: none;
+    font-size: 1.6em;
+    cursor: pointer;
+    z-index: 9000;
+    box-shadow: 0 4px 20px rgba(211,47,47,0.5);
+    transition: transform 0.2s, box-shadow 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: pulse-ia 2.5s infinite;
+  }
+  #btn-ia-float:hover { transform: scale(1.1); }
+  @keyframes pulse-ia {
+    0%,100% { box-shadow: 0 4px 20px rgba(211,47,47,0.5); }
+    50%      { box-shadow: 0 4px 32px rgba(211,47,47,0.9); }
+  }
+  #ia-chat-container {
+    display: none;
+    position: fixed;
+    bottom: 95px;
+    right: 15px;
+    width: 340px;
+    max-height: 530px;
+    background: #fff;
+    border-radius: 20px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+    z-index: 9001;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  #ia-chat-container.open { display: flex; animation: slideUpChat 0.3s ease-out; }
+  @keyframes slideUpChat {
+    from { opacity:0; transform:translateY(20px); }
+    to   { opacity:1; transform:translateY(0); }
+  }
+  #ia-chat-header {
+    background: linear-gradient(135deg, #d32f2f, #b71c1c);
+    color: white;
+    padding: 14px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  #ia-close-btn {
+    background: rgba(255,255,255,0.2);
+    border: none;
+    color: white;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 0.9em;
+  }
+  #ia-quick-actions {
+    padding: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    background: #fafafa;
+    border-bottom: 1px solid #eee;
+  }
+  .ia-qa-btn {
+    background: #fff;
+    border: 1.5px solid #d32f2f;
+    color: #d32f2f;
+    padding: 5px 9px;
+    border-radius: 20px;
+    font-size: 0.72em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .ia-qa-btn:hover { background: #d32f2f; color: white; }
+  #ia-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-height: 160px;
+    max-height: 270px;
+    background: #f5f5f5;
+  }
+  .ia-msg {
+    max-width: 92%;
+    padding: 10px 13px;
+    border-radius: 15px;
+    font-size: 0.84em;
+    line-height: 1.5;
+    word-break: break-word;
+  }
+  .ia-bot   { background:#fff; color:#333; border:1px solid #e0e0e0; align-self:flex-start; border-bottom-left-radius:4px; }
+  .ia-user  { background:#d32f2f; color:white; align-self:flex-end; border-bottom-right-radius:4px; }
+  .ia-typing{ background:#fff; color:#999; font-style:italic; border:1px dashed #ddd; align-self:flex-start; }
+  .ia-alerta{ background:#fff3e0; border-left:4px solid #e65100; color:#333; align-self:flex-start; }
+  .ia-ok    { background:#e8f5e9; border-left:4px solid #2e7d32; color:#333; align-self:flex-start; }
+  .ia-error { background:#ffebee; border-left:4px solid #c62828; color:#333; align-self:flex-start; }
+  #ia-input-area {
+    display: flex;
+    padding: 10px;
+    gap: 8px;
+    background: white;
+    border-top: 1px solid #eee;
+  }
+  #ia-input {
+    flex: 1;
+    padding: 9px 14px;
+    border: 1.5px solid #e0e0e0;
+    border-radius: 25px;
+    font-size: 0.88em;
+    outline: none;
+  }
+  #ia-input:focus { border-color: #d32f2f; }
+  #ia-send-btn {
+    background: #d32f2f;
+    color: white;
+    border: none;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1em;
+  }
+</style>
+
+<!-- 4. JAVASCRIPT IA -->
+<script>
+function toggleIAChat() {
+  var chat = document.getElementById('ia-chat-container');
+  chat.classList.toggle('open');
+  if (chat.classList.contains('open')) {
+    document.getElementById('ia-input').focus();
+    iaScrollBottom();
+  }
+}
+
+function iaEnviar() {
+  var input = document.getElementById('ia-input');
+  var texto = input.value.trim();
+  if (!texto) return;
+  iaMsgUsuario(texto);
+  input.value = '';
+  iaResponder(texto.toLowerCase());
+}
+
+function iaAccion(accion) {
+  var labels = {
+    contar:      '📊 Contar propiedades',
+    incompletos: '⚠️ Ver incompletos',
+    duplicados:  '🔍 Detectar duplicados',
+    sin_imagen:  '🖼️ Ver sin imagen',
+    analisis:    '🧠 Análisis completo',
+    reporte:     '📋 Generar reporte'
+  };
+  iaMsgUsuario(labels[accion] || accion);
+  iaResponder(accion);
+}
+
+function iaResponder(texto) {
+  iaShowTyping();
+  setTimeout(function() {
+    iaRemoveTyping();
+    var data = getInventario();
+
+    if (texto.includes('contar') || texto.includes('cu') || texto.includes('total')) {
+      iaContarPropiedades(data);
+    } else if (texto.includes('incompleto') || texto.includes('falt') || texto.includes('vac')) {
+      iaVerIncompletos(data);
+    } else if (texto.includes('duplicado') || texto.includes('repetido')) {
+      iaDetectarDuplicados(data);
+    } else if (texto.includes('sin_imagen') || texto.includes('imagen') || texto.includes('foto')) {
+      iaSinImagen(data);
+    } else if (texto.includes('analisis') || texto === '🧠 análisis completo' || texto.includes('analiz')) {
+      iaAnalisisCompleto(data);
+    } else if (texto.includes('reporte') || texto.includes('informe') || texto.includes('resumen')) {
+      iaGenerarReporte(data);
+    } else if (texto.includes('precio') || texto.includes('caro') || texto.includes('barato')) {
+      iaPrecio(data);
+    } else if (texto.includes('gps') || texto.includes('ubicaci')) {
+      iaSinGPS(data);
+    } else if (texto.includes('disponible') || texto.includes('vender')) {
+      iaMsgBot('📦 Tienes <strong>' + data.length + '</strong> propiedades en inventario. Todas disponibles.', 'ia-ok');
+    } else if (texto.includes('hola') || texto.includes('buenos') || texto.includes('hi')) {
+      iaMsgBot('👋 ¡Hola! Listo para analizar tu inventario. Usa los botones de arriba o escríbeme.');
+    } else if (texto.includes('ayuda') || texto.includes('puedes')) {
+      iaMsgBot('🤖 <strong>Mis funciones:</strong><br>📊 Contar propiedades<br>⚠️ Detectar incompletos<br>🔍 Duplicados<br>🖼️ Sin foto<br>📋 Reporte<br>💰 Análisis de precios<br>📍 Sin GPS');
+    } else {
+      iaMsgBot('No reconocí esa consulta. Prueba: <strong>contar, incompletos, duplicados, foto, precio, reporte, análisis</strong>.');
+    }
+    iaScrollBottom();
+  }, 650);
+}
+
+/* ── FUNCIONES INTELIGENTES ── */
+
+function iaContarPropiedades(data) {
+  if (!data.length) { iaMsgBot('📦 El inventario está vacío.', 'ia-alerta'); return; }
+  var tipos = {};
+  data.forEach(function(p) { var t = p.tipo || 'Sin tipo'; tipos[t] = (tipos[t] || 0) + 1; });
+  var detalle = Object.keys(tipos).map(function(k){ return '• ' + k + ': <strong>' + tipos[k] + '</strong>'; }).join('<br>');
+  iaMsgBot('📊 <strong>Total: ' + data.length + ' propiedades</strong><br><br>' + detalle, 'ia-ok');
+}
+
+function iaVerIncompletos(data) {
+  if (!data.length) { iaMsgBot('📦 Inventario vacío.', 'ia-alerta'); return; }
+  var problemas = [];
+  data.forEach(function(p, i) {
+    var issues = [];
+    if (!p.tipo || p.tipo === '') issues.push('sin tipo');
+    if (!p.precio || p.precio === '0' || p.precio === '') issues.push('sin precio');
+    if (!p.gps || p.gps === 'No capturado' || p.gps === '') issues.push('sin GPS');
+    if (!p.desc || p.desc.trim() === '') issues.push('sin descripción');
+    if (!p.photo || p.photo === '') issues.push('sin foto');
+    if (!p.tel || p.tel === '771' || p.tel === '') issues.push('teléfono incompleto');
+    if (issues.length) {
+      problemas.push('• <strong>' + (p.tipo || 'Propiedad #' + (i+1)) + '</strong>: ' + issues.join(', '));
+    }
+  });
+  if (!problemas.length) {
+    iaMsgBot('✅ Todos los registros están completos.', 'ia-ok');
+  } else {
+    iaMsgBot('⚠️ <strong>' + problemas.length + ' registro(s) incompleto(s):</strong><br><br>' + problemas.join('<br>'), 'ia-alerta');
+  }
+}
+
+function iaDetectarDuplicados(data) {
+  if (!data.length) { iaMsgBot('📦 Inventario vacío.', 'ia-alerta'); return; }
+  var vistos = {};
+  var duplicados = [];
+  data.forEach(function(p, i) {
+    var key = (p.gps || '') + '|' + (p.precio || '') + '|' + (p.tipo || '');
+    if (vistos[key] !== undefined) {
+      duplicados.push('• <strong>' + (p.tipo || 'Propiedad') + '</strong> — registros ' + (vistos[key]+1) + ' y ' + (i+1) + ' con mismo GPS/precio/tipo');
+    } else { vistos[key] = i; }
+  });
+  if (!duplicados.length) {
+    iaMsgBot('✅ No se detectaron duplicados.', 'ia-ok');
+  } else {
+    iaMsgBot('🔍 <strong>' + duplicados.length + ' posible(s) duplicado(s):</strong><br><br>' + duplicados.join('<br>'), 'ia-error');
+  }
+}
+
+function iaSinImagen(data) {
+  if (!data.length) { iaMsgBot('📦 Inventario vacío.', 'ia-alerta'); return; }
+  var sinFoto = data.filter(function(p){ return !p.photo || p.photo === ''; });
+  if (!sinFoto.length) {
+    iaMsgBot('✅ Todas las propiedades tienen foto.', 'ia-ok');
+  } else {
+    var lista = sinFoto.map(function(p){ return '• ' + (p.tipo || 'Propiedad') + ' — $' + (p.precio || 'sin precio'); }).join('<br>');
+    iaMsgBot('🖼️ <strong>' + sinFoto.length + ' sin foto:</strong><br><br>' + lista + '<br><br>💡 Las fotos aumentan el interés de los clientes.', 'ia-alerta');
+  }
+}
+
+function iaSinGPS(data) {
+  if (!data.length) { iaMsgBot('📦 Inventario vacío.', 'ia-alerta'); return; }
+  var sinGps = data.filter(function(p){ return !p.gps || p.gps === 'No capturado' || p.gps.trim() === ''; });
+  if (!sinGps.length) {
+    iaMsgBot('✅ Todas las propiedades tienen GPS.', 'ia-ok');
+  } else {
+    var lista = sinGps.map(function(p){ return '• ' + (p.tipo||'Propiedad') + ' — $' + (p.precio||'sin precio'); }).join('<br>');
+    iaMsgBot('📍 <strong>' + sinGps.length + ' sin GPS:</strong><br><br>' + lista, 'ia-alerta');
+  }
+}
+
+function iaPrecio(data) {
+  if (!data.length) { iaMsgBot('📦 Inventario vacío.', 'ia-alerta'); return; }
+  var precios = data.map(function(p){ return parseFloat(p.precio) || 0; }).filter(function(v){ return v > 0; });
+  if (!precios.length) { iaMsgBot('⚠️ Ninguna propiedad tiene precio registrado.', 'ia-alerta'); return; }
+  var min = Math.min.apply(null, precios);
+  var max = Math.max.apply(null, precios);
+  var prom = (precios.reduce(function(a,b){ return a+b; }, 0) / precios.length).toFixed(0);
+  var sinPrecio = data.filter(function(p){ return !p.precio || p.precio === '0'; }).length;
+  iaMsgBot('💰 <strong>Análisis de precios:</strong><br><br>• Mínimo: <strong>$' + min.toLocaleString() + '</strong><br>• Máximo: <strong>$' + max.toLocaleString() + '</strong><br>• Promedio: <strong>$' + parseFloat(prom).toLocaleString() + '</strong><br>• Sin precio: <strong>' + sinPrecio + '</strong>', 'ia-ok');
+}
+
+function iaAnalisisCompleto(data) {
+  if (!data.length) {
+    iaMsgBot('📦 El inventario está vacío. Agrega propiedades para analizar.', 'ia-alerta');
+    return;
+  }
+  var total = data.length;
+  var sinFoto   = data.filter(function(p){ return !p.photo || p.photo === ''; }).length;
+  var sinGps    = data.filter(function(p){ return !p.gps || p.gps === 'No capturado'; }).length;
+  var sinDesc   = data.filter(function(p){ return !p.desc || p.desc.trim() === ''; }).length;
+  var sinPrecio = data.filter(function(p){ return !p.precio || p.precio === '0'; }).length;
+  var vistos = {}; var dupCount = 0;
+  data.forEach(function(p,i){
+    var key = (p.gps||'')+'|'+(p.precio||'')+'|'+(p.tipo||'');
+    if(vistos[key] !== undefined) dupCount++; else vistos[key]=i;
+  });
+  var score = 100;
+  score -= (sinFoto/total)*25;
+  score -= (sinGps/total)*25;
+  score -= (sinDesc/total)*20;
+  score -= (sinPrecio/total)*20;
+  score -= dupCount*5;
+  score = Math.max(0, Math.round(score));
+  var emoji = score >= 80 ? '🟢' : score >= 50 ? '🟡' : '🔴';
+  var tipo = score >= 80 ? 'ia-ok' : score >= 50 ? 'ia-alerta' : 'ia-error';
+  var tip = score < 80 ? '💡 <em>Completa los datos faltantes para mejorar tus ventas.</em>' : '✅ <em>Inventario en buen estado.</em>';
+  iaMsgBot('🧠 <strong>Análisis Completo</strong><br><br>📦 Total: <strong>' + total + '</strong><br>🖼️ Sin foto: <strong>' + sinFoto + '</strong><br>📍 Sin GPS: <strong>' + sinGps + '</strong><br>📝 Sin descripción: <strong>' + sinDesc + '</strong><br>💰 Sin precio: <strong>' + sinPrecio + '</strong><br>🔁 Duplicados: <strong>' + dupCount + '</strong><br><br>' + emoji + ' <strong>Salud: ' + score + '/100</strong><br><br>' + tip, tipo);
+}
+
+function iaGenerarReporte(data) {
+  if (!data.length) { iaMsgBot('📦 Inventario vacío.', 'ia-alerta'); return; }
+  var tipos = {};
+  data.forEach(function(p){ var t=p.tipo||'Sin tipo'; tipos[t]=(tipos[t]||0)+1; });
+  var tiposStr = Object.keys(tipos).map(function(k){ return k+': '+tipos[k]; }).join(' | ');
+  var fecha = new Date().toLocaleDateString('es-MX',{day:'2-digit',month:'long',year:'numeric'});
+  var sinFoto   = data.filter(function(p){ return !p.photo||p.photo===''; }).length;
+  var sinGps    = data.filter(function(p){ return !p.gps||p.gps==='No capturado'; }).length;
+  var sinDesc   = data.filter(function(p){ return !p.desc||p.desc.trim()===''; }).length;
+  var sinPrecio = data.filter(function(p){ return !p.precio||p.precio==='0'; }).length;
+  var reporte = "REPORTE INVENTARIO HR\nFecha: "+fecha+"\n"+Array(30).join("-")+"\nTotal: "+data.length+"\n"+tiposStr+"\n"+Array(30).join("-")+"\nSin foto: "+sinFoto+"\nSin GPS: "+sinGps+"\nSin descripcion: "+sinDesc+"\nSin precio: "+sinPrecio+"\n"+Array(30).join("-")+"\nGenerado por Asistente IA · HR";
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(reporte).catch(function(){});
+  }
+  iaMsgBot('📋 <strong>Reporte generado</strong> (copiado al portapapeles):<br><br><pre style="font-size:0.73em;background:#f5f5f5;padding:8px;border-radius:8px;white-space:pre-wrap;overflow-x:auto;">'+reporte+'</pre>', 'ia-ok');
+}
+
+/* ── UTILIDADES ── */
+function getInventario() { return JSON.parse(localStorage.getItem('hr_inventario') || '[]'); }
+
+function iaMsgBot(html, clase) {
+  clase = clase || 'ia-bot';
+  var msgs = document.getElementById('ia-messages');
+  var div = document.createElement('div');
+  div.className = 'ia-msg ' + clase;
+  div.innerHTML = html;
+  msgs.appendChild(div);
+  iaScrollBottom();
+}
+
+function iaMsgUsuario(texto) {
+  var msgs = document.getElementById('ia-messages');
+  var div = document.createElement('div');
+  div.className = 'ia-msg ia-user';
+  div.textContent = texto;
+  msgs.appendChild(div);
+  iaScrollBottom();
+}
+
+function iaShowTyping() {
+  var msgs = document.getElementById('ia-messages');
+  var div = document.createElement('div');
+  div.className = 'ia-msg ia-typing';
+  div.id = 'ia-typing-indicator';
+  div.innerHTML = '⏳ Analizando...';
+  msgs.appendChild(div);
+  iaScrollBottom();
+}
+
+function iaRemoveTyping() {
+  var el = document.getElementById('ia-typing-indicator');
+  if (el) el.remove();
+}
+
+function iaScrollBottom() {
+  var msgs = document.getElementById('ia-messages');
+  msgs.scrollTop = msgs.scrollHeight;
+}
+</script>
+
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- MÓDULO EXTRA: TABLERO + VALIDACIÓN + DATOS PRUEBA  -->
+<!-- PEGAR JUSTO ANTES DE </body>                       -->
+<!-- ═══════════════════════════════════════════════════ -->
+<style>
+#ia-dashboard-panel{background:#fff;border-radius:15px;padding:15px;margin-bottom:15px;box-shadow:0 2px 10px rgba(0,0,0,.12);}
+.ia-db-title{color:#d32f2f;font-weight:800;font-size:1em;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.ia-db-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+.ia-db-card{border-radius:12px;padding:12px 8px;text-align:center;color:#fff;}
+.ia-db-rojo{background:linear-gradient(135deg,#d32f2f,#b71c1c);}
+.ia-db-naranja{background:linear-gradient(135deg,#f57c00,#e65100);}
+.ia-db-gris{background:linear-gradient(135deg,#546e7a,#37474f);}
+.ia-db-num{font-size:1.8em;font-weight:900;line-height:1;}
+.ia-db-label{font-size:.65em;opacity:.9;margin-top:4px;}
+.ia-db-refresh{background:#d32f2f;color:#fff;border:none;padding:8px 18px;border-radius:25px;font-size:.8em;font-weight:700;cursor:pointer;margin-top:12px;width:100%;}
+</style>
+
+<script>
+/* ── DATOS DE PRUEBA si inventario vacío ── */
+(function seedIfEmpty(){
+  var d = JSON.parse(localStorage.getItem('hr_inventario')||'[]');
+  if (d.length === 0) {
+    var prueba = [
+      {tipo:'🏢 Terreno', precio:'350000', gps:'20.1234,-98.5678', desc:'Terreno esquinero Acayuca', photo:'data:image/gif;base64,R0lGOD', tel:'7711234567', creditos:['Efectivo'], timestamp: Date.now()-86400000},
+      {tipo:'🏠 Casa',    precio:'850000', gps:'20.2345,-98.6789', desc:'',                          photo:'',                                                tel:'771',       creditos:['Infonavit'],          timestamp: Date.now()-172800000},
+      {tipo:'🏢 Terreno', precio:'350000', gps:'20.1234,-98.5678', desc:'Terreno esquinero Acayuca', photo:'data:image/gif;base64,R0lGOD', tel:'7711234567', creditos:['Efectivo'], timestamp: Date.now()-259200000},
+      {tipo:'🌾 Parcela', precio:'0',      gps:'No capturado',     desc:'',                          photo:'',                                                tel:'',          creditos:[],                     timestamp: Date.now()-345600000},
+      {tipo:'🏠 Casa',    precio:'1200000',gps:'20.3456,-98.7890', desc:'Casa 3 recamaras zona militar', photo:'data:image/gif;base64,R0lGOD', tel:'7719876543', creditos:['Bancario','Infonavit'], timestamp: Date.now()}
+    ];
+    localStorage.setItem('hr_inventario', JSON.stringify(prueba));
+    console.log('[IA] Datos de prueba cargados (5 propiedades)');
+  }
+})();
+
+/* ── TABLERO: INYECTAR INDICADORES ── */
+function iaInyectarTablero() {
+  var sec = document.getElementById('section-tablero');
+  if (!sec || document.getElementById('ia-dashboard-panel')) return;
+  var firstCard = sec.querySelector('.card');
+  var panel = document.createElement('div');
+  panel.id = 'ia-dashboard-panel';
+  panel.innerHTML =
+    '<div class="ia-db-title">📊 Resumen del Inventario</div>'+
+    '<div class="ia-db-grid">'+
+      '<div class="ia-db-card ia-db-rojo"><div class="ia-db-num" id="ia-db-total">–</div><div class="ia-db-label">Total</div></div>'+
+      '<div class="ia-db-card ia-db-naranja"><div class="ia-db-num" id="ia-db-incomp">–</div><div class="ia-db-label">Incompletos</div></div>'+
+      '<div class="ia-db-card ia-db-gris"><div class="ia-db-num" id="ia-db-sfoto">–</div><div class="ia-db-label">Sin foto</div></div>'+
+    '</div>'+
+    '<button class="ia-db-refresh" onclick="iaActualizarTablero()">🔄 Actualizar indicadores</button>';
+  if (firstCard) sec.insertBefore(panel, firstCard);
+  else sec.appendChild(panel);
+  iaActualizarTablero();
+}
+
+function iaActualizarTablero() {
+  var d = JSON.parse(localStorage.getItem('hr_inventario')||'[]');
+  var incomp = d.filter(function(p){
+    return (!p.precio||p.precio==='0') || (!p.gps||p.gps==='No capturado') || (!p.photo||p.photo==='') || (!p.desc||p.desc.trim()==='') || (!p.tel||p.tel==='771'||p.tel==='');
+  }).length;
+  var sfoto = d.filter(function(p){return !p.photo||p.photo==='';}).length;
+  var t = document.getElementById('ia-db-total');
+  var c = document.getElementById('ia-db-incomp');
+  var s = document.getElementById('ia-db-sfoto');
+  if(t) t.textContent = d.length;
+  if(c) c.textContent = incomp;
+  if(s) s.textContent = sfoto;
+}
+
+/* ── VALIDACIÓN AL GUARDAR ── */
+window.addEventListener('load', function(){
+  var btnGuardar = document.querySelector('button[onclick="guardarInventario()"]');
+  if (btnGuardar) {
+    btnGuardar.removeAttribute('onclick');
+    btnGuardar.addEventListener('click', function(e){
+      e.preventDefault();
+      iaValidarYGuardar();
+    });
+  }
+});
+
+function iaValidarYGuardar() {
+  var tipo   = document.getElementById('tipo-propiedad') ? document.getElementById('tipo-propiedad').value : '';
+  var precio = document.getElementById('precio-total')   ? document.getElementById('precio-total').value   : '';
+  var gps    = document.getElementById('gps-coords')     ? document.getElementById('gps-coords').value     : '';
+  var telEl  = document.querySelector('input[type="tel"]');
+  var tel    = telEl ? telEl.value : '';
+
+  var errores = [];
+  if (!tipo || tipo.trim()==='')                                errores.push('• Tipo de propiedad');
+  if (!precio || precio==='0' || precio.trim()==='')            errores.push('• Precio total');
+  if (!gps || gps.trim()==='' || gps==='Coordenadas GPS')       errores.push('• Ubicación GPS');
+  if (!tel || tel.trim()==='' || tel==='771')                   errores.push('• Teléfono de contacto');
+
+  if (errores.length > 0) {
+    iaShowAlert(errores);
+    return;
+  }
+
+  // Ejecutar guardado original
+  if (typeof guardarInventario === 'function') {
+    guardarInventario();
+    setTimeout(iaActualizarTablero, 400);
+  }
+}
+
+function iaShowAlert(errores) {
+  var old = document.getElementById('ia-val-alert');
+  if (old) old.remove();
+  var div = document.createElement('div');
+  div.id = 'ia-val-alert';
+  div.style.cssText = 'position:fixed;top:80px;left:50%;transform:translateX(-50%);background:#fff;border:2px solid #d32f2f;border-radius:15px;padding:20px;z-index:9999;max-width:310px;width:90%;box-shadow:0 8px 30px rgba(0,0,0,.3);text-align:left;';
+  div.innerHTML =
+    '<div style="color:#d32f2f;font-weight:800;margin-bottom:8px;">⚠️ Datos obligatorios faltantes</div>'+
+    '<div style="font-size:.88em;color:#555;line-height:1.8;">'+errores.join('<br>')+'</div>'+
+    '<button onclick="document.getElementById(\'ia-val-alert\').remove()" style="margin-top:14px;width:100%;background:#d32f2f;color:#fff;border:none;padding:10px;border-radius:10px;font-weight:700;cursor:pointer;">Entendido, voy a completarlo</button>';
+  document.body.appendChild(div);
+  setTimeout(function(){ var a=document.getElementById('ia-val-alert'); if(a) a.remove(); }, 6000);
+}
+
+/* ── INIT ── */
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', iaInyectarTablero);
+} else {
+  iaInyectarTablero();
+}
+</script>
+
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- 🧠 AUTO-FIX ENGINE PRO v2 — InventarioHR                  -->
+<!-- PEGAR JUSTO ANTES DE </body>                               -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<script>
+(function(){
+  console.log("🧠 IA Auto-Fix Engine iniciando...");
+
+  /* ── 1. HELPERS DE DATOS ── */
+  function getData(){
+    return JSON.parse(localStorage.getItem("hr_inventario") || "[]");
+  }
+
+  /* ── 2. ALIAS UNIFICADO DE MENSAJE BOT ──
+     El módulo IA usa iaMsgBot(). 
+     Creamos iaMsgB() como alias para compatibilidad total. */
+  window.iaMsgB = window.iaMsgB || function(html, cls){
+    if(typeof iaMsgBot === 'function') iaMsgBot(html, cls || 'ia-bot');
+    else console.log('[IA]', html);
+  };
+
+  /* ── 3. FUNCIONES NORMALIZADAS ──
+     Si el módulo IA ya las define, usamos las suyas.
+     Si no, las creamos aquí como fallback. */
+  window.iaIncompletos = window.iaIncompletos || function(d){
+    return d.filter(function(p){
+      return !p.tipo || !p.precio || p.precio === "0" ||
+             !p.gps  || p.gps === "No capturado" ||
+             !p.photo || p.photo === "" ||
+             !p.desc || p.desc.trim() === "";
+    });
+  };
+
+  window.iaSinFoto = window.iaSinFoto || function(d){
+    return d.filter(function(p){ return !p.photo || p.photo === ""; });
+  };
+
+  window.iaDuplicados = window.iaDuplicados || function(d){
+    var seen = {}, dup = [];
+    d.forEach(function(p, i){
+      var key = (p.gps||"") + "|" + (p.precio||"") + "|" + (p.tipo||"");
+      if(seen[key] !== undefined) dup.push(p);
+      else seen[key] = i;
+    });
+    return dup;
+  };
+
+  /* ── 4. AUTO-CORRECCIÓN DE DATOS ──
+     Normaliza campos nulos/undefined sin borrar datos válidos. */
+  function autoFixData(){
+    var data = getData();
+    if(!data.length) return;
+
+    var changed = false;
+    data = data.map(function(p){
+      var fixed = {
+        tipo:      p.tipo      || "Sin tipo",
+        precio:    p.precio    || "0",
+        gps:       p.gps       || "No capturado",
+        photo:     p.photo     || "",
+        desc:      p.desc      || "",
+        tel:       p.tel       || "",
+        creditos:  p.creditos  || [],
+        timestamp: p.timestamp || Date.now()
+      };
+      // Detectar si hubo cambio real
+      if(JSON.stringify(fixed) !== JSON.stringify(p)) changed = true;
+      return fixed;
+    });
+
+    if(changed){
+      localStorage.setItem("hr_inventario", JSON.stringify(data));
+      console.log("🔧 Auto-Fix: datos normalizados");
+    }
+  }
+
+  /* ── 5. AUTO-ANÁLISIS AL CARGAR ──
+     Muestra mensaje en el chat IA automáticamente. */
+  function autoAnalyze(){
+    var d = getData();
+    if(!d.length){
+      window.iaMsgB('👋 ¡Hola! Aún no tienes propiedades guardadas.<br>Empieza a agregar y te ayudo a mantener el inventario limpio.', 'ia-bot');
+      return;
+    }
+
+    var inc  = window.iaIncompletos(d).length;
+    var sinF = window.iaSinFoto(d).length;
+    var dup  = window.iaDuplicados(d).length;
+
+    console.log("📊 IA Análisis:", { total: d.length, incompletos: inc, sinFoto: sinF, duplicados: dup });
+
+    // Construir mensaje inteligente
+    var msg = '🧠 <b>Inventario analizado:</b><br>'
+            + '📦 <b>' + d.length + '</b> propiedades<br>';
+
+    if(inc  > 0) msg += '⚠️ <b>' + inc  + '</b> incompleta(s)<br>';
+    if(sinF > 0) msg += '🖼️ <b>' + sinF + '</b> sin foto<br>';
+    if(dup  > 0) msg += '🔁 <b>' + dup  + '</b> posible(s) duplicado(s)<br>';
+
+    if(inc === 0 && sinF === 0 && dup === 0){
+      msg += '✅ <b>Todo en orden.</b>';
+      window.iaMsgB(msg, 'ia-ok');
+    } else {
+      msg += '<br>👉 Pulsa <b>Análisis</b> para ver detalles.';
+      window.iaMsgB(msg, 'ia-alerta');
+    }
+
+    // Actualizar tablero si existe
+    if(typeof iaActualizarTablero === 'function') iaActualizarTablero();
+  }
+
+  /* ── 6. ALERTAS INTELIGENTES EN CONSOLA ── */
+  function autoAlerts(){
+    var d = getData();
+    if(!d.length) return;
+    var inc = window.iaIncompletos(d).length;
+    var dup = window.iaDuplicados(d).length;
+    if(inc > 0) console.warn("⚠️ " + inc + " propiedad(es) con datos incompletos");
+    if(dup > 0) console.warn("🔁 " + dup + " posible(s) duplicado(s) detectado(s)");
+  }
+
+  /* ── 7. HOOK: actualizar tablero al guardar ──
+     Se ejecuta después de cada guardarInventario(). */
+  var _originalGuardar = window.guardarInventario;
+  if(typeof _originalGuardar === 'function'){
+    window.guardarInventario = function(){
+      _originalGuardar.apply(this, arguments);
+      setTimeout(function(){
+        if(typeof iaActualizarTablero === 'function') iaActualizarTablero();
+      }, 500);
+    };
+  }
+
+  /* ── 8. ARRANQUE ── */
+  window.addEventListener("load", function(){
+    setTimeout(function(){
+      autoFixData();
+      autoAnalyze();
+      autoAlerts();
+    }, 1200);
+  });
+
+  console.log("✅ Auto-Fix Engine listo");
+})();
+</script>
+
+
 </body>
 </html>
-
-
-
-
