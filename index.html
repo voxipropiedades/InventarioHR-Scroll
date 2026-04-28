@@ -31,278 +31,189 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
             position: sticky;
             top: 0;
             z-index: 1000;
         }
 
-        .app-title {
-            font-size: 1.5em;
+        .logo-area {
+            font-size: 1.4em;
             font-weight: 800;
-            color: #87CEEB; /* Azul cielo brillante */
-            text-transform: uppercase;
             letter-spacing: 1px;
-        }
-
-        /* --- NAVEGACIÓN HORIZONTAL --- */
-        .nav-wrapper {
-            background-color: #d32f2f;
-            padding: 15px 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            position: sticky;
-            top: 60px; /* Debajo del header */
-            z-index: 999;
-        }
-
-        .nav-scroll {
             display: flex;
-            gap: 12px;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 15px;
+            font-size: 1.2em;
+        }
+
+        .btn-action-header {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.8em;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* Menú Horizontal Scroll */
+        .horizontal-nav {
+            background: #b71c1c;
             overflow-x: auto;
-            padding: 5px 20px 15px 20px;
+            white-space: nowrap;
+            padding: 10px 0;
             scrollbar-width: none; /* Firefox */
-            -ms-overflow-style: none; /* IE/Edge */
+            -ms-overflow-style: none;  /* IE and Edge */
         }
 
-        .nav-scroll::-webkit-scrollbar {
-            display: none; /* Chrome/Safari */
+        .horizontal-nav::-webkit-scrollbar {
+            display: none; /* Chrome, Safari and Opera */
         }
 
-        /* Tarjeta de Navegación */
-        .nav-card {
-            width: 82px; /* Reducción de tamaño ~25% */
-            height: 72px; /* Proporción compacta, casi cuadrada */
-            background-color: #ffffff;
-            color: #333;
-            padding: 8px;
-            border-radius: 12px; /* Bordes redondeados proporcionales */
+        .nav-container {
+            display: inline-flex;
+            padding: 0 15px;
+            gap: 20px;
+        }
+
+        .nav-item {
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
+            text-decoration: none;
+            color: rgba(255,255,255,0.7);
+            font-size: 0.75em;
+            font-weight: 600;
+            transition: all 0.3s;
             cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            border: 1px solid rgba(0,0,0,0.05);
-            flex-shrink: 0;
         }
 
-        .nav-card .emoji {
-            font-size: 1.4em; /* Emoji más compacto */
-            margin-bottom: 3px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        .nav-item i {
+            font-size: 1.6em;
+            margin-bottom: 4px;
         }
 
-        .nav-card span {
-            font-weight: 700;
-            font-size: 0.72em; /* Texto más pequeño para el nuevo tamaño */
-            text-align: center;
-            line-height: 1.1;
-        }
-
-        /* Estilo para el icono especial del Tablero */
-        .tablero-icon {
-            width: 32px;
-            height: 32px;
-            background-color: #CC2121;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 3px;
-            color: white;
-            font-size: 0.9em;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        }
-
-        .tablero-icon i {
-            filter: drop-shadow(0px 1px 1px rgba(0,0,0,0.3));
-        }
-
-        .social-card-img {
-            width: 40px;
-            height: 40px;
-            object-fit: contain;
-            margin-bottom: 8px;
-        }
-
-        .nav-card .icon-img {
-            width: 35px;
-            height: 35px;
-            object-fit: contain;
-            margin-bottom: 5px;
-        }
-
-        /* Estado ACTIVO */
-        .nav-card.active {
-            background-color: #CC2121;
+        .nav-item.active {
             color: #ffffff;
-            border-color: #CC2121;
+            transform: scale(1.1);
         }
 
         /* Contenido Principal */
         .main-content {
-            padding: 30px 20px;
-            flex-grow: 1;
+            flex: 1;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+            width: 100%;
         }
 
-        /* Header con Acciones */
-        .top-header-actions {
-            display: flex;
-            justify-content: flex-end;
-            margin-bottom: 20px;
-        }
-
-        .dropdown {
-            position: relative;
-            display: inline-block;
-        }
-
-        .dropbtn {
-            background-color: #87CEEB;
-            color: #1a1a1a;
-            padding: 10px 18px;
-            font-size: 14px;
-            font-weight: 700;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-
-        .dropdown-content {
-            display: none;
-            position: absolute;
-            right: 0;
-            background-color: #ffffff;
-            min-width: 180px;
-            box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
-            z-index: 1100;
-            border-radius: 6px;
-            margin-top: 5px;
-            overflow: hidden;
-        }
-
-        .dropdown-content a {
+        .card {
+            background: #ffffff;
             color: #333;
-            padding: 12px 16px;
-            text-decoration: none;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            color: #d32f2f;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            font-weight: 800;
             display: flex;
             align-items: center;
             gap: 10px;
-            font-size: 14px;
-            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 1.1em;
         }
 
-        .dropdown-content a:hover {
-            background-color: #f1f1f1;
-        }
-
-        .dropdown:hover .dropdown-content {
-            display: block;
-        }
-
-        /* Screens */
-        .screen {
-            display: none;
-            animation: fadeIn 0.4s ease-in-out;
-        }
-
-        .screen.active {
-            display: block;
-        }
-
-        .add-form {
-            background: rgba(255, 255, 255, 0.05);
-            padding: 15px;
-            border-radius: 12px;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            margin-top: 15px;
-        }
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .form-group label {
-            font-weight: 700;
-            font-size: 0.9em;
-            color: #87CEEB;
-        }
-
-        .form-group input, .form-group select, .form-group textarea {
-            height: 50px;
-            border-radius: 8px;
-            border: 1px solid rgba(255,255,255,0.2);
-            background: #fff;
-            color: #333;
-            padding: 0 15px;
-            font-size: 1em;
-        }
-
+        /* Formularios Estilizados */
         .form-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 10px;
+            gap: 15px;
+            margin-bottom: 15px;
         }
 
-        .photo-upload {
-            border: 2px dashed rgba(255,255,255,0.3);
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.75em;
+            font-weight: 700;
+            color: #666;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
             border-radius: 12px;
-            padding: 20px;
-            text-align: center;
-            cursor: pointer;
-            background: rgba(255,255,255,0.05);
-        }
-
-        .calc-box {
-            background: rgba(135, 206, 235, 0.1);
-            padding: 15px;
-            border-radius: 12px;
-            border: 1px solid #87CEEB;
-            margin-top: 10px;
-        }
-
-        .calc-box h3 {
             font-size: 1em;
-            margin-bottom: 10px;
-            color: #87CEEB;
+            transition: border-color 0.3s;
+            outline: none;
         }
 
-        .btn-gps {
-            background: #4CAF50;
+        input:focus, select:focus, textarea:focus {
+            border-color: #d32f2f;
+        }
+
+        .cond-section {
+            display: none;
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 15px;
+            margin-bottom: 15px;
+            border-left: 5px solid #d32f2f;
+        }
+
+        /* Botones Especiales */
+        .btn-capture {
+            background: #444;
             color: white;
             border: none;
-            height: 50px;
-            border-radius: 8px;
+            padding: 15px;
+            border-radius: 12px;
+            cursor: pointer;
+            width: 100%;
             font-weight: 700;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 10px;
+            margin-top: 5px;
+            transition: background 0.3s;
+        }
+
+        .btn-capture:hover { background: #222; }
+
+        .btn-main {
+            background: #d32f2f;
+            color: white;
+            border: none;
+            padding: 18px;
+            border-radius: 15px;
             cursor: pointer;
-            margin-bottom: 5px;
-        }
-
-        .cond-section {
-            display: none;
-            border-top: 1px solid rgba(255,255,255,0.1);
-            padding-top: 15px;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        .cond-section.visible {
-            display: flex;
+            width: 100%;
+            font-weight: 800;
+            font-size: 1.1em;
+            box-shadow: 0 5px 15px rgba(211, 47, 47, 0.4);
+            margin-top: 10px;
         }
 
         /* Módulo de Salida */
@@ -310,725 +221,298 @@
             display: none;
             background: #fff;
             padding: 20px;
-            border-radius: 12px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
             margin-top: 20px;
-            color: #333;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-            animation: fadeIn 0.5s ease;
+            border: 2px solid #4CAF50;
         }
-
         .output-module.visible {
             display: block;
+            animation: slideUp 0.5s ease-out;
         }
-
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
         .output-buttons {
             display: grid;
             grid-template-columns: 1fr;
-            gap: 15px;
+            gap: 10px;
             margin-top: 15px;
         }
-
         .btn-output {
-            height: 60px;
-            border-radius: 10px;
+            padding: 12px;
             border: none;
-            font-size: 1.1em;
+            border-radius: 10px;
             font-weight: 700;
+            cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 12px;
-            cursor: pointer;
-            transition: transform 0.2s;
+            gap: 10px;
+            color: white;
         }
+        .btn-whatsapp { background: #25D366; }
+        .btn-pdf { background: #F44336; }
+        .btn-flyer { background: #2196F3; }
 
-        .btn-output:active {
-            transform: scale(0.95);
-        }
-
-        .btn-whatsapp { background: #25D366; color: white; }
-        .btn-pdf { background: #E74C3C; color: white; }
-        .btn-flyer { background: #3498DB; color: white; }
-
-        /* Flyer Template (Oculto) */
+        /* Estilos del Flyer */
         #flyer-template {
-            position: absolute;
-            left: -9999px;
-            width: 500px;
-            background: #fff;
-            padding: 0;
-            color: #333;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .flyer-header {
+            width: 1000px;
             background: #d32f2f;
             color: white;
-            padding: 20px;
-            text-align: center;
-        }
-
-        .flyer-img-container {
-            width: 100%;
-            height: 400px;
-            background: #eee;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-        }
-
-        .flyer-img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .flyer-body {
-            padding: 30px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        .flyer-price {
-            font-size: 2.5em;
-            font-weight: 800;
-            color: #d32f2f;
-            text-align: center;
-        }
-
-        .flyer-details {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 10px;
-            text-align: center;
-            border-top: 1px solid #eee;
-            border-bottom: 1px solid #eee;
-            padding: 20px 0;
-        }
-
-        .flyer-detail-item i {
-            display: block;
-            font-size: 1.5em;
-            color: #d32f2f;
-            margin-bottom: 5px;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        h1 {
-            font-size: 2em;
-            margin-bottom: 25px;
-            color: #87CEEB;
-        }
-
-        .placeholder-card {
-            background-color: rgba(255, 255, 255, 0.08);
-            padding: 30px;
-            border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            font-size: 1.1em;
-            line-height: 1.6;
-            margin-bottom: 20px;
-        }
-
-        /* --- DASHBOARD STYLES --- */
-        .metrics-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 12px;
-            margin-bottom: 25px;
-        }
-
-        .metric-card {
-            background-color: rgba(255, 255, 255, 0.1);
-            padding: 18px;
-            border-radius: 12px;
-            text-align: center;
-            border-bottom: 4px solid #87CEEB;
-        }
-
-        .metric-card .value {
-            display: block;
-            font-size: 1.8em;
-            font-weight: 800;
-            color: #87CEEB;
-        }
-
-        .metric-card .label {
-            font-size: 0.85em;
-            text-transform: uppercase;
-            font-weight: 600;
-            opacity: 0.9;
-        }
-
-        .search-section {
-            background-color: rgba(255, 255, 255, 0.1);
-            padding: 20px;
-            border-radius: 12px;
-            margin-bottom: 25px;
-        }
-
-        .search-container {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-
-        .search-input-wrapper {
-            flex-grow: 1;
-            position: relative;
-        }
-
-        .search-input-wrapper input {
-            width: 100%;
-            height: 60px; /* Altura cómoda de 60px */
-            padding: 12px 45px 12px 20px;
-            border-radius: 12px;
-            border: none;
-            outline: none;
-            font-size: 1.1em;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-
-        .mic-btn {
             position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #d32f2f;
-            cursor: pointer;
-            font-size: 1.4em;
+            left: -9999px;
+            overflow: hidden;
+            font-family: 'Arial Black', Gadget, sans-serif;
         }
+        .flyer-img-container { width: 100%; height: 600px; position: relative; }
+        .flyer-img { width: 100%; height: 100%; object-fit: cover; }
+        .flyer-body { padding: 40px; text-align: center; }
+        .flyer-price { font-size: 80px; color: #FFD700; text-shadow: 2px 2px 10px rgba(0,0,0,0.5); }
+        .flyer-details { font-size: 30px; margin-top: 20px; line-height: 1.5; }
+        .flyer-footer { background: #000; padding: 20px; font-size: 24px; text-transform: uppercase; }
 
-        .search-actions {
-            display: flex;
-            gap: 12px;
-        }
-
-        .btn-search {
-            background-color: #87CEEB;
-            color: #1a1a1a;
-            border: none;
-            height: 60px; /* Altura cómoda de 60px */
-            padding: 0 20px;
-            border-radius: 12px;
-            font-weight: 700;
-            font-size: 1em;
-            cursor: pointer;
-            flex: 1;
-            transition: background 0.3s;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-
-        .btn-search:active {
-            transform: scale(0.98);
-        }
-
-        .form-mini input {
-            height: 60px;
-            padding: 0 15px;
-            border-radius: 12px;
-            border: none;
-            font-size: 1em;
-        }
-
-        .form-mini textarea {
-            padding: 15px;
-            border-radius: 12px;
-            border: none;
-            font-size: 1em;
-            min-height: 80px;
-        }
-
-        .dashboard-row {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-        }
-
-        .panel-box {
-            background-color: rgba(255, 255, 255, 0.1);
-            padding: 20px;
-            border-radius: 12px;
-            min-height: 200px;
-        }
-
-        .panel-box h2 {
-            font-size: 1.2em;
-            color: #87CEEB;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            padding-bottom: 10px;
-        }
-
-        .list-items {
-            list-style: none;
-        }
-
-        .list-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background-color: rgba(255, 255, 255, 0.05);
-            padding: 10px 15px;
-            border-radius: 6px;
-            margin-bottom: 8px;
-        }
-
-        .list-item .info {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .list-item .date {
-            font-size: 0.8em;
-            opacity: 0.7;
-        }
-
-        .btn-action {
-            background: none;
-            border: none;
-            color: #87CEEB;
-            cursor: pointer;
-        }
-
-        .form-mini {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            margin-top: 15px;
-        }
-
-        @media print {
-            .nav-wrapper, .top-header-actions, .app-header { display: none !important; }
-            body { background-color: white !important; color: black !important; }
-            .placeholder-card, .metric-card, .panel-box { border: 1px solid #ccc !important; color: black !important; background: none !important; }
-            h1, h2, .value { color: black !important; }
-        }
     </style>
 </head>
 <body>
 
-    <!-- Encabezado Fijo -->
-    <header class="app-header" style="height: 100px; padding: 10px 20px;">
-        <div style="display: flex; align-items: center; gap: 15px;">
-            <img src="propiedades-app/icon-192.png" style="width: 60px; height: 60px; border-radius: 50%; border: 3px solid white; background: white;" onerror="this.src='https://cdn-icons-png.flaticon.com/512/609/609803.png'">
-            <div style="display: flex; flex-direction: column;">
-                <span style="font-size: 1.4em; font-weight: 800; color: white; letter-spacing: 1px;">HR MASTER V34</span>
-                <span style="font-size: 1.2em; font-weight: 700; color: white; opacity: 0.9;">MASTER</span>
-            </div>
+    <!-- Header -->
+    <header class="app-header">
+        <div class="logo-area">
+            <i class="fas fa-home"></i> InventarioHR
         </div>
-        <div class="dropdown">
-            <button class="dropbtn" style="background: rgba(255,255,255,0.2); border: 1px solid white;"><i class="fas fa-ellipsis-v"></i></button>
-            <div class="dropdown-content">
-                <a href="javascript:void(0)" onclick="window.print()"><i class="fas fa-print"></i> 🖨️ Imprimir</a>
-                <a href="javascript:void(0)" onclick="exportFull()"><i class="fas fa-camera"></i> 📸 Capturar / Exportar</a>
-            </div>
+        <div class="header-actions">
+            <button class="btn-action-header"><i class="fas fa-print"></i></button>
+            <button class="btn-action-header"><i class="fas fa-camera"></i></button>
         </div>
     </header>
 
-    <!-- Navegación Horizontal con Scroll -->
-    <nav class="nav-wrapper">
-        <div class="nav-scroll">
-            <div class="nav-card active" onclick="navigate('tablero', this)">
-                <div class="tablero-icon">
-                    <span style="font-size: 1.2em;">📊</span>
-                </div>
+    <!-- Nav Horizontal -->
+    <nav class="horizontal-nav">
+        <div class="nav-container">
+            <a href="#" class="nav-item">
+                <i class="fas fa-chart-pie"></i>
                 <span>TABLERO</span>
-            </div>
-            <div class="nav-card" onclick="navigate('inventario', this)">
-                <span class="emoji">🏡</span>
+            </a>
+            <a href="#" class="nav-item active">
+                <i class="fas fa-home"></i>
                 <span>Inventario</span>
-            </div>
-            <div class="nav-card" onclick="navigate('prospectos', this)">
-                <span class="emoji">🎯</span>
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-bullseye"></i>
                 <span>Prospectos</span>
-            </div>
-            <div class="nav-card" onclick="navigate('contactos', this)">
-                <span class="emoji">📞</span>
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-phone-alt"></i>
                 <span>Contactos</span>
-            </div>
-            <div class="nav-card" onclick="navigate('archivos', this)">
-                <span class="emoji">📁</span>
-                <span>Archivos guardados</span>
-            </div>
-            <div class="nav-card" onclick="navigate('galeria', this)">
-                <span class="emoji">🖼️</span>
-                <span>Galería de fotos</span>
-            </div>
-            <div class="nav-card" onclick="navigate('pensamientos', this)">
-                <span class="emoji">🧠</span>
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-folder-open"></i>
+                <span>Archivos</span>
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-images"></i>
+                <span>Galería</span>
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-brain"></i>
                 <span>Pensamientos</span>
-            </div>
-            <div class="nav-card" onclick="navigate('citas', this)">
-                <span class="emoji">📅</span>
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-calendar-alt"></i>
                 <span>Citas</span>
-            </div>
-            <div class="nav-card" onclick="navigate('negocios', this)">
-                <span class="emoji">💼</span>
-                <span>Negocios</span>
-            </div>
-            <div class="nav-card" onclick="navigate('motivacion', this)">
-                <span class="emoji">💬</span>
-                <span>Mensajes motivacionales</span>
-            </div>
+            </a>
         </div>
     </nav>
 
-    <!-- Contenido Principal -->
-    <main class="main-content">
+    <div class="main-content">
         
-        <!-- Pantallas de Contenido -->
-        <div class="content-area">
-            
-            <!-- SECCIÓN TABLERO -->
-            <div id="tablero" class="screen active">
-                <h1>🏠 Tablero</h1>
-                
-                <div class="metrics-grid">
-                    <div class="metric-card"><span class="value">24</span><span class="label">Propiedades</span></div>
-                    <div class="metric-card"><span class="value">8</span><span class="label">Casas</span></div>
-                    <div class="metric-card"><span class="value">12</span><span class="label">Terrenos</span></div>
-                    <div class="metric-card"><span class="value">4</span><span class="label">Parcelas</span></div>
-                    <div class="metric-card"><span class="value">6</span><span class="label">Construidas</span></div>
-                </div>
+        <!-- Formulario Principal -->
+        <div class="card">
+            <div class="section-title">
+                <i class="fas fa-plus-circle"></i> Nueva Captura
+            </div>
 
-                <!-- 📲 CONEXIÓN RÁPIDA A REDES -->
-                <div class="metrics-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 25px;">
-                    <a href="https://wa.me/" target="_blank" style="text-decoration: none;">
-                        <div class="metric-card" style="border-bottom-color: #25D366; background-color: rgba(255, 255, 255, 0.9); display: flex; flex-direction: column; align-items: center;">
-                            <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" class="social-card-img" alt="WhatsApp">
-                            <span class="label" style="color: #333;">WhatsApp</span>
-                        </div>
-                    </a>
-                    <a href="https://www.facebook.com/" target="_blank" style="text-decoration: none;">
-                        <div class="metric-card" style="border-bottom-color: #1877F2; background-color: rgba(255, 255, 255, 0.9); display: flex; flex-direction: column; align-items: center;">
-                            <img src="https://upload.wikimedia.org/wikipedia/commons/0/05/Facebook_Logo_%282019%29.png" class="social-card-img" alt="Facebook">
-                            <span class="label" style="color: #333;">Facebook</span>
-                        </div>
-                    </a>
-                    <a href="https://www.tiktok.com/" target="_blank" style="text-decoration: none;">
-                        <div class="metric-card" style="border-bottom-color: #000000; background-color: rgba(255, 255, 255, 0.9); display: flex; flex-direction: column; align-items: center;">
-                            <img src="https://upload.wikimedia.org/wikipedia/en/a/a9/TikTok_logo.svg" class="social-card-img" alt="TikTok">
-                            <span class="label" style="color: #333;">TikTok</span>
-                        </div>
-                    </a>
-                </div>
+            <div class="form-group">
+                <label>UBICACIÓN AUTOMÁTICA GPS</label>
+                <button class="btn-capture" onclick="getGPS()">
+                    <i class="fas fa-map-marker-alt"></i> OBTENER UBICACIÓN GPS
+                </button>
+                <input type="text" id="gps-coords" placeholder="Coordenadas GPS" style="margin-top:10px;" readonly>
+            </div>
 
-                <div class="search-section">
-                    <div class="search-container">
-                        <div class="search-input-wrapper">
-                            <input type="text" id="main-search" placeholder="¿Qué estás buscando hoy?">
-                            <i class="fas fa-microphone mic-btn" onclick="startVoiceSearch()"></i>
-                        </div>
-                    </div>
-                    <div class="search-actions">
-                        <button class="btn-search" onclick="alert('Buscando...')">Buscar en App</button>
-                        <button class="btn-search" onclick="window.open('https://google.com/search?q='+document.getElementById('main-search').value)">Buscar en Web</button>
-                    </div>
-                </div>
+            <div class="form-group">
+                <label>TIPO DE PROPIEDAD</label>
+                <select id="tipo-propiedad" onchange="toggleForm(this.value)">
+                    <option value="">Seleccione...</option>
+                    <option value="🏠 Casa">🏠 Casa</option>
+                    <option value="🏢 Terreno">🏢 Terreno</option>
+                    <option value="🐄 Rancho">🐄 Rancho</option>
+                    <option value="🏭 Local / Bodega">🏭 Local / Bodega</option>
+                </select>
+            </div>
 
-                <div class="dashboard-row">
-                    <div class="panel-box">
-                        <h2>📅 Próximas Citas</h2>
-                        <ul class="list-items">
-                            <li class="list-item">
-                                <div class="info"><span class="name">Visita Terreno Acayuca</span><span class="date">Hoy - 16:00</span></div>
-                                <button class="btn-action"><i class="fas fa-edit"></i></button>
-                            </li>
-                        </ul>
-                    </div>
-                    <div class="panel-box">
-                        <h2>⏰ Alarmas</h2>
-                        <ul class="list-items" id="alarms-list"></ul>
-                        <div class="form-mini">
-                            <input type="datetime-local" id="alarm-time">
-                            <textarea id="alarm-desc" placeholder="Descripción de la alarma..." rows="2"></textarea>
-                            <button class="btn-search" onclick="addAlarm()">Crear Alarma</button>
-                        </div>
-                    </div>
+            <!-- Secciones Condicionales -->
+            <div id="campos-terreno" class="cond-section">
+                <div class="form-row">
+                    <div class="form-group"><label>NORTE</label><input type="text" id="norte" placeholder="Medida..."></div>
+                    <div class="form-group"><label>SUR</label><input type="text" id="sur" placeholder="Medida..."></div>
                 </div>
-
-                <div class="panel-box" style="margin-top: 25px;">
-                    <h2>💡 Panel Inteligente</h2>
-                    <div>
-                        <strong style="color:#87CEEB">Motivación:</strong>
-                        <p id="daily-motivation">"El éxito es la suma de pequeños esfuerzos repetidos día tras día."</p>
-                        <br>
-                        <strong style="color:#87CEEB">Idea de Negocio:</strong>
-                        <p id="business-idea">Venta de terrenos con servicios para créditos FOVISSSTE.</p>
-                    </div>
+                <div class="form-row">
+                    <div class="form-group"><label>ESTE</label><input type="text" id="este" placeholder="Medida..."></div>
+                    <div class="form-group"><label>OESTE</label><input type="text" id="oeste" placeholder="Medida..."></div>
                 </div>
             </div>
-            
-            <div id="inventario" class="screen">
-                <h1>🏡 Inventario</h1>
-                
-                <div class="add-form">
-                    <h2 style="color: #87CEEB;">➕ AGREGAR NUEVO</h2>
-                    
-                    <!-- Fotos y Multimedia -->
-                    <div class="photo-upload" onclick="document.getElementById('photo-input').click()">
-                        <span style="font-size: 2em;">📸</span><br>
-                        <span style="font-size: 0.9em; font-weight: 700;">SUBIR / TOMAR FOTOS</span>
-                        <input type="file" id="photo-input" multiple accept="image/*" style="display:none">
-                    </div>
 
-                    <!-- GPS -->
-                    <button class="btn-gps" onclick="obtenerGPS()">
-                        📍 OBTENER UBICACIÓN GPS
+            <div id="campos-casa" class="cond-section">
+                <div class="form-row">
+                    <div class="form-group"><label>PISOS</label><input type="number" placeholder="0"></div>
+                    <div class="form-group"><label>RECÁMARAS</label><input type="number" placeholder="0"></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group"><label>BAÑOS</label><input type="number" placeholder="0"></div>
+                    <div class="form-group"><label>M² CONST.</label><input type="number" id="m2-const" placeholder="0"></div>
+                </div>
+                <div class="form-group">
+                    <label>DETALLES DE CONSTRUCCIÓN</label>
+                    <textarea id="detalles-casa" placeholder="Detalles de construcción..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>MATERIAL DE PUERTAS / BARDEADO</label>
+                    <input type="text" id="materiales" placeholder="Ej: Madera, Herrería...">
+                </div>
+                <div class="form-group">
+                    <label>SERVICIOS</label>
+                    <select multiple style="height:auto;">
+                        <option>Luz</option>
+                        <option>Agua</option>
+                        <option>Drenaje / Fosa</option>
+                        <option>Pavimento</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>PRECIO TOTAL ($)</label>
+                    <input type="number" id="precio-total" placeholder="0" oninput="calcularMetro()">
+                </div>
+                <div class="form-group">
+                    <label>M² TOTALES</label>
+                    <input type="number" id="m2-totales" placeholder="0" oninput="calcularMetro()">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>PRECIO POR M² (CALCULADO)</label>
+                <input type="text" id="precio-m2" placeholder="$0.00" readonly style="background: #f0f0f0;">
+            </div>
+
+            <div class="form-group">
+                <label>TELÉFONO DE CONTACTO</label>
+                <input type="tel" placeholder="771..." value="771">
+            </div>
+
+            <div class="form-group">
+                <label>FOTO VINCULADA A UBICACIÓN</label>
+                <button class="btn-capture" onclick="document.getElementById('photo-input').click()">
+                    <i class="fas fa-camera"></i> TOMAR FOTO
+                </button>
+                <input type="file" id="photo-input" accept="image/*" style="display:none;">
+            </div>
+
+            <div class="form-group">
+                <label>DESCRIPCIÓN (DICTADO POR VOZ)</label>
+                <div style="position:relative;">
+                    <textarea id="dictado-desc" placeholder="Pulsa micro para hablar..." style="padding-right: 50px;"></textarea>
+                    <button id="btn-voice" class="btn-capture" style="position:absolute; right:5px; top:5px; width:40px; height:40px; padding:0; margin:0; border-radius:50%;">
+                        <i class="fas fa-microphone"></i>
                     </button>
-                    <input type="text" id="gps-coords" placeholder="Coordenadas GPS" readonly>
-
-                    <!-- Tipo de Propiedad -->
-                    <div class="form-group">
-                        <label>TIPO DE PROPIEDAD</label>
-                        <select id="tipo-propiedad" onchange="toggleForm(this.value)">
-                            <option value="">Seleccionar...</option>
-                            <option value="casa">🏠 Casa</option>
-                            <option value="terreno">📐 Terreno</option>
-                            <option value="terreno_construir">🏗️ Terreno para construir</option>
-                            <option value="parcela">🚜 Parcela</option>
-                        </select>
-                    </div>
-
-                    <!-- CAMPOS DINÁMICOS: CASA -->
-                    <div id="campos-casa" class="cond-section">
-                        <div class="form-row">
-                            <div class="form-group"><label>PISOS</label><input type="number" placeholder="0"></div>
-                            <div class="form-group"><label>RECÁMARAS</label><input type="number" placeholder="0"></div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group"><label>BAÑOS</label><input type="number" placeholder="0"></div>
-                            <div class="form-group"><label>M² CONST.</label><input type="number" id="m2-const" placeholder="0"></div>
-                        </div>
-                        <div class="form-group">
-                            <label>CISTERNA / VENTANAS / PUERTAS</label>
-                            <textarea placeholder="Detalles de construcción..."></textarea>
-                        </div>
-                        <div class="form-group">
-                            <label>MATERIAL DE PUERTAS / BARDEADO</label>
-                            <input type="text" placeholder="Ej: Madera, Herrería...">
-                        </div>
-                        <div class="form-group">
-                            <label>SERVICIOS</label>
-                            <select multiple style="height:auto;">
-                                <option>Luz</option>
-                                <option>Agua</option>
-                                <option>Drenaje / Fosa</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <!-- CAMPOS DINÁMICOS: PARCELA -->
-                    <div id="campos-parcela" class="cond-section">
-                        <div class="form-group"><label>M² TOTALES</label><input type="number" id="m2-totales" placeholder="0" oninput="calcularMetro()"></div>
-                        <div class="form-group"><label>DISTANCIA A SERVICIOS</label><input type="text" placeholder="Ej: 500m"></div>
-                        <div class="form-group"><label>TIPO DE DOCUMENTO</label><input type="text" placeholder="Ej: Título, Escritura"></div>
-                        <div class="form-group"><label>USO DE SUELO</label><input type="text" placeholder="Ej: Agrícola"></div>
-                    </div>
-
-                    <!-- MEDIDAS (Común) -->
-                    <div class="form-group">
-                        <label>📏 MEDIDAS Y COLINDANCIAS</label>
-                        <div class="form-row">
-                            <input type="text" placeholder="NORTE">
-                            <input type="text" placeholder="SUR">
-                        </div>
-                        <div class="form-row">
-                            <input type="text" placeholder="ESTE">
-                            <input type="text" placeholder="OESTE">
-                        </div>
-                    </div>
-
-                    <!-- CÁLCULOS -->
-                    <div class="calc-box">
-                        <h3>💰 CÁLCULOS AUTOMÁTICOS</h3>
-                        <div class="form-group">
-                            <label>PRECIO TOTAL ($)</label>
-                            <input type="number" id="precio-total" placeholder="0" oninput="calcularMetro()">
-                        </div>
-                        <div class="form-group">
-                            <label>PRECIO POR M² ($)</label>
-                            <input type="number" id="precio-metro" placeholder="0" oninput="calcularTotal()">
-                        </div>
-                        <div class="form-group" style="margin-top:10px;">
-                            <label>MARGEN DE GANANCIA (%)</label>
-                            <input type="number" id="margen-ganancia" placeholder="10">
-                        </div>
-                    </div>
-
-                    <!-- REGISTRO RÁPIDO -->
-                    <div class="add-form" style="background: rgba(255,165,0,0.1); border: 1px solid orange;">
-                        <h2 style="color: orange; font-size: 1.1em;">⚡ REGISTRO RÁPIDO</h2>
-                        <div class="form-group">
-                            <label>TELÉFONO</label>
-                            <input type="tel" placeholder="771...">
-                        </div>
-                        <div class="form-group">
-                            <label>UBICACIÓN AUTOMÁTICA GPS</label>
-                            <button type="button" class="btn-gps" style="background: #FF8C00; height: 40px;" onclick="obtenerGPS()">📍 CAPTURAR GPS</button>
-                        </div>
-                        <div class="form-group">
-                            <label>FOTO VINCULADA A UBICACIÓN</label>
-                            <button type="button" class="btn-gps" style="background: #555; height: 40px;" onclick="document.getElementById('photo-input-fast').click()">📸 TOMAR FOTO</button>
-                            <input type="file" id="photo-input-fast" accept="image/*" capture="camera" style="display:none">
-                        </div>
-                        <div class="form-group">
-                            <label>DESCRIPCIÓN (DICTADO POR VOZ)</label>
-                            <div style="display:flex; gap:5px;">
-                                <textarea id="dictado-desc" style="flex:1;" placeholder="Pulsa micro para hablar..."></textarea>
-                                <button type="button" onclick="startVoice('dictado-desc')" style="width:50px; background:#CC2121; border:none; border-radius:8px; color:white;">🎤</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <button class="btn-search" style="background:#4CAF50; color:white; font-size: 1.2em; margin-top:20px;" onclick="guardarInventario()">GUARDAR EN INVENTARIO</button>
-
-                    <!-- MÓDULO DE SALIDA -->
-                    <div id="modulo-salida" class="output-module">
-                        <h2 style="text-align: center; color: #d32f2f; margin-bottom: 5px;">📤 ÉXITO: GUARDADO</h2>
-                        <p style="text-align: center; font-size: 0.9em; color: #666;">¿Qué deseas hacer ahora?</p>
-                        
-                        <div class="output-buttons">
-                            <button class="btn-output btn-whatsapp" onclick="enviarWhatsApp()">
-                                <i class="fab fa-whatsapp"></i> ENVIAR WHATSAPP
-                            </button>
-                            <button class="btn-output btn-pdf" onclick="generarPDF()">
-                                <i class="fas fa-file-pdf"></i> GENERAR PDF
-                            </button>
-                            <button class="btn-output btn-flyer" onclick="generarFlyer()">
-                                <i class="fas fa-image"></i> GENERAR FLYER
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Template Oculto para Flyer -->
-                    <div id="flyer-template">
-                        <div class="flyer-header" style="display: flex; align-items: center; justify-content: center; gap: 15px; padding: 20px;">
-                            <img src="propiedades-app/icon-192.png" style="width: 50px; height: 50px; border-radius: 50%; background: white;" onerror="this.src='https://cdn-icons-png.flaticon.com/512/609/609803.png'">
-                            <div style="text-align: left;">
-                                <h1 id="f-tipo" style="color: white; margin:0; font-size: 1.4em; text-transform: uppercase;">PROPIEDAD</h1>
-                                <span style="font-weight: 800; color: #87CEEB;">HR MASTER V34</span>
-                            </div>
-                        </div>
-                        <div class="flyer-img-container">
-                            <img id="f-img" src="https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&q=80&w=1000" class="flyer-img">
-                        </div>
-                        <div class="flyer-body">
-                            <div class="flyer-price" id="f-precio">$0.00</div>
-                            <div class="flyer-details">
-                                <div class="flyer-detail-item">
-                                    <i class="fas fa-bed"></i>
-                                    <span id="f-beds">0</span> rec.
-                                </div>
-                                <div class="flyer-detail-item">
-                                    <i class="fas fa-bath"></i>
-                                    <span id="f-baths">0</span> baños
-                                </div>
-                                <div class="flyer-detail-item">
-                                    <i class="fas fa-ruler-combined"></i>
-                                    <span id="f-m2">0</span> m²
-                                </div>
-                            </div>
-                            <div style="text-align: center; margin-top: 10px;">
-                                <p id="f-loc" style="font-weight: bold; color: #555; font-size: 0.9em;">📍 Ubicación: GPS Capturado</p>
-                                <p style="color: #d32f2f; font-size: 1.1em; font-weight: 800; margin-top: 10px;">¡LLAMA AHORA!</p>
-                                <p id="f-tel" style="font-size: 1.2em; font-weight: 700; color: #333;">771 000 0000</p>
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </div>
-            <div id="prospectos" class="screen"><h1>🎯 Prospectos</h1><div class="placeholder-card">Seguimiento de clientes.</div></div>
-            <div id="contactos" class="screen"><h1>📞 Contactos</h1><div class="placeholder-card">Números de teléfono.</div></div>
-            <div id="archivos" class="screen"><h1>📁 Archivos</h1><div class="placeholder-card">Documentos guardados.</div></div>
-            <div id="galeria" class="screen"><h1>🖼️ Galería</h1><div class="placeholder-card">Fotos y videos.</div></div>
-            <div id="pensamientos" class="screen"><h1>🧠 Pensamientos</h1><div class="placeholder-card">Bitácora personal.</div></div>
-            <div id="citas" class="screen"><h1>📅 Citas</h1><div class="placeholder-card">Agenda de reuniones.</div></div>
-            <div id="negocios" class="screen"><h1>💼 Negocios</h1><div class="placeholder-card">Operaciones comerciales.</div></div>
-            <div id="motivacion" class="screen"><h1>💬 Motivación</h1><div class="placeholder-card">Mensajes motivacionales.</div></div>
 
+            <button class="btn-main" onclick="guardarInventario()">GUARDAR EN INVENTARIO</button>
+
+            <!-- Módulo de Salida -->
+            <div id="modulo-salida" class="output-module">
+                <h2 style="text-align: center; color: #d32f2f; margin-bottom: 5px;">📤 ÉXITO: GUARDADO</h2>
+                <p style="text-align: center; font-size: 0.9em; color: #666;">¿Qué deseas hacer ahora?</p>
+                
+                <div class="output-buttons">
+                    <button class="btn-output btn-whatsapp" onclick="enviarWhatsApp()">
+                        <i class="fab fa-whatsapp"></i> ENVIAR WHATSAPP
+                    </button>
+                    <button class="btn-output btn-pdf" onclick="generarPDF()">
+                        <i class="fas fa-file-pdf"></i> GENERAR PDF
+                    </button>
+                    <button class="btn-output btn-flyer" onclick="generarFlyer()">
+                        <i class="fas fa-image"></i> GENERAR FLYER
+                    </button>
+                </div>
+            </div>
         </div>
-    </main>
+    </div>
+
+    <!-- Template Oculto para Flyer -->
+    <div id="flyer-template">
+        <div class="flyer-header" style="display: flex; align-items: center; justify-content: center; gap: 15px; padding: 20px;">
+            <img src="propiedades-app/icon-192.png" style="width: 50px; height: 50px; border-radius: 50%; background: white;" onerror="this.src='https://cdn-icons-png.flaticon.com/512/609/609803.png'">
+            <div style="text-align: left;">
+                <h1 id="f-tipo" style="color: white; margin:0; font-size: 1.4em; text-transform: uppercase;">PROPIEDAD</h1>
+                <span style="font-weight: 800; color: #87CEEB;">HR MASTER V34</span>
+            </div>
+        </div>
+        <div class="flyer-img-container">
+            <img id="f-img" src="https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&q=80&w=1000" class="flyer-img">
+        </div>
+        <div class="flyer-body">
+            <div class="flyer-price" id="f-precio">$0.00</div>
+            <div class="flyer-details">
+                <div id="f-m2">Superficie: 0 m²</div>
+                <div id="f-gps">Ubicación: GPS Activo</div>
+                <div id="f-desc" style="margin-top:20px; font-style: italic; color: #eee; font-size: 0.8em;"></div>
+            </div>
+        </div>
+        <div class="flyer-footer">
+            📞 CONTACTO: <span id="f-tel"></span>
+        </div>
+    </div>
 
     <script>
-        function navigate(id, element) {
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            document.querySelectorAll('.nav-card').forEach(i => i.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
-            element.classList.add('active');
-            // Scroll automático al centro
-            element.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-        }
-
-        function startVoiceSearch() {
-            const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-            recognition.lang = 'es-MX';
-            recognition.onresult = (event) => document.getElementById('main-search').value = event.results[0][0].transcript;
-            recognition.start();
-        }
+        // Inicialización
+        let currentProperty = {
+            tipo: '', precio: '', m2: '', gps: '', desc: '', tel: '', rec: '', ban: '', photo: ''
+        };
 
         function toggleForm(tipo) {
-            document.querySelectorAll('.cond-section').forEach(s => s.classList.remove('visible'));
-            if(tipo === 'casa' || tipo === 'terreno_construir') {
-                document.getElementById('campos-casa').classList.add('visible');
-            }
-            if(tipo === 'parcela' || tipo === 'terreno' || tipo === 'terreno_construir') {
-                document.getElementById('campos-parcela').classList.add('visible');
-            }
-        }
-
-        function obtenerGPS() {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition((pos) => {
-                    document.getElementById('gps-coords').value = `${pos.coords.latitude}, ${pos.coords.longitude}`;
-                }, () => alert("Error al obtener GPS. Activa permisos."));
+            document.getElementById('campos-terreno').style.display = 'none';
+            document.getElementById('campos-casa').style.display = 'none';
+            
+            if (tipo === '🏠 Casa') {
+                document.getElementById('campos-casa').style.display = 'block';
+            } else if (tipo === '🏢 Terreno' || tipo === '🐄 Rancho') {
+                document.getElementById('campos-terreno').style.display = 'block';
             }
         }
 
         function calcularMetro() {
-            const total = document.getElementById('precio-total').value;
-            const m2_parcela = document.getElementById('m2-totales').value;
-            const m2_casa = document.getElementById('m2-const').value;
-            const m2 = m2_parcela || m2_casa;
-            if(total && m2 && m2 > 0) {
-                document.getElementById('precio-metro').value = (total / m2).toFixed(2);
+            const total = parseFloat(document.getElementById('precio-total').value) || 0;
+            const m2 = parseFloat(document.getElementById('m2-totales').value) || 1;
+            const precioM2 = (total / m2).toFixed(2);
+            document.getElementById('precio-m2').value = `$${precioM2}`;
+        }
+
+        function getGPS() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(pos => {
+                    const coords = `${pos.coords.latitude.toFixed(6)}, ${pos.coords.longitude.toFixed(6)}`;
+                    document.getElementById('gps-coords').value = coords;
+                }, err => alert('Error al obtener GPS'));
             }
         }
 
-        function calcularTotal() {
-            const metro = document.getElementById('precio-metro').value;
-            const m2_parcela = document.getElementById('m2-totales').value;
-            const m2_casa = document.getElementById('m2-const').value;
-            const m2 = m2_parcela || m2_casa;
-            if(metro && m2 && m2 > 0) {
-                document.getElementById('precio-total').value = (metro * m2).toFixed(2);
-            }
-        }
-
-        function startVoice(id) {
-            const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-            recognition.lang = 'es-MX';
-            recognition.onresult = (event) => {
-                document.getElementById(id).value = event.results[0][0].transcript;
-            };
-            recognition.start();
-        }
-
-        // --- MÓDULO DE SALIDA JS ---
-        let currentProperty = { photo: "" };
-
+        // Manejo de foto
         document.getElementById('photo-input').addEventListener('change', function(e) {
             if (e.target.files && e.target.files[0]) {
                 const reader = new FileReader();
@@ -1040,32 +524,33 @@
         });
 
         function guardarInventario() {
-            // Capturar datos básicos para el módulo de salida
-            currentProperty = {
-                tipo: document.getElementById('tipo-propiedad').value || 'Propiedad',
-                precio: document.getElementById('precio-total').value || '0',
-                m2: document.getElementById('m2-totales').value || document.getElementById('m2-const').value || '0',
-                gps: document.getElementById('gps-coords').value || 'No capturado',
-                desc: document.getElementById('dictado-desc').value || '',
-                tel: document.querySelector('input[type="tel"]').value || '',
-                rec: document.querySelectorAll('#campos-casa input')[1].value || '0',
-                ban: document.querySelectorAll('#campos-casa input')[2].value || '0'
-            };
+            // Capturar datos
+            currentProperty.tipo = document.getElementById('tipo-propiedad').value || 'Propiedad';
+            currentProperty.precio = document.getElementById('precio-total').value || '0';
+            currentProperty.m2 = document.getElementById('m2-totales').value || '0';
+            currentProperty.gps = document.getElementById('gps-coords').value || 'No capturado';
+            currentProperty.desc = document.getElementById('dictado-desc').value || '';
+            currentProperty.tel = document.querySelector('input[type="tel"]').value || '';
+            
+            if (currentProperty.tipo === '🏠 Casa') {
+                const inputsCasa = document.querySelectorAll('#campos-casa input');
+                currentProperty.rec = inputsCasa[1] ? inputsCasa[1].value : '0';
+                currentProperty.ban = inputsCasa[2] ? inputsCasa[2].value : '0';
+            }
 
-            // Mostrar el módulo de salida
+            // Mostrar módulo de salida
             document.getElementById('modulo-salida').classList.add('visible');
             document.getElementById('modulo-salida').scrollIntoView({ behavior: 'smooth' });
         }
 
         function enviarWhatsApp() {
-            const msg = `🏠 *${currentProperty.tipo.toUpperCase()} EN VENTA*\n\n` +
-                        `📍 *Ubicación:* ${currentProperty.gps}\n` +
-                        `✨ *Características:* ${currentProperty.rec} recámaras, ${currentProperty.ban} baños, ${currentProperty.m2} m²\n` +
-                        `💰 *Precio:* $${currentProperty.precio}\n\n` +
-                        `📝 *Descripción:* ${currentProperty.desc}\n\n` +
-                        `Link de ficha: https://voxipropiedades.github.io/ficha/?id=${Date.now()}`;
-            
-            const url = `https://wa.me/${currentProperty.tel}?text=${encodeURIComponent(msg)}`;
+            const msg = `🏠 *PROPIEDAD EN VENTA*\n\n` +
+                        `🔹 *Tipo:* ${currentProperty.tipo}\n` +
+                        `💰 *Precio:* $${currentProperty.precio}\n` +
+                        `📐 *Superficie:* ${currentProperty.m2} m²\n` +
+                        `📍 *GPS:* ${currentProperty.gps}\n\n` +
+                        `*Más info al:* ${currentProperty.tel}`;
+            const url = `https://wa.me/${currentProperty.tel.replace(/\D/g,'')}?text=${encodeURIComponent(msg)}`;
             window.open(url, '_blank');
         }
 
@@ -1075,81 +560,63 @@
             
             pdf.setFontSize(22);
             pdf.setTextColor(211, 47, 47);
-            pdf.text("FICHA TÉCNICA INMOBILIARIA", 20, 20);
+            pdf.text('INVENTARIO HR - FICHA TÉCNICA', 20, 30);
             
             pdf.setFontSize(14);
             pdf.setTextColor(0, 0, 0);
-            pdf.text(`Tipo: ${currentProperty.tipo}`, 20, 40);
-            pdf.text(`Precio: $${currentProperty.precio}`, 20, 50);
-            pdf.text(`Ubicación GPS: ${currentProperty.gps}`, 20, 60);
-            pdf.text(`Medidas: ${currentProperty.m2} m2`, 20, 70);
+            pdf.text(`Tipo: ${currentProperty.tipo}`, 20, 50);
+            pdf.text(`Precio: $${currentProperty.precio}`, 20, 60);
+            pdf.text(`Superficie: ${currentProperty.m2} m²`, 20, 70);
+            pdf.text(`Ubicación GPS: ${currentProperty.gps}`, 20, 80);
+            pdf.text(`Contacto: ${currentProperty.tel}`, 20, 90);
             
-            pdf.text("Características:", 20, 90);
-            pdf.text(`- Recámaras: ${currentProperty.rec}`, 25, 100);
-            pdf.text(`- Baños: ${currentProperty.ban}`, 25, 110);
+            if (currentProperty.photo) {
+                pdf.addImage(currentProperty.photo, 'JPEG', 20, 110, 170, 100);
+            }
             
-            pdf.text("Descripción:", 20, 130);
-            pdf.text(pdf.splitTextToSize(currentProperty.desc, 170), 20, 140);
-            
-            pdf.save(`Ficha_${currentProperty.tipo}_${Date.now()}.pdf`);
+            pdf.save('Ficha_Propiedad_HR.pdf');
         }
 
         async function generarFlyer() {
-            // Actualizar template con datos actuales
-            document.getElementById('f-tipo').innerText = currentProperty.tipo.toUpperCase();
+            const template = document.getElementById('flyer-template');
+            
+            // Llenar template
+            document.getElementById('f-tipo').innerText = currentProperty.tipo;
             document.getElementById('f-precio').innerText = `$${currentProperty.precio}`;
-            document.getElementById('f-beds').innerText = currentProperty.rec;
-            document.getElementById('f-baths').innerText = currentProperty.ban;
-            document.getElementById('f-m2').innerText = currentProperty.m2;
-            document.getElementById('f-loc').innerText = `📍 Ubicación: ${currentProperty.gps}`;
-            document.getElementById('f-tel').innerText = currentProperty.tel || '771 000 0000';
+            document.getElementById('f-m2').innerText = `Superficie: ${currentProperty.m2} m²`;
+            document.getElementById('f-gps').innerText = `Ubicación: ${currentProperty.gps}`;
+            document.getElementById('f-tel').innerText = currentProperty.tel;
+            document.getElementById('f-desc').innerText = currentProperty.desc;
             
             if (currentProperty.photo) {
                 document.getElementById('f-img').src = currentProperty.photo;
             }
 
-            // Capturar flyer
-            const flyer = document.getElementById('flyer-template');
-            const canvas = await html2canvas(flyer, { useCORS: true, scale: 2 });
+            // Convertir a imagen
+            const canvas = await html2canvas(template, {
+                scale: 1,
+                useCORS: true
+            });
+            
             const link = document.createElement('a');
-            link.download = `Flyer_${currentProperty.tipo}_${Date.now()}.png`;
+            link.download = 'Flyer_HR_Master.png';
             link.href = canvas.toDataURL();
             link.click();
         }
 
-        let alarms = JSON.parse(localStorage.getItem('hr_alarms')) || [];
-        function addAlarm() {
-            const time = document.getElementById('alarm-time').value;
-            const desc = document.getElementById('alarm-desc').value;
-            if(!time || !desc) return alert("Completa los datos.");
-            alarms.push({ id: Date.now(), time, desc, active: true });
-            localStorage.setItem('hr_alarms', JSON.stringify(alarms));
-            renderAlarms();
+        // Dictado por voz
+        const btnVoice = document.getElementById('btn-voice');
+        if ('webkitSpeechRecognition' in window) {
+            const recognition = new webkitSpeechRecognition();
+            recognition.lang = 'es-MX';
+            
+            btnVoice.onclick = () => recognition.start();
+            recognition.onresult = (e) => {
+                document.getElementById('dictado-desc').value = e.results[0][0].transcript;
+            };
+        } else {
+            btnVoice.style.display = 'none';
         }
-
-        function renderAlarms() {
-            const list = document.getElementById('alarms-list');
-            list.innerHTML = '';
-            alarms.forEach(a => {
-                const li = document.createElement('li');
-                li.className = 'list-item';
-                li.innerHTML = `<div class="info"><span>${a.desc}</span><span class="date">${new Date(a.time).toLocaleString()}</span></div>`;
-                list.appendChild(li);
-            });
-        }
-
-        async function exportFull() {
-            const canvas = await html2canvas(document.body, { backgroundColor: '#d32f2f', scale: 2 });
-            const imgData = canvas.toDataURL('image/png');
-            const { jsPDF } = window.jspdf;
-            const pdf = new jsPDF('p', 'mm', 'a4');
-            const pageWidth = pdf.internal.pageSize.getWidth();
-            const imgHeight = (canvas.height * pageWidth) / canvas.width;
-            pdf.addImage(imgData, 'PNG', 0, 0, pageWidth, imgHeight);
-            pdf.save('InventarioHR_Horizontal.pdf');
-        }
-
-        window.onload = renderAlarms;
     </script>
 </body>
 </html>
