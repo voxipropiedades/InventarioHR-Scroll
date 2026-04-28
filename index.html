@@ -1207,6 +1207,7 @@
             pdf.text(`Precio: $${currentProperty.precio}`, 20, 60);
             pdf.text(`Superficie: ${currentProperty.m2} m²`, 20, 70);
             pdf.text(`Ubicación GPS: ${currentProperty.gps}`, 20, 80);
+            pdf.text(`Créditos: ${currentProperty.creditos.join(', ')}`, 20, 90);
             
             // Medidas y Colindancias
             pdf.setFontSize(16);
