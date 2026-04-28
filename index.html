@@ -714,7 +714,7 @@
 
                     <!-- CAMPOS DINÁMICOS: PARCELA -->
                     <div id="campos-parcela" class="cond-section">
-                        <div class="form-group"><label>M² TOTALES</label><input type="number" id="m2-totales" placeholder="0" oninput="calcularPrecio()"></div>
+                        <div class="form-group"><label>M² TOTALES</label><input type="number" id="m2-totales" placeholder="0" oninput="calcularMetro()"></div>
                         <div class="form-group"><label>DISTANCIA A SERVICIOS</label><input type="text" placeholder="Ej: 500m"></div>
                         <div class="form-group"><label>TIPO DE DOCUMENTO</label><input type="text" placeholder="Ej: Título, Escritura"></div>
                         <div class="form-group"><label>USO DE SUELO</label><input type="text" placeholder="Ej: Agrícola"></div>
@@ -756,6 +756,15 @@
                         <div class="form-group">
                             <label>TELÉFONO</label>
                             <input type="tel" placeholder="771...">
+                        </div>
+                        <div class="form-group">
+                            <label>UBICACIÓN AUTOMÁTICA GPS</label>
+                            <button type="button" class="btn-gps" style="background: #FF8C00; height: 40px;" onclick="obtenerGPS()">📍 CAPTURAR GPS</button>
+                        </div>
+                        <div class="form-group">
+                            <label>FOTO VINCULADA A UBICACIÓN</label>
+                            <button type="button" class="btn-gps" style="background: #555; height: 40px;" onclick="document.getElementById('photo-input-fast').click()">📸 TOMAR FOTO</button>
+                            <input type="file" id="photo-input-fast" accept="image/*" capture="camera" style="display:none">
                         </div>
                         <div class="form-group">
                             <label>DESCRIPCIÓN (DICTADO POR VOZ)</label>
@@ -818,7 +827,9 @@
 
         function calcularMetro() {
             const total = document.getElementById('precio-total').value;
-            const m2 = document.getElementById('m2-totales').value || document.getElementById('m2-const').value;
+            const m2_parcela = document.getElementById('m2-totales').value;
+            const m2_casa = document.getElementById('m2-const').value;
+            const m2 = m2_parcela || m2_casa;
             if(total && m2 && m2 > 0) {
                 document.getElementById('precio-metro').value = (total / m2).toFixed(2);
             }
@@ -826,7 +837,9 @@
 
         function calcularTotal() {
             const metro = document.getElementById('precio-metro').value;
-            const m2 = document.getElementById('m2-totales').value || document.getElementById('m2-const').value;
+            const m2_parcela = document.getElementById('m2-totales').value;
+            const m2_casa = document.getElementById('m2-const').value;
+            const m2 = m2_parcela || m2_casa;
             if(metro && m2 && m2 > 0) {
                 document.getElementById('precio-total').value = (metro * m2).toFixed(2);
             }
