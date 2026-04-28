@@ -107,6 +107,109 @@
             transform: scale(1.1);
         }
 
+        /* Dashboard Styles */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .metric-item {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            border: 1px solid #eee;
+            color: #333;
+        }
+
+        .metric-value {
+            display: block;
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #d32f2f;
+        }
+
+        .metric-label {
+            font-size: 0.8em;
+            color: #666;
+            text-transform: uppercase;
+        }
+
+        .search-box {
+            display: flex;
+            gap: 10px;
+            position: relative;
+        }
+
+        .search-box input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+        }
+
+        .voice-search {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            border: none;
+            background: #d32f2f;
+            color: white;
+            cursor: pointer;
+        }
+
+        .social-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .social-item {
+            text-decoration: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 15px;
+            border-radius: 12px;
+            color: white;
+            font-weight: bold;
+            transition: transform 0.2s;
+        }
+
+        .social-item:active { transform: scale(0.95); }
+        .social-item i { font-size: 1.8em; margin-bottom: 5px; }
+        .social-item.whatsapp { background: #25D366; }
+        .social-item.facebook { background: #1877F2; }
+        .social-item.tiktok { background: #000000; }
+
+        .alarm-item {
+            background: #fff;
+            padding: 10px;
+            border-radius: 8px;
+            border-left: 5px solid #d32f2f;
+            margin-top: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            color: #333;
+        }
+
+        .alarm-info h4 { font-size: 0.9em; margin: 0; }
+        .alarm-info span { font-size: 0.8em; color: #666; }
+
+        .btn-delete {
+            background: none;
+            border: none;
+            color: #ff5252;
+            cursor: pointer;
+            padding: 5px;
+        }
+
         /* Contenido Principal */
         .main-content {
             flex: 1;
@@ -347,9 +450,101 @@
         
         <!-- Sección Tablero -->
         <section id="section-tablero" class="app-section">
+            <!-- 1. MÉTRICAS Y RESUMEN -->
             <div class="card">
-                <div class="section-title"><i class="fas fa-chart-pie"></i> Tablero de Control</div>
-                <p>Resumen de actividades y métricas...</p>
+                <div class="section-title"><i class="fas fa-chart-line"></i> Resumen de Negocio</div>
+                <div class="metrics-grid">
+                    <div class="metric-item">
+                        <span class="metric-value" id="count-total">12</span>
+                        <span class="metric-label">Total Propiedades</span>
+                    </div>
+                    <div class="metric-item">
+                        <span class="metric-value" id="count-casas">5</span>
+                        <span class="metric-label">🏠 Casas</span>
+                    </div>
+                    <div class="metric-item">
+                        <span class="metric-value" id="count-terrenos">7</span>
+                        <span class="metric-label">🏢 Terrenos</span>
+                    </div>
+                    <div class="metric-item">
+                        <span class="metric-value" id="count-parcelas">2</span>
+                        <span class="metric-label">🐄 Parcelas</span>
+                    </div>
+                    <div class="metric-item">
+                        <span class="metric-value" id="count-const">4</span>
+                        <span class="metric-label">🏗️ Construidas</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. BUSCADOR INTELIGENTE -->
+            <div class="card">
+                <div class="section-title"><i class="fas fa-search"></i> Buscador Inteligente</div>
+                <div class="search-box">
+                    <input type="text" id="main-search" placeholder="¿Qué estás buscando hoy?">
+                    <button class="voice-search" onclick="startVoiceSearch()"><i class="fas fa-microphone"></i></button>
+                </div>
+                <div class="form-row" style="margin-top:10px;">
+                    <button class="btn-main" style="margin:0; flex:1;" onclick="searchApp()">Buscar en App</button>
+                    <button class="btn-main" style="margin:0; flex:1; background:#555;" onclick="searchWeb()">Buscar en Web</button>
+                </div>
+            </div>
+
+            <!-- 3. PRÓXIMAS CITAS -->
+            <div class="card">
+                <div class="section-title"><i class="fas fa-calendar-check"></i> Próximas Citas</div>
+                <div id="appointments-list">
+                    <div class="alarm-item">
+                        <div class="alarm-info">
+                            <h4>Cierre Terreno Acayuca</h4>
+                            <span>Hoy, 16:30 PM - Sr. Martínez</span>
+                        </div>
+                        <button class="btn-delete"><i class="fas fa-edit"></i></button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. SISTEMA DE ALARMAS -->
+            <div class="card">
+                <div class="section-title"><i class="fas fa-bell"></i> Sistema de Alarmas</div>
+                <div class="form-group">
+                    <input type="text" id="alarm-desc" placeholder="Descripción de la alarma...">
+                    <div class="form-row" style="margin-top:10px;">
+                        <input type="datetime-local" id="alarm-time">
+                        <button class="btn-capture" style="margin:0; width:50px; border-radius: 8px;" onclick="startAlarmVoice()"><i class="fas fa-microphone"></i></button>
+                    </div>
+                    <button class="btn-main" onclick="createAlarm()" style="margin-top:10px;">CREAR ALARMA</button>
+                </div>
+                <div id="alarms-list"></div>
+            </div>
+
+            <!-- 5. ACCESOS RÁPIDOS (REDES) -->
+            <div class="card">
+                <div class="section-title"><i class="fas fa-share-alt"></i> Mis Redes de Venta</div>
+                <div class="social-grid">
+                    <a href="https://wa.me/771" target="_blank" class="social-item whatsapp">
+                        <i class="fab fa-whatsapp"></i>
+                        <span>WhatsApp</span>
+                    </a>
+                    <a href="https://facebook.com" target="_blank" class="social-item facebook">
+                        <i class="fab fa-facebook-f"></i>
+                        <span>Facebook</span>
+                    </a>
+                    <a href="https://tiktok.com" target="_blank" class="social-item tiktok">
+                        <i class="fab fa-tiktok"></i>
+                        <span>TikTok</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- 6. PANEL INTELIGENTE -->
+            <div class="card" style="background: #fff3e0; color: #e65100; border: 1px solid #ffe0b2;">
+                <div class="section-title" style="color: #e65100;"><i class="fas fa-lightbulb"></i> Panel de Estrategia</div>
+                <div id="smart-panel-content">
+                    <p style="margin-bottom: 8px;"><strong>🔥 Motivación:</strong> "El éxito en los bienes raíces no es vender casas, es ayudar a las familias a encontrar su hogar."</p>
+                    <hr style="border: 0; border-top: 1px solid #ffe0b2; margin: 10px 0;">
+                    <p><strong>💡 Estrategia:</strong> Tienes 5 prospectos calientes. Envía el Flyer del terreno en Acayuca hoy mismo, los militares cierran rápido a fin de mes.</p>
+                </div>
             </div>
         </section>
 
@@ -575,6 +770,67 @@
                     window.scrollTo({ top: 0, behavior: 'auto' }); // Scroll instantáneo
                 }
             });
+        }
+
+        // Funciones del Tablero
+        function startVoiceSearch() {
+            if ('webkitSpeechRecognition' in window) {
+                const recognition = new webkitSpeechRecognition();
+                recognition.lang = 'es-MX';
+                recognition.onresult = (e) => {
+                    document.getElementById('main-search').value = e.results[0][0].transcript;
+                };
+                recognition.start();
+            }
+        }
+
+        function searchApp() {
+            const query = document.getElementById('main-search').value.toLowerCase();
+            alert(`Buscando "${query}" en tu inventario local...`);
+            // Aquí iría la lógica de filtrado de propiedades
+        }
+
+        function searchWeb() {
+            const query = document.getElementById('main-search').value;
+            window.open(`https://www.google.com/search?q=inmuebles+hidalgo+${encodeURIComponent(query)}`, '_blank');
+        }
+
+        function startAlarmVoice() {
+            if ('webkitSpeechRecognition' in window) {
+                const recognition = new webkitSpeechRecognition();
+                recognition.lang = 'es-MX';
+                recognition.onresult = (e) => {
+                    document.getElementById('alarm-desc').value = e.results[0][0].transcript;
+                };
+                recognition.start();
+            }
+        }
+
+        function createAlarm() {
+            const desc = document.getElementById('alarm-desc').value;
+            const time = document.getElementById('alarm-time').value;
+            if (!desc || !time) return alert("Completa descripción y fecha.");
+
+            const alarmList = document.getElementById('alarms-list');
+            const item = document.createElement('div');
+            item.className = 'alarm-item';
+            item.innerHTML = `
+                <div class="alarm-info">
+                    <h4>${desc}</h4>
+                    <span>${new Date(time).toLocaleString()}</span>
+                </div>
+                <button class="btn-delete" onclick="this.parentElement.remove()"><i class="fas fa-trash"></i></button>
+            `;
+            alarmList.appendChild(item);
+            
+            // Lógica de sonido/vibración simulada
+            setTimeout(() => {
+                if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
+                alert(`⏰ ALARMA: ${desc}`);
+            }, new Date(time) - new Date());
+
+            document.getElementById('alarm-desc').value = '';
+            document.getElementById('alarm-time').value = '';
         }
 
         function toggleForm(tipo) {
