@@ -305,6 +305,118 @@
             display: flex;
         }
 
+        /* Módulo de Salida */
+        .output-module {
+            display: none;
+            background: #fff;
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 20px;
+            color: #333;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            animation: fadeIn 0.5s ease;
+        }
+
+        .output-module.visible {
+            display: block;
+        }
+
+        .output-buttons {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .btn-output {
+            height: 60px;
+            border-radius: 10px;
+            border: none;
+            font-size: 1.1em;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .btn-output:active {
+            transform: scale(0.95);
+        }
+
+        .btn-whatsapp { background: #25D366; color: white; }
+        .btn-pdf { background: #E74C3C; color: white; }
+        .btn-flyer { background: #3498DB; color: white; }
+
+        /* Flyer Template (Oculto) */
+        #flyer-template {
+            position: absolute;
+            left: -9999px;
+            width: 500px;
+            background: #fff;
+            padding: 0;
+            color: #333;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .flyer-header {
+            background: #d32f2f;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .flyer-img-container {
+            width: 100%;
+            height: 400px;
+            background: #eee;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .flyer-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .flyer-body {
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .flyer-price {
+            font-size: 2.5em;
+            font-weight: 800;
+            color: #d32f2f;
+            text-align: center;
+        }
+
+        .flyer-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+            text-align: center;
+            border-top: 1px solid #eee;
+            border-bottom: 1px solid #eee;
+            padding: 20px 0;
+        }
+
+        .flyer-detail-item i {
+            display: block;
+            font-size: 1.5em;
+            color: #d32f2f;
+            margin-bottom: 5px;
+        }
+
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
@@ -508,10 +620,16 @@
 <body>
 
     <!-- Encabezado Fijo -->
-    <header class="app-header">
-        <div class="app-title">InventarioHR</div>
+    <header class="app-header" style="height: 100px; padding: 10px 20px;">
+        <div style="display: flex; align-items: center; gap: 15px;">
+            <img src="propiedades-app/icon-192.png" style="width: 60px; height: 60px; border-radius: 50%; border: 3px solid white; background: white;" onerror="this.src='https://cdn-icons-png.flaticon.com/512/609/609803.png'">
+            <div style="display: flex; flex-direction: column;">
+                <span style="font-size: 1.4em; font-weight: 800; color: white; letter-spacing: 1px;">HR MASTER V34</span>
+                <span style="font-size: 1.2em; font-weight: 700; color: white; opacity: 0.9;">MASTER</span>
+            </div>
+        </div>
         <div class="dropdown">
-            <button class="dropbtn"><i class="fas fa-wand-magic-sparkles"></i> Acciones</button>
+            <button class="dropbtn" style="background: rgba(255,255,255,0.2); border: 1px solid white;"><i class="fas fa-ellipsis-v"></i></button>
             <div class="dropdown-content">
                 <a href="javascript:void(0)" onclick="window.print()"><i class="fas fa-print"></i> 🖨️ Imprimir</a>
                 <a href="javascript:void(0)" onclick="exportFull()"><i class="fas fa-camera"></i> 📸 Capturar / Exportar</a>
@@ -775,7 +893,61 @@
                         </div>
                     </div>
 
-                    <button class="btn-search" style="background:#4CAF50; color:white; font-size: 1.2em; margin-top:20px;">GUARDAR EN INVENTARIO</button>
+                    <button class="btn-search" style="background:#4CAF50; color:white; font-size: 1.2em; margin-top:20px;" onclick="guardarInventario()">GUARDAR EN INVENTARIO</button>
+
+                    <!-- MÓDULO DE SALIDA -->
+                    <div id="modulo-salida" class="output-module">
+                        <h2 style="text-align: center; color: #d32f2f; margin-bottom: 5px;">📤 ÉXITO: GUARDADO</h2>
+                        <p style="text-align: center; font-size: 0.9em; color: #666;">¿Qué deseas hacer ahora?</p>
+                        
+                        <div class="output-buttons">
+                            <button class="btn-output btn-whatsapp" onclick="enviarWhatsApp()">
+                                <i class="fab fa-whatsapp"></i> ENVIAR WHATSAPP
+                            </button>
+                            <button class="btn-output btn-pdf" onclick="generarPDF()">
+                                <i class="fas fa-file-pdf"></i> GENERAR PDF
+                            </button>
+                            <button class="btn-output btn-flyer" onclick="generarFlyer()">
+                                <i class="fas fa-image"></i> GENERAR FLYER
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Template Oculto para Flyer -->
+                    <div id="flyer-template">
+                        <div class="flyer-header" style="display: flex; align-items: center; justify-content: center; gap: 15px; padding: 20px;">
+                            <img src="propiedades-app/icon-192.png" style="width: 50px; height: 50px; border-radius: 50%; background: white;" onerror="this.src='https://cdn-icons-png.flaticon.com/512/609/609803.png'">
+                            <div style="text-align: left;">
+                                <h1 id="f-tipo" style="color: white; margin:0; font-size: 1.4em; text-transform: uppercase;">PROPIEDAD</h1>
+                                <span style="font-weight: 800; color: #87CEEB;">HR MASTER V34</span>
+                            </div>
+                        </div>
+                        <div class="flyer-img-container">
+                            <img id="f-img" src="https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&q=80&w=1000" class="flyer-img">
+                        </div>
+                        <div class="flyer-body">
+                            <div class="flyer-price" id="f-precio">$0.00</div>
+                            <div class="flyer-details">
+                                <div class="flyer-detail-item">
+                                    <i class="fas fa-bed"></i>
+                                    <span id="f-beds">0</span> rec.
+                                </div>
+                                <div class="flyer-detail-item">
+                                    <i class="fas fa-bath"></i>
+                                    <span id="f-baths">0</span> baños
+                                </div>
+                                <div class="flyer-detail-item">
+                                    <i class="fas fa-ruler-combined"></i>
+                                    <span id="f-m2">0</span> m²
+                                </div>
+                            </div>
+                            <div style="text-align: center; margin-top: 10px;">
+                                <p id="f-loc" style="font-weight: bold; color: #555; font-size: 0.9em;">📍 Ubicación: GPS Capturado</p>
+                                <p style="color: #d32f2f; font-size: 1.1em; font-weight: 800; margin-top: 10px;">¡LLAMA AHORA!</p>
+                                <p id="f-tel" style="font-size: 1.2em; font-weight: 700; color: #333;">771 000 0000</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div id="prospectos" class="screen"><h1>🎯 Prospectos</h1><div class="placeholder-card">Seguimiento de clientes.</div></div>
@@ -852,6 +1024,97 @@
                 document.getElementById(id).value = event.results[0][0].transcript;
             };
             recognition.start();
+        }
+
+        // --- MÓDULO DE SALIDA JS ---
+        let currentProperty = { photo: "" };
+
+        document.getElementById('photo-input').addEventListener('change', function(e) {
+            if (e.target.files && e.target.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    currentProperty.photo = event.target.result;
+                }
+                reader.readAsDataURL(e.target.files[0]);
+            }
+        });
+
+        function guardarInventario() {
+            // Capturar datos básicos para el módulo de salida
+            currentProperty = {
+                tipo: document.getElementById('tipo-propiedad').value || 'Propiedad',
+                precio: document.getElementById('precio-total').value || '0',
+                m2: document.getElementById('m2-totales').value || document.getElementById('m2-const').value || '0',
+                gps: document.getElementById('gps-coords').value || 'No capturado',
+                desc: document.getElementById('dictado-desc').value || '',
+                tel: document.querySelector('input[type="tel"]').value || '',
+                rec: document.querySelectorAll('#campos-casa input')[1].value || '0',
+                ban: document.querySelectorAll('#campos-casa input')[2].value || '0'
+            };
+
+            // Mostrar el módulo de salida
+            document.getElementById('modulo-salida').classList.add('visible');
+            document.getElementById('modulo-salida').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function enviarWhatsApp() {
+            const msg = `🏠 *${currentProperty.tipo.toUpperCase()} EN VENTA*\n\n` +
+                        `📍 *Ubicación:* ${currentProperty.gps}\n` +
+                        `✨ *Características:* ${currentProperty.rec} recámaras, ${currentProperty.ban} baños, ${currentProperty.m2} m²\n` +
+                        `💰 *Precio:* $${currentProperty.precio}\n\n` +
+                        `📝 *Descripción:* ${currentProperty.desc}\n\n` +
+                        `Link de ficha: https://voxipropiedades.github.io/ficha/?id=${Date.now()}`;
+            
+            const url = `https://wa.me/${currentProperty.tel}?text=${encodeURIComponent(msg)}`;
+            window.open(url, '_blank');
+        }
+
+        async function generarPDF() {
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF();
+            
+            pdf.setFontSize(22);
+            pdf.setTextColor(211, 47, 47);
+            pdf.text("FICHA TÉCNICA INMOBILIARIA", 20, 20);
+            
+            pdf.setFontSize(14);
+            pdf.setTextColor(0, 0, 0);
+            pdf.text(`Tipo: ${currentProperty.tipo}`, 20, 40);
+            pdf.text(`Precio: $${currentProperty.precio}`, 20, 50);
+            pdf.text(`Ubicación GPS: ${currentProperty.gps}`, 20, 60);
+            pdf.text(`Medidas: ${currentProperty.m2} m2`, 20, 70);
+            
+            pdf.text("Características:", 20, 90);
+            pdf.text(`- Recámaras: ${currentProperty.rec}`, 25, 100);
+            pdf.text(`- Baños: ${currentProperty.ban}`, 25, 110);
+            
+            pdf.text("Descripción:", 20, 130);
+            pdf.text(pdf.splitTextToSize(currentProperty.desc, 170), 20, 140);
+            
+            pdf.save(`Ficha_${currentProperty.tipo}_${Date.now()}.pdf`);
+        }
+
+        async function generarFlyer() {
+            // Actualizar template con datos actuales
+            document.getElementById('f-tipo').innerText = currentProperty.tipo.toUpperCase();
+            document.getElementById('f-precio').innerText = `$${currentProperty.precio}`;
+            document.getElementById('f-beds').innerText = currentProperty.rec;
+            document.getElementById('f-baths').innerText = currentProperty.ban;
+            document.getElementById('f-m2').innerText = currentProperty.m2;
+            document.getElementById('f-loc').innerText = `📍 Ubicación: ${currentProperty.gps}`;
+            document.getElementById('f-tel').innerText = currentProperty.tel || '771 000 0000';
+            
+            if (currentProperty.photo) {
+                document.getElementById('f-img').src = currentProperty.photo;
+            }
+
+            // Capturar flyer
+            const flyer = document.getElementById('flyer-template');
+            const canvas = await html2canvas(flyer, { useCORS: true, scale: 2 });
+            const link = document.createElement('a');
+            link.download = `Flyer_${currentProperty.tipo}_${Date.now()}.png`;
+            link.href = canvas.toDataURL();
+            link.click();
         }
 
         let alarms = JSON.parse(localStorage.getItem('hr_alarms')) || [];
