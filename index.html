@@ -1140,14 +1140,97 @@
             }
         }
 
-        function startVoiceSearch() { alert("Micrófono activo..."); }
-        function searchApp() { alert("Buscando en tu inventario..."); }
-        function searchWeb() { alert("Buscando en internet..."); }
+        function startVoiceSearch() {
+            if ('webkitSpeechRecognition' in window) {
+                const rec = new webkitSpeechRecognition();
+                rec.lang = 'es-MX';
+                rec.onresult = (e) => {
+                    const text = e.results[0][0].transcript;
+                    document.getElementById('main-search').value = text;
+                };
+                rec.start();
+            } else {
+                alert("Tu navegador no soporta dictado por voz.");
+            }
+        }
+
+        function searchApp() {
+            const query = document.getElementById('main-search').value.toLowerCase();
+            if(!query) return alert("Escribe algo para buscar.");
+            const data = JSON.parse(localStorage.getItem('hr_inventario') || '[]');
+            const results = data.filter(p => p.tipo.toLowerCase().includes(query) || p.desc.toLowerCase().includes(query));
+            alert("Encontradas " + results.length + " propiedades en tu inventario local.");
+        }
+
+        function searchWeb() {
+            const query = document.getElementById('main-search').value;
+            if(!query) return alert("Escribe algo para buscar en Google.");
+            window.open(`https://www.google.com/search?q=${encodeURIComponent(query)}`, '_blank');
+        }
+
         function nuevaCitaShortcut() { switchSection('citas', null); }
-        function createAlarm() { alert("Alarma creada."); }
-        function enviarWhatsApp() { alert("Abriendo WhatsApp..."); }
-        function generarPDF() { window.print(); }
-        function generarFlyer() { alert("Generando imagen..."); }
+
+        function createAlarm() {
+            const desc = document.getElementById('alarm-desc').value;
+            const time = document.getElementById('alarm-time').value;
+            if(!desc || !time) return alert("Completa descripción y fecha.");
+            
+            const alarmList = document.getElementById('alarms-list');
+            const item = document.createElement('div');
+            item.className = 'alarm-item';
+            item.innerHTML = `
+                <div class="alarm-info">
+                    <h4>${desc}</h4>
+                    <span>${new Date(time).toLocaleString()}</span>
+                </div>
+                <button class="btn-delete" onclick="this.parentElement.remove()"><i class="fas fa-trash"></i></button>
+            `;
+            alarmList.appendChild(item);
+            alert("Alarma programada.");
+        }
+
+        function enviarWhatsApp() {
+            const mapsUrl = `https://www.google.com/maps?q=${currentProperty.gps}`;
+            const texto = `🏠 *FICHA TÉCNICA - HR*\n\n📍 *TIPO:* ${currentProperty.tipo}\n💰 *PRECIO:* $${currentProperty.precio}\n📐 *M2:* ${currentProperty.m2}\n\n📍 *GPS:* ${mapsUrl}\n📝 *DESCRIPCIÓN:* ${currentProperty.desc}`;
+            window.open(`https://wa.me/?text=${encodeURIComponent(texto)}`, '_blank');
+        }
+
+        async function generarPDF() {
+            alert("Generando PDF... (Esto puede tardar unos segundos)");
+            window.print();
+        }
+
+        async function generarFlyer() {
+            const template = document.getElementById('flyer-template');
+            if(!template) return;
+            
+            document.getElementById('f-tipo').innerText = currentProperty.tipo;
+            document.getElementById('f-precio').innerText = `$${currentProperty.precio}`;
+            document.getElementById('f-m2').innerText = `Superficie: ${currentProperty.m2} m²`;
+            document.getElementById('f-gps').innerText = `Ubicación: GPS Activo (${currentProperty.gps})`;
+            document.getElementById('f-desc').innerText = currentProperty.desc;
+            
+            if(currentProperty.photos && currentProperty.photos[0]) {
+                document.getElementById('f-img').src = currentProperty.photos[0];
+            }
+
+            template.style.position = 'relative';
+            template.style.left = '0';
+            
+            try {
+                const canvas = await html2canvas(template);
+                const link = document.createElement('a');
+                link.download = `Flyer-${currentProperty.tipo}.png`;
+                link.href = canvas.toDataURL();
+                link.click();
+                showToast("Flyer generado con éxito");
+            } catch (e) {
+                alert("Error al generar imagen: " + e.message);
+            } finally {
+                template.style.position = 'absolute';
+                template.style.left = '-9999px';
+            }
+        }
 
         // --- PROSPECTOS ---
         function prRender() {
