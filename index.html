@@ -1523,705 +1523,289 @@
         }
     </script>
 
+<!-- ═══════════════════════════════════════════ -->
+<!-- MÓDULO IA v3 — LIMPIO, RÁPIDO, FUNCIONAL  -->
+<!-- ═══════════════════════════════════════════ -->
 
-<!-- ============================================================ -->
-<!-- MÓDULO IA - INVENTARIO HR                                    -->
-<!-- PEGAR JUSTO ANTES DE </body> en tu index.html               -->
-<!-- ============================================================ -->
+<!-- BOTÓN FLOTANTE -->
+<button id="ia-btn" onclick="iaToggle()">🤖</button>
 
-<!-- 1. BOTÓN FLOTANTE IA -->
-<button id="btn-ia-float" onclick="toggleIAChat()" title="Asistente IA">
-  🤖
-</button>
-
-<!-- 2. CHAT IA -->
-<div id="ia-chat-container">
-  <div id="ia-chat-header">
-    <div style="display:flex; align-items:center; gap:10px;">
-      <span style="font-size:1.4em;">🤖</span>
-      <div>
-        <strong>Asistente IA</strong>
-        <div style="font-size:0.75em; opacity:0.8;">InventarioHR · Siempre activo</div>
-      </div>
-    </div>
-    <button onclick="toggleIAChat()" id="ia-close-btn">✕</button>
+<!-- PANEL CHAT -->
+<div id="ia-panel">
+  <div id="ia-head">
+    <span>🤖 Asistente IA · InventarioHR</span>
+    <button onclick="iaToggle()">✕</button>
   </div>
-
-  <!-- Acciones Rápidas -->
-  <div id="ia-quick-actions">
-    <button class="ia-qa-btn" onclick="iaAccion('contar')">📊 Contar</button>
-    <button class="ia-qa-btn" onclick="iaAccion('incompletos')">⚠️ Incompletos</button>
-    <button class="ia-qa-btn" onclick="iaAccion('duplicados')">🔍 Duplicados</button>
-    <button class="ia-qa-btn" onclick="iaAccion('sin_imagen')">🖼️ Sin foto</button>
-    <button class="ia-qa-btn" onclick="iaAccion('analisis')">🧠 Análisis</button>
-    <button class="ia-qa-btn" onclick="iaAccion('reporte')">📋 Reporte</button>
+  <div id="ia-btns">
+    <button onclick="iaRun('contar')">📊 Contar</button>
+    <button onclick="iaRun('incompletos')">⚠️ Incompletos</button>
+    <button onclick="iaRun('duplicados')">🔍 Duplicados</button>
+    <button onclick="iaRun('fotos')">🖼️ Sin foto</button>
+    <button onclick="iaRun('gps')">📍 Sin GPS</button>
+    <button onclick="iaRun('precios')">💰 Precios</button>
+    <button onclick="iaRun('analisis')">🧠 Análisis</button>
+    <button onclick="iaRun('reporte')">📋 Reporte</button>
   </div>
-
-  <!-- Área de mensajes -->
-  <div id="ia-messages">
-    <div class="ia-msg ia-bot">
-      👋 ¡Hola! Soy tu asistente de inventario.<br>
-      Puedo analizar propiedades, detectar errores y sugerirte acciones.<br><br>
-      <strong>¿Qué deseas hacer?</strong>
-    </div>
-  </div>
-
-  <!-- Input -->
-  <div id="ia-input-area">
-    <input type="text" id="ia-input" placeholder="Escríbeme lo que necesitas..." onkeydown="if(event.key==='Enter') iaEnviar()">
-    <button onclick="iaEnviar()" id="ia-send-btn">➤</button>
+  <div id="ia-msgs"></div>
+  <div id="ia-bar">
+    <input id="ia-inp" placeholder="Pregúntame algo…" onkeydown="if(event.key==='Enter')iaSend()">
+    <button onclick="iaSend()">➤</button>
   </div>
 </div>
 
-<!-- 3. ESTILOS IA -->
+<!-- INDICADORES TABLERO (se inyectan automáticamente) -->
+
 <style>
-  #btn-ia-float {
-    position: fixed;
-    bottom: 25px;
-    right: 20px;
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #d32f2f, #b71c1c);
-    border: none;
-    font-size: 1.6em;
-    cursor: pointer;
-    z-index: 9000;
-    box-shadow: 0 4px 20px rgba(211,47,47,0.5);
-    transition: transform 0.2s, box-shadow 0.2s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    animation: pulse-ia 2.5s infinite;
-  }
-  #btn-ia-float:hover { transform: scale(1.1); }
-  @keyframes pulse-ia {
-    0%,100% { box-shadow: 0 4px 20px rgba(211,47,47,0.5); }
-    50%      { box-shadow: 0 4px 32px rgba(211,47,47,0.9); }
-  }
-  #ia-chat-container {
-    display: none;
-    position: fixed;
-    bottom: 95px;
-    right: 15px;
-    width: 340px;
-    max-height: 530px;
-    background: #fff;
-    border-radius: 20px;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-    z-index: 9001;
-    flex-direction: column;
-    overflow: hidden;
-  }
-  #ia-chat-container.open { display: flex; animation: slideUpChat 0.3s ease-out; }
-  @keyframes slideUpChat {
-    from { opacity:0; transform:translateY(20px); }
-    to   { opacity:1; transform:translateY(0); }
-  }
-  #ia-chat-header {
-    background: linear-gradient(135deg, #d32f2f, #b71c1c);
-    color: white;
-    padding: 14px 16px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  #ia-close-btn {
-    background: rgba(255,255,255,0.2);
-    border: none;
-    color: white;
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    cursor: pointer;
-    font-size: 0.9em;
-  }
-  #ia-quick-actions {
-    padding: 10px;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    background: #fafafa;
-    border-bottom: 1px solid #eee;
-  }
-  .ia-qa-btn {
-    background: #fff;
-    border: 1.5px solid #d32f2f;
-    color: #d32f2f;
-    padding: 5px 9px;
-    border-radius: 20px;
-    font-size: 0.72em;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-  .ia-qa-btn:hover { background: #d32f2f; color: white; }
-  #ia-messages {
-    flex: 1;
-    overflow-y: auto;
-    padding: 12px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    min-height: 160px;
-    max-height: 270px;
-    background: #f5f5f5;
-  }
-  .ia-msg {
-    max-width: 92%;
-    padding: 10px 13px;
-    border-radius: 15px;
-    font-size: 0.84em;
-    line-height: 1.5;
-    word-break: break-word;
-  }
-  .ia-bot   { background:#fff; color:#333; border:1px solid #e0e0e0; align-self:flex-start; border-bottom-left-radius:4px; }
-  .ia-user  { background:#d32f2f; color:white; align-self:flex-end; border-bottom-right-radius:4px; }
-  .ia-typing{ background:#fff; color:#999; font-style:italic; border:1px dashed #ddd; align-self:flex-start; }
-  .ia-alerta{ background:#fff3e0; border-left:4px solid #e65100; color:#333; align-self:flex-start; }
-  .ia-ok    { background:#e8f5e9; border-left:4px solid #2e7d32; color:#333; align-self:flex-start; }
-  .ia-error { background:#ffebee; border-left:4px solid #c62828; color:#333; align-self:flex-start; }
-  #ia-input-area {
-    display: flex;
-    padding: 10px;
-    gap: 8px;
-    background: white;
-    border-top: 1px solid #eee;
-  }
-  #ia-input {
-    flex: 1;
-    padding: 9px 14px;
-    border: 1.5px solid #e0e0e0;
-    border-radius: 25px;
-    font-size: 0.88em;
-    outline: none;
-  }
-  #ia-input:focus { border-color: #d32f2f; }
-  #ia-send-btn {
-    background: #d32f2f;
-    color: white;
-    border: none;
-    width: 38px;
-    height: 38px;
-    border-radius: 50%;
-    cursor: pointer;
-    font-size: 1em;
-  }
-</style>
-
-<!-- 4. JAVASCRIPT IA -->
-<script>
-function toggleIAChat() {
-  var chat = document.getElementById('ia-chat-container');
-  chat.classList.toggle('open');
-  if (chat.classList.contains('open')) {
-    document.getElementById('ia-input').focus();
-    iaScrollBottom();
-  }
-}
-
-function iaEnviar() {
-  var input = document.getElementById('ia-input');
-  var texto = input.value.trim();
-  if (!texto) return;
-  iaMsgUsuario(texto);
-  input.value = '';
-  iaResponder(texto.toLowerCase());
-}
-
-function iaAccion(accion) {
-  var labels = {
-    contar:      '📊 Contar propiedades',
-    incompletos: '⚠️ Ver incompletos',
-    duplicados:  '🔍 Detectar duplicados',
-    sin_imagen:  '🖼️ Ver sin imagen',
-    analisis:    '🧠 Análisis completo',
-    reporte:     '📋 Generar reporte'
-  };
-  iaMsgUsuario(labels[accion] || accion);
-  iaResponder(accion);
-}
-
-function iaResponder(texto) {
-  iaShowTyping();
-  setTimeout(function() {
-    iaRemoveTyping();
-    var data = getInventario();
-
-    if (texto.includes('contar') || texto.includes('cu') || texto.includes('total')) {
-      iaContarPropiedades(data);
-    } else if (texto.includes('incompleto') || texto.includes('falt') || texto.includes('vac')) {
-      iaVerIncompletos(data);
-    } else if (texto.includes('duplicado') || texto.includes('repetido')) {
-      iaDetectarDuplicados(data);
-    } else if (texto.includes('sin_imagen') || texto.includes('imagen') || texto.includes('foto')) {
-      iaSinImagen(data);
-    } else if (texto.includes('analisis') || texto === '🧠 análisis completo' || texto.includes('analiz')) {
-      iaAnalisisCompleto(data);
-    } else if (texto.includes('reporte') || texto.includes('informe') || texto.includes('resumen')) {
-      iaGenerarReporte(data);
-    } else if (texto.includes('precio') || texto.includes('caro') || texto.includes('barato')) {
-      iaPrecio(data);
-    } else if (texto.includes('gps') || texto.includes('ubicaci')) {
-      iaSinGPS(data);
-    } else if (texto.includes('disponible') || texto.includes('vender')) {
-      iaMsgBot('📦 Tienes <strong>' + data.length + '</strong> propiedades en inventario. Todas disponibles.', 'ia-ok');
-    } else if (texto.includes('hola') || texto.includes('buenos') || texto.includes('hi')) {
-      iaMsgBot('👋 ¡Hola! Listo para analizar tu inventario. Usa los botones de arriba o escríbeme.');
-    } else if (texto.includes('ayuda') || texto.includes('puedes')) {
-      iaMsgBot('🤖 <strong>Mis funciones:</strong><br>📊 Contar propiedades<br>⚠️ Detectar incompletos<br>🔍 Duplicados<br>🖼️ Sin foto<br>📋 Reporte<br>💰 Análisis de precios<br>📍 Sin GPS');
-    } else {
-      iaMsgBot('No reconocí esa consulta. Prueba: <strong>contar, incompletos, duplicados, foto, precio, reporte, análisis</strong>.');
-    }
-    iaScrollBottom();
-  }, 650);
-}
-
-/* ── FUNCIONES INTELIGENTES ── */
-
-function iaContarPropiedades(data) {
-  if (!data.length) { iaMsgBot('📦 El inventario está vacío.', 'ia-alerta'); return; }
-  var tipos = {};
-  data.forEach(function(p) { var t = p.tipo || 'Sin tipo'; tipos[t] = (tipos[t] || 0) + 1; });
-  var detalle = Object.keys(tipos).map(function(k){ return '• ' + k + ': <strong>' + tipos[k] + '</strong>'; }).join('<br>');
-  iaMsgBot('📊 <strong>Total: ' + data.length + ' propiedades</strong><br><br>' + detalle, 'ia-ok');
-}
-
-function iaVerIncompletos(data) {
-  if (!data.length) { iaMsgBot('📦 Inventario vacío.', 'ia-alerta'); return; }
-  var problemas = [];
-  data.forEach(function(p, i) {
-    var issues = [];
-    if (!p.tipo || p.tipo === '') issues.push('sin tipo');
-    if (!p.precio || p.precio === '0' || p.precio === '') issues.push('sin precio');
-    if (!p.gps || p.gps === 'No capturado' || p.gps === '') issues.push('sin GPS');
-    if (!p.desc || p.desc.trim() === '') issues.push('sin descripción');
-    if (!p.photo || p.photo === '') issues.push('sin foto');
-    if (!p.tel || p.tel === '771' || p.tel === '') issues.push('teléfono incompleto');
-    if (issues.length) {
-      problemas.push('• <strong>' + (p.tipo || 'Propiedad #' + (i+1)) + '</strong>: ' + issues.join(', '));
-    }
-  });
-  if (!problemas.length) {
-    iaMsgBot('✅ Todos los registros están completos.', 'ia-ok');
-  } else {
-    iaMsgBot('⚠️ <strong>' + problemas.length + ' registro(s) incompleto(s):</strong><br><br>' + problemas.join('<br>'), 'ia-alerta');
-  }
-}
-
-function iaDetectarDuplicados(data) {
-  if (!data.length) { iaMsgBot('📦 Inventario vacío.', 'ia-alerta'); return; }
-  var vistos = {};
-  var duplicados = [];
-  data.forEach(function(p, i) {
-    var key = (p.gps || '') + '|' + (p.precio || '') + '|' + (p.tipo || '');
-    if (vistos[key] !== undefined) {
-      duplicados.push('• <strong>' + (p.tipo || 'Propiedad') + '</strong> — registros ' + (vistos[key]+1) + ' y ' + (i+1) + ' con mismo GPS/precio/tipo');
-    } else { vistos[key] = i; }
-  });
-  if (!duplicados.length) {
-    iaMsgBot('✅ No se detectaron duplicados.', 'ia-ok');
-  } else {
-    iaMsgBot('🔍 <strong>' + duplicados.length + ' posible(s) duplicado(s):</strong><br><br>' + duplicados.join('<br>'), 'ia-error');
-  }
-}
-
-function iaSinImagen(data) {
-  if (!data.length) { iaMsgBot('📦 Inventario vacío.', 'ia-alerta'); return; }
-  var sinFoto = data.filter(function(p){ return !p.photo || p.photo === ''; });
-  if (!sinFoto.length) {
-    iaMsgBot('✅ Todas las propiedades tienen foto.', 'ia-ok');
-  } else {
-    var lista = sinFoto.map(function(p){ return '• ' + (p.tipo || 'Propiedad') + ' — $' + (p.precio || 'sin precio'); }).join('<br>');
-    iaMsgBot('🖼️ <strong>' + sinFoto.length + ' sin foto:</strong><br><br>' + lista + '<br><br>💡 Las fotos aumentan el interés de los clientes.', 'ia-alerta');
-  }
-}
-
-function iaSinGPS(data) {
-  if (!data.length) { iaMsgBot('📦 Inventario vacío.', 'ia-alerta'); return; }
-  var sinGps = data.filter(function(p){ return !p.gps || p.gps === 'No capturado' || p.gps.trim() === ''; });
-  if (!sinGps.length) {
-    iaMsgBot('✅ Todas las propiedades tienen GPS.', 'ia-ok');
-  } else {
-    var lista = sinGps.map(function(p){ return '• ' + (p.tipo||'Propiedad') + ' — $' + (p.precio||'sin precio'); }).join('<br>');
-    iaMsgBot('📍 <strong>' + sinGps.length + ' sin GPS:</strong><br><br>' + lista, 'ia-alerta');
-  }
-}
-
-function iaPrecio(data) {
-  if (!data.length) { iaMsgBot('📦 Inventario vacío.', 'ia-alerta'); return; }
-  var precios = data.map(function(p){ return parseFloat(p.precio) || 0; }).filter(function(v){ return v > 0; });
-  if (!precios.length) { iaMsgBot('⚠️ Ninguna propiedad tiene precio registrado.', 'ia-alerta'); return; }
-  var min = Math.min.apply(null, precios);
-  var max = Math.max.apply(null, precios);
-  var prom = (precios.reduce(function(a,b){ return a+b; }, 0) / precios.length).toFixed(0);
-  var sinPrecio = data.filter(function(p){ return !p.precio || p.precio === '0'; }).length;
-  iaMsgBot('💰 <strong>Análisis de precios:</strong><br><br>• Mínimo: <strong>$' + min.toLocaleString() + '</strong><br>• Máximo: <strong>$' + max.toLocaleString() + '</strong><br>• Promedio: <strong>$' + parseFloat(prom).toLocaleString() + '</strong><br>• Sin precio: <strong>' + sinPrecio + '</strong>', 'ia-ok');
-}
-
-function iaAnalisisCompleto(data) {
-  if (!data.length) {
-    iaMsgBot('📦 El inventario está vacío. Agrega propiedades para analizar.', 'ia-alerta');
-    return;
-  }
-  var total = data.length;
-  var sinFoto   = data.filter(function(p){ return !p.photo || p.photo === ''; }).length;
-  var sinGps    = data.filter(function(p){ return !p.gps || p.gps === 'No capturado'; }).length;
-  var sinDesc   = data.filter(function(p){ return !p.desc || p.desc.trim() === ''; }).length;
-  var sinPrecio = data.filter(function(p){ return !p.precio || p.precio === '0'; }).length;
-  var vistos = {}; var dupCount = 0;
-  data.forEach(function(p,i){
-    var key = (p.gps||'')+'|'+(p.precio||'')+'|'+(p.tipo||'');
-    if(vistos[key] !== undefined) dupCount++; else vistos[key]=i;
-  });
-  var score = 100;
-  score -= (sinFoto/total)*25;
-  score -= (sinGps/total)*25;
-  score -= (sinDesc/total)*20;
-  score -= (sinPrecio/total)*20;
-  score -= dupCount*5;
-  score = Math.max(0, Math.round(score));
-  var emoji = score >= 80 ? '🟢' : score >= 50 ? '🟡' : '🔴';
-  var tipo = score >= 80 ? 'ia-ok' : score >= 50 ? 'ia-alerta' : 'ia-error';
-  var tip = score < 80 ? '💡 <em>Completa los datos faltantes para mejorar tus ventas.</em>' : '✅ <em>Inventario en buen estado.</em>';
-  iaMsgBot('🧠 <strong>Análisis Completo</strong><br><br>📦 Total: <strong>' + total + '</strong><br>🖼️ Sin foto: <strong>' + sinFoto + '</strong><br>📍 Sin GPS: <strong>' + sinGps + '</strong><br>📝 Sin descripción: <strong>' + sinDesc + '</strong><br>💰 Sin precio: <strong>' + sinPrecio + '</strong><br>🔁 Duplicados: <strong>' + dupCount + '</strong><br><br>' + emoji + ' <strong>Salud: ' + score + '/100</strong><br><br>' + tip, tipo);
-}
-
-function iaGenerarReporte(data) {
-  if (!data.length) { iaMsgBot('📦 Inventario vacío.', 'ia-alerta'); return; }
-  var tipos = {};
-  data.forEach(function(p){ var t=p.tipo||'Sin tipo'; tipos[t]=(tipos[t]||0)+1; });
-  var tiposStr = Object.keys(tipos).map(function(k){ return k+': '+tipos[k]; }).join(' | ');
-  var fecha = new Date().toLocaleDateString('es-MX',{day:'2-digit',month:'long',year:'numeric'});
-  var sinFoto   = data.filter(function(p){ return !p.photo||p.photo===''; }).length;
-  var sinGps    = data.filter(function(p){ return !p.gps||p.gps==='No capturado'; }).length;
-  var sinDesc   = data.filter(function(p){ return !p.desc||p.desc.trim()===''; }).length;
-  var sinPrecio = data.filter(function(p){ return !p.precio||p.precio==='0'; }).length;
-  var reporte = "REPORTE INVENTARIO HR\nFecha: "+fecha+"\n"+Array(30).join("-")+"\nTotal: "+data.length+"\n"+tiposStr+"\n"+Array(30).join("-")+"\nSin foto: "+sinFoto+"\nSin GPS: "+sinGps+"\nSin descripcion: "+sinDesc+"\nSin precio: "+sinPrecio+"\n"+Array(30).join("-")+"\nGenerado por Asistente IA · HR";
-  if (navigator.clipboard) {
-    navigator.clipboard.writeText(reporte).catch(function(){});
-  }
-  iaMsgBot('📋 <strong>Reporte generado</strong> (copiado al portapapeles):<br><br><pre style="font-size:0.73em;background:#f5f5f5;padding:8px;border-radius:8px;white-space:pre-wrap;overflow-x:auto;">'+reporte+'</pre>', 'ia-ok');
-}
-
-/* ── UTILIDADES ── */
-function getInventario() { return JSON.parse(localStorage.getItem('hr_inventario') || '[]'); }
-
-function iaMsgBot(html, clase) {
-  clase = clase || 'ia-bot';
-  var msgs = document.getElementById('ia-messages');
-  var div = document.createElement('div');
-  div.className = 'ia-msg ' + clase;
-  div.innerHTML = html;
-  msgs.appendChild(div);
-  iaScrollBottom();
-}
-
-function iaMsgUsuario(texto) {
-  var msgs = document.getElementById('ia-messages');
-  var div = document.createElement('div');
-  div.className = 'ia-msg ia-user';
-  div.textContent = texto;
-  msgs.appendChild(div);
-  iaScrollBottom();
-}
-
-function iaShowTyping() {
-  var msgs = document.getElementById('ia-messages');
-  var div = document.createElement('div');
-  div.className = 'ia-msg ia-typing';
-  div.id = 'ia-typing-indicator';
-  div.innerHTML = '⏳ Analizando...';
-  msgs.appendChild(div);
-  iaScrollBottom();
-}
-
-function iaRemoveTyping() {
-  var el = document.getElementById('ia-typing-indicator');
-  if (el) el.remove();
-}
-
-function iaScrollBottom() {
-  var msgs = document.getElementById('ia-messages');
-  msgs.scrollTop = msgs.scrollHeight;
-}
-</script>
-
-
-<!-- ═══════════════════════════════════════════════════ -->
-<!-- MÓDULO EXTRA: TABLERO + VALIDACIÓN + DATOS PRUEBA  -->
-<!-- PEGAR JUSTO ANTES DE </body>                       -->
-<!-- ═══════════════════════════════════════════════════ -->
-<style>
-#ia-dashboard-panel{background:#fff;border-radius:15px;padding:15px;margin-bottom:15px;box-shadow:0 2px 10px rgba(0,0,0,.12);}
-.ia-db-title{color:#d32f2f;font-weight:800;font-size:1em;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
-.ia-db-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
-.ia-db-card{border-radius:12px;padding:12px 8px;text-align:center;color:#fff;}
-.ia-db-rojo{background:linear-gradient(135deg,#d32f2f,#b71c1c);}
-.ia-db-naranja{background:linear-gradient(135deg,#f57c00,#e65100);}
-.ia-db-gris{background:linear-gradient(135deg,#546e7a,#37474f);}
-.ia-db-num{font-size:1.8em;font-weight:900;line-height:1;}
-.ia-db-label{font-size:.65em;opacity:.9;margin-top:4px;}
-.ia-db-refresh{background:#d32f2f;color:#fff;border:none;padding:8px 18px;border-radius:25px;font-size:.8em;font-weight:700;cursor:pointer;margin-top:12px;width:100%;}
+#ia-btn{position:fixed;bottom:22px;right:18px;width:58px;height:58px;border-radius:50%;background:#d32f2f;border:none;font-size:1.7em;cursor:pointer;z-index:9000;box-shadow:0 4px 16px rgba(211,47,47,.6);color:#fff;display:flex;align-items:center;justify-content:center;}
+#ia-btn:hover{background:#b71c1c;transform:scale(1.08);}
+#ia-panel{display:none;position:fixed;bottom:90px;right:14px;width:330px;background:#fff;border-radius:18px;box-shadow:0 8px 32px rgba(0,0,0,.25);z-index:9001;flex-direction:column;overflow:hidden;max-height:520px;}
+#ia-panel.on{display:flex;}
+#ia-head{background:#d32f2f;color:#fff;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;font-weight:700;font-size:.92em;}
+#ia-head button{background:rgba(255,255,255,.2);border:none;color:#fff;width:26px;height:26px;border-radius:50%;cursor:pointer;font-size:.85em;}
+#ia-btns{padding:8px;display:flex;flex-wrap:wrap;gap:5px;background:#f9f9f9;border-bottom:1px solid #eee;}
+#ia-btns button{background:#fff;border:1.5px solid #d32f2f;color:#d32f2f;padding:4px 8px;border-radius:18px;font-size:.7em;font-weight:700;cursor:pointer;}
+#ia-btns button:hover{background:#d32f2f;color:#fff;}
+#ia-msgs{flex:1;overflow-y:auto;padding:10px;display:flex;flex-direction:column;gap:8px;background:#f5f5f5;min-height:150px;max-height:260px;}
+.im{max-width:92%;padding:9px 12px;border-radius:14px;font-size:.83em;line-height:1.5;word-break:break-word;}
+.ib{background:#fff;color:#333;border:1px solid #e0e0e0;align-self:flex-start;border-bottom-left-radius:3px;}
+.iu{background:#d32f2f;color:#fff;align-self:flex-end;border-bottom-right-radius:3px;}
+.iok{background:#e8f5e9;border-left:4px solid #2e7d32;color:#1b5e20;align-self:flex-start;}
+.iwarn{background:#fff8e1;border-left:4px solid #f9a825;color:#4e342e;align-self:flex-start;}
+.ierr{background:#ffebee;border-left:4px solid #c62828;color:#b71c1c;align-self:flex-start;}
+#ia-bar{display:flex;padding:8px;gap:6px;background:#fff;border-top:1px solid #eee;}
+#ia-inp{flex:1;padding:8px 12px;border:1.5px solid #ddd;border-radius:22px;font-size:.86em;outline:none;}
+#ia-inp:focus{border-color:#d32f2f;}
+#ia-bar button{background:#d32f2f;color:#fff;border:none;width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:1em;}
+/* TABLERO */
+#ia-dash{background:#fff;border-radius:13px;padding:13px;margin-bottom:13px;box-shadow:0 2px 8px rgba(0,0,0,.1);}
+.ia-dash-title{color:#d32f2f;font-weight:800;font-size:.9em;margin-bottom:10px;}
+.ia-dash-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.ia-dc{border-radius:10px;padding:10px 6px;text-align:center;color:#fff;}
+.ia-dc-r{background:linear-gradient(135deg,#d32f2f,#b71c1c);}
+.ia-dc-o{background:linear-gradient(135deg,#ef6c00,#e65100);}
+.ia-dc-g{background:linear-gradient(135deg,#455a64,#263238);}
+.ia-dc-n{font-size:1.7em;font-weight:900;line-height:1.1;}
+.ia-dc-l{font-size:.62em;opacity:.9;margin-top:3px;}
+.ia-dash-btn{background:#d32f2f;color:#fff;border:none;padding:7px;border-radius:22px;font-size:.76em;font-weight:700;cursor:pointer;margin-top:10px;width:100%;}
+/* ALERTA VALIDACIÓN */
+#ia-alert{display:none;position:fixed;top:75px;left:50%;transform:translateX(-50%);background:#fff;border:2px solid #d32f2f;border-radius:14px;padding:18px;z-index:9999;max-width:300px;width:90%;box-shadow:0 6px 24px rgba(0,0,0,.25);}
 </style>
 
 <script>
-/* ── DATOS DE PRUEBA si inventario vacío ── */
-(function seedIfEmpty(){
-  var d = JSON.parse(localStorage.getItem('hr_inventario')||'[]');
-  if (d.length === 0) {
-    var prueba = [
-      {tipo:'🏢 Terreno', precio:'350000', gps:'20.1234,-98.5678', desc:'Terreno esquinero Acayuca', photo:'data:image/gif;base64,R0lGOD', tel:'7711234567', creditos:['Efectivo'], timestamp: Date.now()-86400000},
-      {tipo:'🏠 Casa',    precio:'850000', gps:'20.2345,-98.6789', desc:'',                          photo:'',                                                tel:'771',       creditos:['Infonavit'],          timestamp: Date.now()-172800000},
-      {tipo:'🏢 Terreno', precio:'350000', gps:'20.1234,-98.5678', desc:'Terreno esquinero Acayuca', photo:'data:image/gif;base64,R0lGOD', tel:'7711234567', creditos:['Efectivo'], timestamp: Date.now()-259200000},
-      {tipo:'🌾 Parcela', precio:'0',      gps:'No capturado',     desc:'',                          photo:'',                                                tel:'',          creditos:[],                     timestamp: Date.now()-345600000},
-      {tipo:'🏠 Casa',    precio:'1200000',gps:'20.3456,-98.7890', desc:'Casa 3 recamaras zona militar', photo:'data:image/gif;base64,R0lGOD', tel:'7719876543', creditos:['Bancario','Infonavit'], timestamp: Date.now()}
-    ];
-    localStorage.setItem('hr_inventario', JSON.stringify(prueba));
-    console.log('[IA] Datos de prueba cargados (5 propiedades)');
+/* ── DATOS ── */
+function D(){return JSON.parse(localStorage.getItem('hr_inventario')||'[]');}
+function sinc(d){return d.filter(function(p){return(!p.precio||p.precio==='0')||(!p.gps||p.gps==='No capturado')||(!p.photo||p.photo==='')||(!p.desc||p.desc.trim()==='');});}
+function sfot(d){return d.filter(function(p){return!p.photo||p.photo==='';});}
+function sgps(d){return d.filter(function(p){return!p.gps||p.gps==='No capturado'||p.gps.trim()==='';});}
+function sdup(d){var v={},r=[];d.forEach(function(p,i){var k=(p.gps||'')+'|'+(p.precio||'')+'|'+(p.tipo||'');if(v[k]!==undefined)r.push(p);else v[k]=i;});return r;}
+
+/* ── SEED datos prueba si vacío ── */
+(function(){
+  if(!D().length){
+    localStorage.setItem('hr_inventario',JSON.stringify([
+      {tipo:'🏢 Terreno',precio:'350000',gps:'20.123,-98.456',desc:'Terreno Acayuca esquina',photo:'data:x',tel:'7711111111',creditos:['Efectivo']},
+      {tipo:'🏠 Casa',precio:'850000',gps:'20.234,-98.567',desc:'',photo:'',tel:'771',creditos:['Infonavit']},
+      {tipo:'🏢 Terreno',precio:'350000',gps:'20.123,-98.456',desc:'Terreno Acayuca esquina',photo:'data:x',tel:'7711111111',creditos:['Efectivo']},
+      {tipo:'🌾 Parcela',precio:'0',gps:'No capturado',desc:'',photo:'',tel:'',creditos:[]},
+      {tipo:'🏠 Casa',precio:'1200000',gps:'20.345,-98.678',desc:'Casa 3 recámaras zona militar',photo:'data:x',tel:'7712222222',creditos:['Bancario']}
+    ]));
   }
 })();
 
-/* ── TABLERO: INYECTAR INDICADORES ── */
-function iaInyectarTablero() {
-  var sec = document.getElementById('section-tablero');
-  if (!sec || document.getElementById('ia-dashboard-panel')) return;
-  var firstCard = sec.querySelector('.card');
-  var panel = document.createElement('div');
-  panel.id = 'ia-dashboard-panel';
-  panel.innerHTML =
-    '<div class="ia-db-title">📊 Resumen del Inventario</div>'+
-    '<div class="ia-db-grid">'+
-      '<div class="ia-db-card ia-db-rojo"><div class="ia-db-num" id="ia-db-total">–</div><div class="ia-db-label">Total</div></div>'+
-      '<div class="ia-db-card ia-db-naranja"><div class="ia-db-num" id="ia-db-incomp">–</div><div class="ia-db-label">Incompletos</div></div>'+
-      '<div class="ia-db-card ia-db-gris"><div class="ia-db-num" id="ia-db-sfoto">–</div><div class="ia-db-label">Sin foto</div></div>'+
-    '</div>'+
-    '<button class="ia-db-refresh" onclick="iaActualizarTablero()">🔄 Actualizar indicadores</button>';
-  if (firstCard) sec.insertBefore(panel, firstCard);
-  else sec.appendChild(panel);
-  iaActualizarTablero();
+/* ── TABLERO ── */
+function iaDash(){
+  var sec=document.getElementById('section-tablero');
+  if(!sec||document.getElementById('ia-dash'))return;
+  var el=document.createElement('div');el.id='ia-dash';
+  el.innerHTML='<div class="ia-dash-title">📊 Resumen del Inventario</div>'
+    +'<div class="ia-dash-grid">'
+    +'<div class="ia-dc ia-dc-r"><div class="ia-dc-n" id="dn-t">–</div><div class="ia-dc-l">Total</div></div>'
+    +'<div class="ia-dc ia-dc-o"><div class="ia-dc-n" id="dn-i">–</div><div class="ia-dc-l">Incompletos</div></div>'
+    +'<div class="ia-dc ia-dc-g"><div class="ia-dc-n" id="dn-f">–</div><div class="ia-dc-l">Sin foto</div></div>'
+    +'</div>'
+    +'<button class="ia-dash-btn" onclick="iaRefresh()">🔄 Actualizar</button>';
+  var fc=sec.querySelector('.card');
+  fc?sec.insertBefore(el,fc):sec.appendChild(el);
+  iaRefresh();
+}
+function iaRefresh(){
+  var d=D();
+  var t=document.getElementById('dn-t'),i=document.getElementById('dn-i'),f=document.getElementById('dn-f');
+  if(t)t.textContent=d.length;
+  if(i)i.textContent=sinc(d).length;
+  if(f)f.textContent=sfot(d).length;
 }
 
-function iaActualizarTablero() {
-  var d = JSON.parse(localStorage.getItem('hr_inventario')||'[]');
-  var incomp = d.filter(function(p){
-    return (!p.precio||p.precio==='0') || (!p.gps||p.gps==='No capturado') || (!p.photo||p.photo==='') || (!p.desc||p.desc.trim()==='') || (!p.tel||p.tel==='771'||p.tel==='');
-  }).length;
-  var sfoto = d.filter(function(p){return !p.photo||p.photo==='';}).length;
-  var t = document.getElementById('ia-db-total');
-  var c = document.getElementById('ia-db-incomp');
-  var s = document.getElementById('ia-db-sfoto');
-  if(t) t.textContent = d.length;
-  if(c) c.textContent = incomp;
-  if(s) s.textContent = sfoto;
+/* ── CHAT ── */
+function iaToggle(){document.getElementById('ia-panel').classList.toggle('on');}
+function iaSend(){var v=document.getElementById('ia-inp').value.trim();if(!v)return;iaU(v);document.getElementById('ia-inp').value='';iaProcess(v.toLowerCase());}
+function iaRun(c){var L={contar:'📊 Contar propiedades',incompletos:'⚠️ Ver incompletos',duplicados:'🔍 Detectar duplicados',fotos:'🖼️ Sin foto',gps:'📍 Sin GPS',precios:'💰 Análisis de precios',analisis:'🧠 Análisis completo',reporte:'📋 Generar reporte'};iaU(L[c]||c);iaProcess(c);}
+
+function iaProcess(t){
+  iaTyp();
+  setTimeout(function(){
+    iaNoTyp();
+    var d=D();
+    if(t==='contar'||t.includes('conta')||t.includes('total')||t.includes('cuant'))iaContar(d);
+    else if(t==='incompletos'||t.includes('incomplet')||t.includes('falt'))iaIncomp(d);
+    else if(t==='duplicados'||t.includes('duplic'))iaDupl(d);
+    else if(t==='fotos'||t.includes('foto')||t.includes('imagen'))iaSFoto(d);
+    else if(t==='gps'||t.includes('gps')||t.includes('ubicaci'))iaSGPS(d);
+    else if(t==='precios'||t.includes('precio')||t.includes('caro'))iaPrec(d);
+    else if(t==='analisis'||t.includes('anali'))iaAnal(d);
+    else if(t==='reporte'||t.includes('report'))iaRep(d);
+    else if(t.includes('hola')||t.includes('buenos'))iaB('👋 ¡Hola! Listo para analizar tu inventario.');
+    else iaB('Prueba: <b>contar, incompletos, duplicados, foto, GPS, precio, análisis, reporte</b>');
+  },500);
 }
 
-/* ── VALIDACIÓN AL GUARDAR ── */
-window.addEventListener('load', function(){
-  var btnGuardar = document.querySelector('button[onclick="guardarInventario()"]');
-  if (btnGuardar) {
-    btnGuardar.removeAttribute('onclick');
-    btnGuardar.addEventListener('click', function(e){
+/* ── FUNCIONES ── */
+function iaContar(d){
+  if(!d.length){iaB('📦 Inventario vacío.','iwarn');return;}
+  var t={};d.forEach(function(p){var k=p.tipo||'Sin tipo';t[k]=(t[k]||0)+1;});
+  iaB('📊 <b>'+d.length+' propiedades</b><br><br>'+Object.keys(t).map(function(k){return'• '+k+': <b>'+t[k]+'</b>';}).join('<br>'),'iok');
+}
+function iaIncomp(d){
+  if(!d.length){iaB('📦 Vacío.','iwarn');return;}
+  var r=[];
+  d.forEach(function(p,i){
+    var x=[];
+    if(!p.precio||p.precio==='0')x.push('sin precio');
+    if(!p.gps||p.gps==='No capturado')x.push('sin GPS');
+    if(!p.photo||p.photo==='')x.push('sin foto');
+    if(!p.desc||!p.desc.trim())x.push('sin descripción');
+    if(!p.tel||p.tel==='771')x.push('tel incompleto');
+    if(x.length)r.push('• <b>'+(p.tipo||'Prop #'+(i+1))+'</b>: '+x.join(', '));
+  });
+  if(!r.length)iaB('✅ Todos completos.','iok');
+  else iaB('⚠️ <b>'+r.length+' incompleto(s):</b><br><br>'+r.join('<br>'),'iwarn');
+}
+function iaDupl(d){
+  if(!d.length){iaB('📦 Vacío.','iwarn');return;}
+  var s=sdup(d);
+  if(!s.length)iaB('✅ Sin duplicados.','iok');
+  else iaB('🔍 <b>'+s.length+' duplicado(s):</b><br><br>'+s.map(function(p){return'• '+(p.tipo||'Prop')+' $'+(p.precio||'–');}).join('<br>'),'ierr');
+}
+function iaSFoto(d){
+  if(!d.length){iaB('📦 Vacío.','iwarn');return;}
+  var s=sfot(d);
+  if(!s.length)iaB('✅ Todas tienen foto.','iok');
+  else iaB('🖼️ <b>'+s.length+' sin foto:</b><br><br>'+s.map(function(p){return'• '+(p.tipo||'Prop')+' — $'+(p.precio||'–');}).join('<br>')+'<br><br>💡 Las fotos aceleran ventas.','iwarn');
+}
+function iaSGPS(d){
+  if(!d.length){iaB('📦 Vacío.','iwarn');return;}
+  var s=sgps(d);
+  if(!s.length)iaB('✅ Todas tienen GPS.','iok');
+  else iaB('📍 <b>'+s.length+' sin GPS:</b><br><br>'+s.map(function(p){return'• '+(p.tipo||'Prop');}).join('<br>'),'iwarn');
+}
+function iaPrec(d){
+  if(!d.length){iaB('📦 Vacío.','iwarn');return;}
+  var p=d.map(function(x){return parseFloat(x.precio)||0;}).filter(function(v){return v>0;});
+  if(!p.length){iaB('⚠️ Sin precios.','iwarn');return;}
+  var mn=Math.min.apply(null,p),mx=Math.max.apply(null,p),av=(p.reduce(function(a,b){return a+b;},0)/p.length).toFixed(0);
+  iaB('💰 <b>Precios:</b><br>• Mín: <b>$'+mn.toLocaleString()+'</b><br>• Máx: <b>$'+mx.toLocaleString()+'</b><br>• Prom: <b>$'+parseFloat(av).toLocaleString()+'</b><br>• Sin precio: <b>'+d.filter(function(x){return!x.precio||x.precio==='0';}).length+'</b>','iok');
+}
+function iaAnal(d){
+  if(!d.length){iaB('📦 Vacío.','iwarn');return;}
+  var tot=d.length,si=sinc(d).length,sf=sfot(d).length,sg=sgps(d).length,sd=sdup(d).length;
+  var score=Math.max(0,Math.round(100-(si/tot)*30-(sf/tot)*25-(sg/tot)*25-sd*5));
+  var em=score>=80?'🟢':score>=50?'🟡':'🔴',tp=score>=80?'iok':score>=50?'iwarn':'ierr';
+  iaB('🧠 <b>Análisis completo</b><br><br>'
+    +'📦 Total: <b>'+tot+'</b><br>'
+    +'⚠️ Incompletos: <b>'+si+'</b><br>'
+    +'🖼️ Sin foto: <b>'+sf+'</b><br>'
+    +'📍 Sin GPS: <b>'+sg+'</b><br>'
+    +'🔁 Duplicados: <b>'+sd+'</b><br><br>'
+    +em+' <b>Salud: '+score+'/100</b>',tp);
+  iaRefresh();
+}
+function iaRep(d){
+  if(!d.length){iaB('📦 Vacío.','iwarn');return;}
+  var t={};d.forEach(function(p){var k=p.tipo||'Sin tipo';t[k]=(t[k]||0)+1;});
+  var f=new Date().toLocaleDateString('es-MX',{day:'2-digit',month:'long',year:'numeric'});
+  var r='REPORTE INVENTARIO HR\nFecha: '+f+'\n'+Array(25).join('-')+'\nTotal: '+d.length+'\n'
+    +Object.keys(t).map(function(k){return k+': '+t[k];}).join(' | ')+'\n'+Array(25).join('-')
+    +'\nSin foto: '+sfot(d).length+'\nSin GPS: '+sgps(d).length
+    +'\nIncompletos: '+sinc(d).length+'\nDuplicados: '+sdup(d).length
+    +'\n'+Array(25).join('-')+'\nGenerado por Asistente IA · HR';
+  try{navigator.clipboard.writeText(r);}catch(e){}
+  iaB('📋 <b>Reporte copiado al portapapeles:</b><br><pre style="font-size:.7em;background:#f5f5f5;padding:7px;border-radius:7px;white-space:pre-wrap;">'+r+'</pre>','iok');
+}
+
+/* ── VALIDACIÓN GUARDAR ── */
+window.addEventListener('load',function(){
+  var btn=document.querySelector('button[onclick="guardarInventario()"]');
+  if(btn){
+    btn.removeAttribute('onclick');
+    btn.addEventListener('click',function(e){
       e.preventDefault();
-      iaValidarYGuardar();
+      var tipo=(document.getElementById('tipo-propiedad')||{}).value||'';
+      var precio=(document.getElementById('precio-total')||{}).value||'';
+      var gps=(document.getElementById('gps-coords')||{}).value||'';
+      var tel=(document.querySelector('input[type="tel"]')||{}).value||'';
+      var err=[];
+      if(!tipo.trim())err.push('• Tipo de propiedad');
+      if(!precio||precio==='0')err.push('• Precio total');
+      if(!gps.trim()||gps==='Coordenadas GPS')err.push('• Ubicación GPS');
+      if(!tel.trim()||tel==='771')err.push('• Teléfono de contacto');
+      if(err.length){
+        var al=document.getElementById('ia-alert');
+        al.innerHTML='<div style="color:#d32f2f;font-weight:800;margin-bottom:8px;">⚠️ Datos obligatorios</div>'
+          +'<div style="font-size:.87em;color:#555;line-height:1.9;">'+err.join('<br>')+'</div>'
+          +'<button onclick="document.getElementById(\'ia-alert\').style.display=\'none\'" '
+          +'style="margin-top:12px;width:100%;background:#d32f2f;color:#fff;border:none;padding:9px;border-radius:9px;font-weight:700;cursor:pointer;">Entendido</button>';
+        al.style.display='block';
+        setTimeout(function(){al.style.display='none';},6000);
+        return;
+      }
+      if(typeof guardarInventario==='function'){guardarInventario();setTimeout(iaRefresh,400);}
     });
   }
 });
 
-function iaValidarYGuardar() {
-  var tipo   = document.getElementById('tipo-propiedad') ? document.getElementById('tipo-propiedad').value : '';
-  var precio = document.getElementById('precio-total')   ? document.getElementById('precio-total').value   : '';
-  var gps    = document.getElementById('gps-coords')     ? document.getElementById('gps-coords').value     : '';
-  var telEl  = document.querySelector('input[type="tel"]');
-  var tel    = telEl ? telEl.value : '';
-
-  var errores = [];
-  if (!tipo || tipo.trim()==='')                                errores.push('• Tipo de propiedad');
-  if (!precio || precio==='0' || precio.trim()==='')            errores.push('• Precio total');
-  if (!gps || gps.trim()==='' || gps==='Coordenadas GPS')       errores.push('• Ubicación GPS');
-  if (!tel || tel.trim()==='' || tel==='771')                   errores.push('• Teléfono de contacto');
-
-  if (errores.length > 0) {
-    iaShowAlert(errores);
-    return;
-  }
-
-  // Ejecutar guardado original
-  if (typeof guardarInventario === 'function') {
-    guardarInventario();
-    setTimeout(iaActualizarTablero, 400);
+/* ── AUTO-ANÁLISIS AL CARGAR ── */
+function iaAutoMsg(){
+  var d=D();
+  var si=sinc(d).length,sf=sfot(d).length,sd=sdup(d).length;
+  var msg;
+  if(!d.length){
+    msg='👋 Hola, soy tu asistente IA.<br>Aún no hay propiedades. ¡Empieza a agregar!';
+    iaB(msg);
+  } else {
+    msg='🧠 <b>Inventario analizado:</b><br>📦 <b>'+d.length+'</b> propiedades';
+    if(si)msg+='<br>⚠️ <b>'+si+'</b> incompleta(s)';
+    if(sf)msg+='<br>🖼️ <b>'+sf+'</b> sin foto';
+    if(sd)msg+='<br>🔁 <b>'+sd+'</b> duplicada(s)';
+    if(!si&&!sf&&!sd)msg+='<br>✅ Todo en orden.';
+    else msg+='<br><br>👉 Pulsa <b>Análisis</b> para detalles.';
+    iaB(msg,(!si&&!sf&&!sd)?'iok':'iwarn');
   }
 }
 
-function iaShowAlert(errores) {
-  var old = document.getElementById('ia-val-alert');
-  if (old) old.remove();
-  var div = document.createElement('div');
-  div.id = 'ia-val-alert';
-  div.style.cssText = 'position:fixed;top:80px;left:50%;transform:translateX(-50%);background:#fff;border:2px solid #d32f2f;border-radius:15px;padding:20px;z-index:9999;max-width:310px;width:90%;box-shadow:0 8px 30px rgba(0,0,0,.3);text-align:left;';
-  div.innerHTML =
-    '<div style="color:#d32f2f;font-weight:800;margin-bottom:8px;">⚠️ Datos obligatorios faltantes</div>'+
-    '<div style="font-size:.88em;color:#555;line-height:1.8;">'+errores.join('<br>')+'</div>'+
-    '<button onclick="document.getElementById(\'ia-val-alert\').remove()" style="margin-top:14px;width:100%;background:#d32f2f;color:#fff;border:none;padding:10px;border-radius:10px;font-weight:700;cursor:pointer;">Entendido, voy a completarlo</button>';
-  document.body.appendChild(div);
-  setTimeout(function(){ var a=document.getElementById('ia-val-alert'); if(a) a.remove(); }, 6000);
-}
+/* ── HOOK GUARDAR ── */
+(function(){
+  var orig=window.guardarInventario;
+  if(typeof orig==='function'){
+    window.guardarInventario=function(){orig.apply(this,arguments);setTimeout(iaRefresh,400);};
+  }
+})();
+
+/* ── UTILIDADES ── */
+function iaB(h,c){c=c||'ib';var m=document.getElementById('ia-msgs'),d=document.createElement('div');d.className='im '+c;d.innerHTML=h;m.appendChild(d);m.scrollTop=m.scrollHeight;}
+function iaU(t){var m=document.getElementById('ia-msgs'),d=document.createElement('div');d.className='im iu';d.textContent=t;m.appendChild(d);m.scrollTop=m.scrollHeight;}
+function iaTyp(){var m=document.getElementById('ia-msgs'),d=document.createElement('div');d.className='im ib';d.id='ia-typ';d.textContent='⏳ Analizando...';m.appendChild(d);m.scrollTop=m.scrollHeight;}
+function iaNoTyp(){var e=document.getElementById('ia-typ');if(e)e.remove();}
+
+/* ── ALERTA DOM ── */
+document.addEventListener('DOMContentLoaded',function(){
+  var al=document.createElement('div');al.id='ia-alert';document.body.appendChild(al);
+});
 
 /* ── INIT ── */
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', iaInyectarTablero);
-} else {
-  iaInyectarTablero();
-}
+function iaInit(){iaDash();setTimeout(iaAutoMsg,900);}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',iaInit);
+else iaInit();
 </script>
-
-
-<!-- ═══════════════════════════════════════════════════════════ -->
-<!-- 🧠 AUTO-FIX ENGINE PRO v2 — InventarioHR                  -->
-<!-- PEGAR JUSTO ANTES DE </body>                               -->
-<!-- ═══════════════════════════════════════════════════════════ -->
-<script>
-(function(){
-  console.log("🧠 IA Auto-Fix Engine iniciando...");
-
-  /* ── 1. HELPERS DE DATOS ── */
-  function getData(){
-    return JSON.parse(localStorage.getItem("hr_inventario") || "[]");
-  }
-
-  /* ── 2. ALIAS UNIFICADO DE MENSAJE BOT ──
-     El módulo IA usa iaMsgBot(). 
-     Creamos iaMsgB() como alias para compatibilidad total. */
-  window.iaMsgB = window.iaMsgB || function(html, cls){
-    if(typeof iaMsgBot === 'function') iaMsgBot(html, cls || 'ia-bot');
-    else console.log('[IA]', html);
-  };
-
-  /* ── 3. FUNCIONES NORMALIZADAS ──
-     Si el módulo IA ya las define, usamos las suyas.
-     Si no, las creamos aquí como fallback. */
-  window.iaIncompletos = window.iaIncompletos || function(d){
-    return d.filter(function(p){
-      return !p.tipo || !p.precio || p.precio === "0" ||
-             !p.gps  || p.gps === "No capturado" ||
-             !p.photo || p.photo === "" ||
-             !p.desc || p.desc.trim() === "";
-    });
-  };
-
-  window.iaSinFoto = window.iaSinFoto || function(d){
-    return d.filter(function(p){ return !p.photo || p.photo === ""; });
-  };
-
-  window.iaDuplicados = window.iaDuplicados || function(d){
-    var seen = {}, dup = [];
-    d.forEach(function(p, i){
-      var key = (p.gps||"") + "|" + (p.precio||"") + "|" + (p.tipo||"");
-      if(seen[key] !== undefined) dup.push(p);
-      else seen[key] = i;
-    });
-    return dup;
-  };
-
-  /* ── 4. AUTO-CORRECCIÓN DE DATOS ──
-     Normaliza campos nulos/undefined sin borrar datos válidos. */
-  function autoFixData(){
-    var data = getData();
-    if(!data.length) return;
-
-    var changed = false;
-    data = data.map(function(p){
-      var fixed = {
-        tipo:      p.tipo      || "Sin tipo",
-        precio:    p.precio    || "0",
-        gps:       p.gps       || "No capturado",
-        photo:     p.photo     || "",
-        desc:      p.desc      || "",
-        tel:       p.tel       || "",
-        creditos:  p.creditos  || [],
-        timestamp: p.timestamp || Date.now()
-      };
-      // Detectar si hubo cambio real
-      if(JSON.stringify(fixed) !== JSON.stringify(p)) changed = true;
-      return fixed;
-    });
-
-    if(changed){
-      localStorage.setItem("hr_inventario", JSON.stringify(data));
-      console.log("🔧 Auto-Fix: datos normalizados");
-    }
-  }
-
-  /* ── 5. AUTO-ANÁLISIS AL CARGAR ──
-     Muestra mensaje en el chat IA automáticamente. */
-  function autoAnalyze(){
-    var d = getData();
-    if(!d.length){
-      window.iaMsgB('👋 ¡Hola! Aún no tienes propiedades guardadas.<br>Empieza a agregar y te ayudo a mantener el inventario limpio.', 'ia-bot');
-      return;
-    }
-
-    var inc  = window.iaIncompletos(d).length;
-    var sinF = window.iaSinFoto(d).length;
-    var dup  = window.iaDuplicados(d).length;
-
-    console.log("📊 IA Análisis:", { total: d.length, incompletos: inc, sinFoto: sinF, duplicados: dup });
-
-    // Construir mensaje inteligente
-    var msg = '🧠 <b>Inventario analizado:</b><br>'
-            + '📦 <b>' + d.length + '</b> propiedades<br>';
-
-    if(inc  > 0) msg += '⚠️ <b>' + inc  + '</b> incompleta(s)<br>';
-    if(sinF > 0) msg += '🖼️ <b>' + sinF + '</b> sin foto<br>';
-    if(dup  > 0) msg += '🔁 <b>' + dup  + '</b> posible(s) duplicado(s)<br>';
-
-    if(inc === 0 && sinF === 0 && dup === 0){
-      msg += '✅ <b>Todo en orden.</b>';
-      window.iaMsgB(msg, 'ia-ok');
-    } else {
-      msg += '<br>👉 Pulsa <b>Análisis</b> para ver detalles.';
-      window.iaMsgB(msg, 'ia-alerta');
-    }
-
-    // Actualizar tablero si existe
-    if(typeof iaActualizarTablero === 'function') iaActualizarTablero();
-  }
-
-  /* ── 6. ALERTAS INTELIGENTES EN CONSOLA ── */
-  function autoAlerts(){
-    var d = getData();
-    if(!d.length) return;
-    var inc = window.iaIncompletos(d).length;
-    var dup = window.iaDuplicados(d).length;
-    if(inc > 0) console.warn("⚠️ " + inc + " propiedad(es) con datos incompletos");
-    if(dup > 0) console.warn("🔁 " + dup + " posible(s) duplicado(s) detectado(s)");
-  }
-
-  /* ── 7. HOOK: actualizar tablero al guardar ──
-     Se ejecuta después de cada guardarInventario(). */
-  var _originalGuardar = window.guardarInventario;
-  if(typeof _originalGuardar === 'function'){
-    window.guardarInventario = function(){
-      _originalGuardar.apply(this, arguments);
-      setTimeout(function(){
-        if(typeof iaActualizarTablero === 'function') iaActualizarTablero();
-      }, 500);
-    };
-  }
-
-  /* ── 8. ARRANQUE ── */
-  window.addEventListener("load", function(){
-    setTimeout(function(){
-      autoFixData();
-      autoAnalyze();
-      autoAlerts();
-    }, 1200);
-  });
-
-  console.log("✅ Auto-Fix Engine listo");
-})();
-</script>
-
 
 </body>
 </html>
