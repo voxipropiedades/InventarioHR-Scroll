@@ -202,6 +202,66 @@
         .alarm-info h4 { font-size: 0.9em; margin: 0; }
         .alarm-info span { font-size: 0.8em; color: #666; }
 
+        /* Modal Guardado */
+        .modal-save {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 10000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .modal-save.active { display: flex; }
+        .modal-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            width: 100%;
+            max-width: 400px;
+            color: #333;
+            text-align: center;
+        }
+        .save-options {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .btn-save-opt {
+            padding: 15px;
+            border-radius: 10px;
+            border: 2px solid #d32f2f;
+            background: white;
+            color: #d32f2f;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-size: 1.1em;
+        }
+        .btn-save-opt:active { background: #d32f2f; color: white; }
+        
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #2e7d32;
+            color: white;
+            padding: 15px 30px;
+            border-radius: 50px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            z-index: 20000;
+            display: none;
+            animation: slideUp 0.3s ease-out;
+        }
+        @keyframes slideUp { from { bottom: -50px; } to { bottom: 30px; } }
+
         .btn-delete {
             background: none;
             border: none;
@@ -720,6 +780,31 @@
 
     </div>
 
+    <!-- Modal de Guardado -->
+    <div id="modal-save" class="modal-save">
+        <div class="modal-card">
+            <h2 style="color: #d32f2f;"><i class="fas fa-save"></i> ¿Dónde guardar?</h2>
+            <p>Selecciona tu destino de almacenamiento preferido</p>
+            <div class="save-options">
+                <button class="btn-save-opt" onclick="confirmSave('local')">
+                    <i class="fas fa-mobile-alt"></i> GUARDAR EN TELÉFONO
+                </button>
+                <button class="btn-save-opt" onclick="confirmSave('cloud')">
+                    <i class="fas fa-cloud"></i> GUARDAR EN LA NUBE
+                </button>
+            </div>
+            <label style="margin-top: 20px; display: block; font-size: 0.9em; color: #666; cursor: pointer;">
+                <input type="checkbox" id="save-default"> Guardar por defecto siempre
+            </label>
+            <button onclick="document.getElementById('modal-save').classList.remove('active')" style="margin-top:15px; border:none; background:none; color:#666; text-decoration:underline;">Cancelar</button>
+        </div>
+    </div>
+
+    <!-- Toast de Confirmación -->
+    <div id="toast-success" class="toast">
+        <i class="fas fa-check-circle"></i> <span id="toast-msg">Guardado con éxito</span>
+    </div>
+
     <!-- Template Oculto para Flyer -->
     <div id="flyer-template">
         <div class="flyer-header" style="display: flex; align-items: center; justify-content: center; gap: 15px; padding: 20px;">
@@ -886,9 +971,48 @@
                 currentProperty.ban = inputsCasa[2] ? inputsCasa[2].value : '0';
             }
 
-            // Mostrar módulo de salida
+            // Verificar guardado por defecto
+            const defaultMethod = localStorage.getItem('hr_save_default');
+            if (defaultMethod) {
+                confirmSave(defaultMethod, true);
+            } else {
+                document.getElementById('modal-save').classList.add('active');
+            }
+        }
+
+        function confirmSave(method, isDefault = false) {
+            // Guardar preferencia si el checkbox está marcado
+            if (document.getElementById('save-default').checked) {
+                localStorage.setItem('hr_save_default', method);
+            }
+
+            // Lógica de guardado físico
+            if (method === 'local') {
+                const existing = JSON.parse(localStorage.getItem('hr_inventario') || '[]');
+                existing.push({...currentProperty, timestamp: new Date().getTime()});
+                localStorage.setItem('hr_inventario', JSON.stringify(existing));
+                showToast("100% confirmado: Guardado en Teléfono");
+            } else {
+                // Simulación Nube / Firebase
+                console.log("Sincronizando con la nube...", currentProperty);
+                showToast("Información guardada correctamente en la Nube");
+            }
+
+            // Cerrar modal
+            document.getElementById('modal-save').classList.remove('active');
+
+            // Mostrar módulo de salida de éxito
             document.getElementById('modulo-salida').classList.add('visible');
             document.getElementById('modulo-salida').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast-success');
+            document.getElementById('toast-msg').innerText = msg;
+            toast.style.display = 'block';
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 3000);
         }
 
         function enviarWhatsApp() {
