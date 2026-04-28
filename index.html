@@ -1,6 +1,17 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+    <script>
+        const APP_VERSION = '2.0.0';
+        console.log("InventarioHR Version:", APP_VERSION);
+        
+        // Limpieza de caché si cambia la versión
+        if (localStorage.getItem('hr_version') !== APP_VERSION) {
+            localStorage.setItem('hr_version', APP_VERSION);
+            // Opcional: localStorage.clear(); // Solo si hay cambios estructurales graves
+        }
+    </script>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>InventarioHR</title>
@@ -999,17 +1010,48 @@
             }
         }
 
+        
+        function renderAlarms() {
+            const list = document.getElementById('alarms-list');
+            if (!list) return;
+            const alarms = JSON.parse(localStorage.getItem('hr_alarmas') || '[]');
+            
+            list.innerHTML = alarms.length === 0 
+                ? '<p style="text-align:center; padding:10px; color:#999; font-size:0.8em;">No hay alarmas activas.</p>'
+                : alarms.map((a, i) => `
+                    <div class="alarm-item">
+                        <div class="alarm-info">
+                            <h4>${a.desc}</h4>
+                            <span>${new Date(a.time).toLocaleString()}</span>
+                        </div>
+                        <button class="btn-delete" onclick="deleteAlarm(${i})"><i class="fas fa-trash"></i></button>
+                    </div>
+                `).join('');
+        }
+
         function createAlarm() {
             const desc = document.getElementById('alarm-desc').value;
             const time = document.getElementById('alarm-time').value;
             if (!desc || !time) return alert("Completa descripción y fecha.");
 
-            const alarmList = document.getElementById('alarms-list');
-            const item = document.createElement('div');
-            item.className = 'alarm-item';
-            item.innerHTML = `
-                <div class="alarm-info">
-                    <h4>${desc}</h4>
+            const alarms = JSON.parse(localStorage.getItem('hr_alarmas') || '[]');
+            alarms.push({ desc, time, id: Date.now() });
+            localStorage.setItem('hr_alarmas', JSON.stringify(alarms));
+            
+            renderAlarms();
+            showToast("Alarma creada correctamente");
+
+            document.getElementById('alarm-desc').value = '';
+            document.getElementById('alarm-time').value = '';
+        }
+
+        function deleteAlarm(index) {
+            const alarms = JSON.parse(localStorage.getItem('hr_alarmas') || '[]');
+            alarms.splice(index, 1);
+            localStorage.setItem('hr_alarmas', JSON.stringify(alarms));
+            renderAlarms();
+        }
+</h4>
                     <span>${new Date(time).toLocaleString()}</span>
                 </div>
                 <button class="btn-delete" onclick="this.parentElement.remove()"><i class="fas fa-trash"></i></button>
@@ -1165,6 +1207,8 @@
 
             // Actualizar lista
             renderInventario();
+            renderAlarms();
+            renderStrategy();
 
             // Mostrar módulo de salida de éxito
             const mod = document.getElementById('modulo-salida');
@@ -1175,6 +1219,41 @@
             setTimeout(() => {
                 mod.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }, 500);
+        }
+
+        
+        function renderStrategy() {
+            const panel = document.getElementById('smart-panel-content');
+            const dailyPanel = document.getElementById('socio-strategy');
+            if (!panel && !dailyPanel) return;
+
+            const strategies = [
+                { m: "La disciplina es el puente entre las metas y el éxito.", e: "Hoy enfócate en prospectos de Issfam. Tienen excelente historial de crédito." },
+                { m: "Vender no es convencer, es ayudar a tomar decisiones.", e: "Revisa tu inventario de terrenos. Hay clientes con efectivo buscando opciones seguras." },
+                { m: "El éxito inmobiliario depende de la ubicación y el seguimiento.", e: "Envía un mensaje de seguimiento a los 3 prospectos más antiguos. No los dejes enfriar." },
+                { m: "Haz un cliente, no una venta.", e: "Hoy es buen día para captar nuevas propiedades en Zapotlán. La zona está creciendo." },
+                { m: "Tu actitud determina tu altitud.", e: "Prepara tus fichas técnicas en PDF. El profesionalismo cierra tratos." },
+                { m: "No esperes el momento perfecto, tómalo y hazlo perfecto.", e: "Llama a tus leads de Fovissste. El cierre de mes es clave para trámites." },
+                { m: "La confianza se gana con honestidad.", e: "Verifica los precios por m². Asegúrate de estar competitivo en el mercado de Acayuca." }
+            ];
+
+            // Selección basada en el día del año
+            const now = new Date();
+            const start = new Date(now.getFullYear(), 0, 0);
+            const diff = now - start;
+            const oneDay = 1000 * 60 * 60 * 24;
+            const dayOfYear = Math.floor(diff / oneDay);
+            const index = dayOfYear % strategies.length;
+            const today = strategies[index];
+
+            const html = `
+                <p style="margin-bottom: 8px;"><strong>🔥 Motivación:</strong> "${today.m}"</p>
+                <hr style="border: 0; border-top: 1px solid #ffe0b2; margin: 10px 0;">
+                <p><strong>💡 Estrategia:</strong> ${today.e}</p>
+            `;
+            
+            if (panel) panel.innerHTML = html;
+            if (dailyPanel) dailyPanel.innerText = today.e;
         }
 
         function renderInventario() {
@@ -1240,6 +1319,8 @@
         // Cargar inventario al iniciar
         document.addEventListener('DOMContentLoaded', () => {
             renderInventario();
+            renderAlarms();
+            renderStrategy();
             renderCitas();
         });
 
@@ -1524,3 +1605,4 @@
     </script>
 </body>
 </html>
+
