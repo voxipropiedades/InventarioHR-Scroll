@@ -741,6 +741,27 @@
                 </div>
             </div>
 
+            <div class="card" style="background: #fff3e0; border: 1px solid #ffb74d; margin-bottom: 15px;">
+                <div class="section-title" style="color: #e65100;"><i class="fas fa-hand-holding-usd"></i> Tipo de Pago / Créditos</div>
+                <div class="form-group">
+                    <label>APTO PARA:</label>
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">
+                        <label style="font-size: 0.85em; display: flex; align-items: center; gap: 5px;">
+                            <input type="checkbox" id="c-efectivo" checked> Efectivo
+                        </label>
+                        <label style="font-size: 0.85em; display: flex; align-items: center; gap: 5px;">
+                            <input type="checkbox" id="c-fovissste"> Fovissste
+                        </label>
+                        <label style="font-size: 0.85em; display: flex; align-items: center; gap: 5px;">
+                            <input type="checkbox" id="c-issfam"> Issfam
+                        </label>
+                        <label style="font-size: 0.85em; display: flex; align-items: center; gap: 5px;">
+                            <input type="checkbox" id="c-bancario"> Bancario
+                        </label>
+                    </div>
+                </div>
+            </div>
+
             <button class="btn-main" onclick="guardarInventario()">GUARDAR EN INVENTARIO</button>
 
             <!-- Módulo de Salida -->
@@ -762,7 +783,17 @@
                 <button onclick="document.getElementById('modulo-salida').classList.remove('active')" style="margin-top:15px; width:100%; border:none; background:none; color:#999; text-decoration:underline; cursor:pointer;">Continuar agregando</button>
             </div>
             <!-- Lista de Propiedades -->
-            <div class="card" style="margin-top:20px;">
+            <div class="card" style="margin-top:20px; background: #fffde7; border: 1px solid #fbc02d;">
+                <div style="display:flex; gap:10px; align-items:center; color:#f57f17; font-weight:bold;">
+                    <i class="fas fa-lightbulb" style="font-size:1.5em;"></i>
+                    <span>ESTRATEGIA HR PARA HOY</span>
+                </div>
+                <p id="socio-strategy" style="font-size:0.9em; color:#5d4037; margin-top:8px; line-height:1.4;">
+                    Prioriza los cierres en efectivo esta semana. Revisa los prospectos con capacidad de pago inmediato y envía la ubicación GPS de tus terrenos más competitivos.
+                </p>
+            </div>
+
+            <div class="card" style="margin-top:10px;">
                 <div class="section-title"><i class="fas fa-list"></i> Propiedades Guardadas</div>
                 <div id="inventory-list"></div>
             </div>
@@ -866,7 +897,7 @@
     <script>
         // Inicialización
         let currentProperty = {
-            tipo: '', precio: '', m2: '', gps: '', desc: '', tel: '', rec: '', ban: '', photo: ''
+            tipo: '', precio: '', m2: '', gps: '', desc: '', tel: '', rec: '', ban: '', photo: '', creditos: []
         };
 
         // Navegación Fluida (Optimizado)
@@ -1011,6 +1042,13 @@
             currentProperty.desc = document.getElementById('dictado-desc').value || '';
             currentProperty.tel = document.querySelector('input[type="tel"]').value || '771';
             
+            // Capturar créditos
+            currentProperty.creditos = [];
+            if (document.getElementById('c-efectivo').checked) currentProperty.creditos.push('Efectivo');
+            if (document.getElementById('c-fovissste').checked) currentProperty.creditos.push('Fovissste');
+            if (document.getElementById('c-issfam').checked) currentProperty.creditos.push('Issfam');
+            if (document.getElementById('c-bancario').checked) currentProperty.creditos.push('Bancario');
+            
             // Medidas
             currentProperty.norte = document.getElementById('m-norte').value || 'N/A';
             currentProperty.sur = document.getElementById('m-sur').value || 'N/A';
@@ -1098,7 +1136,8 @@
                     <div style="display:flex; justify-content:space-between; align-items: flex-start;">
                         <div>
                             <strong style="color: #d32f2f; font-size: 1.1em;">${p.tipo}</strong><br>
-                            <span style="font-size: 1.2em; font-weight: bold;">${p.precio}</span>
+                            <span style="font-size: 1.2em; font-weight: bold;">${p.precio}</span><br>
+                            <span style="font-size: 0.8em; color: #e65100; font-weight: bold;"><i class="fas fa-credit-card"></i> ${p.creditos ? p.creditos.join(' | ') : 'Efectivo'}</span>
                         </div>
                         <span style="font-size:0.7em; color:#999;">${new Date(p.timestamp).toLocaleString()}</span>
                     </div>
@@ -1142,6 +1181,7 @@
                           `• Sur: ${currentProperty.sur}\n` +
                           `• Este: ${currentProperty.este}\n` +
                           `• Oeste: ${currentProperty.oeste}\n\n` +
+                          `💳 *CRÉDITOS:* ${currentProperty.creditos.join(', ') || 'Consultar'}\n\n` +
                           `📍 *UBICACIÓN:* ${mapsUrl}\n\n` +
                           `📞 *CONTACTO:* ${currentProperty.tel}\n\n` +
                           `_Asesoría Profesional Inmobiliaria HR_`;
