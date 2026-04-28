@@ -640,41 +640,52 @@
 
             <!-- Secciones Condicionales -->
             <div id="campos-terreno" class="cond-section">
-                <div class="form-row">
-                    <div class="form-group"><label>NORTE</label><input type="text" id="norte" placeholder="Medida..."></div>
-                    <div class="form-group"><label>SUR</label><input type="text" id="sur" placeholder="Medida..."></div>
+                <div class="form-group">
+                    <label>M² DE TERRENO</label>
+                    <input type="number" id="terreno-m2" placeholder="0">
                 </div>
-                <div class="form-row">
-                    <div class="form-group"><label>ESTE</label><input type="text" id="este" placeholder="Medida..."></div>
-                    <div class="form-group"><label>OESTE</label><input type="text" id="oeste" placeholder="Medida..."></div>
+                <div class="form-group">
+                    <label>¿ES PARA CONSTRUCCIÓN DE CASA?</label>
+                    <select id="terreno-proyectado-check" onchange="document.getElementById('campo-proyectado').style.display = (this.value=='Si'?'block':'none')">
+                        <option value="No">No</option>
+                        <option value="Si">Si</option>
+                    </select>
+                </div>
+                <div id="campo-proyectado" style="display:none;">
+                    <div class="form-group">
+                        <label>M² DE CONSTRUCCIÓN PROYECTADOS</label>
+                        <input type="number" id="terreno-m2-proy" placeholder="0">
+                    </div>
                 </div>
             </div>
 
             <div id="campos-casa" class="cond-section">
+                <div class="form-group">
+                    <label>MÉTODO DE CONSTRUCCIÓN DEL TERRENO</label>
+                    <input type="text" id="casa-metodo" placeholder="Ej: Tradicional, Block, Zapata...">
+                </div>
                 <div class="form-row">
-                    <div class="form-group"><label>PISOS</label><input type="number" placeholder="0"></div>
-                    <div class="form-group"><label>RECÁMARAS</label><input type="number" placeholder="0"></div>
+                    <div class="form-group">
+                        <label>M² DE CONSTRUCCIÓN</label>
+                        <input type="number" id="casa-m2-const" placeholder="0">
+                    </div>
+                    <div class="form-group">
+                        <label>¿YA CONSTRUIDA?</label>
+                        <select id="casa-status" onchange="document.getElementById('detalles-existente').style.display = (this.value=='Si'?'block':'none')">
+                            <option value="No">No (En obra)</option>
+                            <option value="Si">Si (Existente)</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="detalles-existente" style="display:none;">
+                    <div class="form-group">
+                        <label>DETALLES DE CONSTRUCCIÓN EXISTENTE</label>
+                        <textarea id="casa-existente" placeholder="Describe la construcción actual..."></textarea>
+                    </div>
                 </div>
                 <div class="form-row">
-                    <div class="form-group"><label>BAÑOS</label><input type="number" placeholder="0"></div>
-                    <div class="form-group"><label>M² CONST.</label><input type="number" id="m2-const" placeholder="0"></div>
-                </div>
-                <div class="form-group">
-                    <label>DETALLES DE CONSTRUCCIÓN</label>
-                    <textarea id="detalles-casa" placeholder="Detalles de construcción..."></textarea>
-                </div>
-                <div class="form-group">
-                    <label>MATERIAL DE PUERTAS / BARDEADO</label>
-                    <input type="text" id="materiales" placeholder="Ej: Madera, Herrería...">
-                </div>
-                <div class="form-group">
-                    <label>SERVICIOS</label>
-                    <select multiple style="height:auto;">
-                        <option>Luz</option>
-                        <option>Agua</option>
-                        <option>Drenaje / Fosa</option>
-                        <option>Pavimento</option>
-                    </select>
+                    <div class="form-group"><label>PISOS</label><input type="number" id="casa-pisos" placeholder="0"></div>
+                    <div class="form-group"><label>RECÁMARAS</label><input type="number" id="casa-rec" placeholder="0"></div>
                 </div>
             </div>
 
@@ -758,14 +769,30 @@
                         <label style="font-size: 0.85em; display: flex; align-items: center; gap: 5px;">
                             <input type="checkbox" id="c-bancario"> Bancario
                         </label>
+                        <label style="font-size: 0.85em; display: flex; align-items: center; gap: 5px;">
+                            <input type="checkbox" id="c-infonavit"> Infonavit
+                        </label>
+                        <label style="font-size: 0.85em; display: flex; align-items: center; gap: 5px;">
+                            <input type="checkbox" id="c-cfe"> CFE
+                        </label>
                     </div>
                 </div>
             </div>
 
             <button class="btn-main" onclick="guardarInventario()">GUARDAR EN INVENTARIO</button>
 
-            <!-- Módulo de Salida -->
-            <div id="modulo-salida" class="output-module">
+            <div class="card" style="margin-top:20px; background: #fffde7; border: 1px solid #fbc02d;">
+                <div style="display:flex; gap:10px; align-items:center; color:#f57f17; font-weight:bold;">
+                    <i class="fas fa-lightbulb" style="font-size:1.5em;"></i>
+                    <span>ESTRATEGIA HR PARA HOY</span>
+                </div>
+                <p id="socio-strategy" style="font-size:0.9em; color:#5d4037; margin-top:8px; line-height:1.4;">
+                    Prioriza los cierres en efectivo esta semana. Revisa los prospectos con capacidad de pago inmediato y envía la ubicación GPS de tus terrenos más competitivos.
+                </p>
+            </div>
+
+            <!-- Módulo de Salida (Reposicionado abajo de estrategias) -->
+            <div id="modulo-salida" class="output-module" style="margin-top: 15px;">
                 <h2 style="text-align: center; color: #d32f2f; margin-bottom: 5px;">📤 ÉXITO: GUARDADO</h2>
                 <p style="text-align: center; font-size: 0.9em; color: #666;">¿Qué deseas hacer ahora con esta propiedad?</p>
                 
@@ -781,16 +808,6 @@
                     </button>
                 </div>
                 <button onclick="document.getElementById('modulo-salida').classList.remove('active')" style="margin-top:15px; width:100%; border:none; background:none; color:#999; text-decoration:underline; cursor:pointer;">Continuar agregando</button>
-            </div>
-            <!-- Lista de Propiedades -->
-            <div class="card" style="margin-top:20px; background: #fffde7; border: 1px solid #fbc02d;">
-                <div style="display:flex; gap:10px; align-items:center; color:#f57f17; font-weight:bold;">
-                    <i class="fas fa-lightbulb" style="font-size:1.5em;"></i>
-                    <span>ESTRATEGIA HR PARA HOY</span>
-                </div>
-                <p id="socio-strategy" style="font-size:0.9em; color:#5d4037; margin-top:8px; line-height:1.4;">
-                    Prioriza los cierres en efectivo esta semana. Revisa los prospectos con capacidad de pago inmediato y envía la ubicación GPS de tus terrenos más competitivos.
-                </p>
             </div>
 
             <div class="card" style="margin-top:10px;">
@@ -885,6 +902,7 @@
             <div class="flyer-price" id="f-precio">$0.00</div>
             <div class="flyer-details">
                 <div id="f-m2">Superficie: 0 m²</div>
+                <div id="f-extra" style="margin-top: 5px; font-weight: bold; color: #fff;"></div>
                 <div id="f-gps">Ubicación: GPS Activo</div>
                 <div id="f-desc" style="margin-top:20px; font-style: italic; color: #eee; font-size: 0.8em;"></div>
             </div>
@@ -897,7 +915,10 @@
     <script>
         // Inicialización
         let currentProperty = {
-            tipo: '', precio: '', m2: '', gps: '', desc: '', tel: '', rec: '', ban: '', photo: '', creditos: []
+            tipo: '', precio: '', m2: '', gps: '', desc: '', tel: '', photo: '', creditos: [],
+            norte: '', sur: '', este: '', oeste: '',
+            casaMetodo: '', casaM2Const: '', casaStatus: '', casaExistente: '', casaPisos: '', casaRec: '',
+            terrenoM2: '', terrenoProyectado: '', terrenoM2Proy: ''
         };
 
         // Navegación Fluida (Optimizado)
@@ -1035,7 +1056,7 @@
         });
 
         function guardarInventario() {
-            // Capturar datos
+            // Capturar datos básicos
             currentProperty.tipo = document.getElementById('tipo-propiedad').value || 'Propiedad';
             currentProperty.precio = document.getElementById('precio-total').value || '0';
             currentProperty.m2 = document.getElementById('m2-totales').value || '0';
@@ -1049,6 +1070,8 @@
             if (document.getElementById('c-fovissste').checked) currentProperty.creditos.push('Fovissste');
             if (document.getElementById('c-issfam').checked) currentProperty.creditos.push('Issfam');
             if (document.getElementById('c-bancario').checked) currentProperty.creditos.push('Bancario');
+            if (document.getElementById('c-infonavit').checked) currentProperty.creditos.push('Infonavit');
+            if (document.getElementById('c-cfe').checked) currentProperty.creditos.push('CFE');
             
             // Medidas
             currentProperty.norte = document.getElementById('m-norte').value || 'N/A';
@@ -1056,10 +1079,21 @@
             currentProperty.este = document.getElementById('m-este').value || 'N/A';
             currentProperty.oeste = document.getElementById('m-oeste').value || 'N/A';
             
+            // Captura condicional Casa
             if (currentProperty.tipo === '🏠 Casa') {
-                const inputsCasa = document.querySelectorAll('#campos-casa input');
-                currentProperty.rec = inputsCasa[1] ? inputsCasa[1].value : '0';
-                currentProperty.ban = inputsCasa[2] ? inputsCasa[2].value : '0';
+                currentProperty.casaMetodo = document.getElementById('casa-metodo').value || '';
+                currentProperty.casaM2Const = document.getElementById('casa-m2-const').value || '';
+                currentProperty.casaStatus = document.getElementById('casa-status').value || '';
+                currentProperty.casaExistente = document.getElementById('casa-existente').value || '';
+                currentProperty.casaPisos = document.getElementById('casa-pisos').value || '';
+                currentProperty.casaRec = document.getElementById('casa-rec').value || '';
+            }
+
+            // Captura condicional Terreno
+            if (currentProperty.tipo === '🏢 Terreno') {
+                currentProperty.terrenoM2 = document.getElementById('terreno-m2').value || '';
+                currentProperty.terrenoProyectado = document.getElementById('terreno-proyectado-check').value || '';
+                currentProperty.terrenoM2Proy = document.getElementById('terreno-m2-proy').value || '';
             }
 
             // Verificar guardado por defecto
@@ -1174,17 +1208,35 @@
 
         function enviarWhatsApp() {
             const mapsUrl = `https://www.google.com/maps?q=${encodeURIComponent(currentProperty.gps)}`;
+            let infoExtra = "";
+
+            if (currentProperty.tipo === '🏠 Casa') {
+                infoExtra = `🏗️ *MÉTODO DE CONST:* ${currentProperty.casaMetodo}\n` +
+                            `📐 *M² CONSTRUCCIÓN:* ${currentProperty.casaM2Const}\n` +
+                            `🏠 *ESTADO:* ${currentProperty.casaStatus === 'Si' ? 'Existente' : 'En obra'}\n`;
+                if (currentProperty.casaStatus === 'Si' && currentProperty.casaExistente) {
+                    infoExtra += `📝 *DETALLES CONST:* ${currentProperty.casaExistente}\n`;
+                }
+                infoExtra += `🏢 *PISOS:* ${currentProperty.casaPisos} | 🛏️ *REC:* ${currentProperty.casaRec}\n`;
+            } else if (currentProperty.tipo === '🏢 Terreno') {
+                infoExtra = `📐 *M² TERRENO:* ${currentProperty.terrenoM2}\n`;
+                if (currentProperty.terrenoProyectado === 'Si') {
+                    infoExtra += `🏗️ *CONST. PROYECTADA:* ${currentProperty.terrenoM2Proy} m²\n`;
+                }
+            }
+
             const texto = `🌟 *FICHA TÉCNICA - ASESORÍA INMOBILIARIA HR*\n\n` +
                           `Hola, le comparto la información de la propiedad de su interés:\n\n` +
                           `🏠 *TIPO:* ${currentProperty.tipo.toUpperCase()}\n` +
                           `💰 *PRECIO:* $${currentProperty.precio}\n\n` +
+                          `${infoExtra}\n` +
                           `📏 *MEDIDAS Y COLINDANCIAS:* \n` +
                           `• NORTE: ${currentProperty.norte}\n` +
                           `• SUR: ${currentProperty.sur}\n` +
                           `• ESTE: ${currentProperty.este}\n` +
                           `• OESTE: ${currentProperty.oeste}\n\n` +
                           `📐 *ÁREA TOTAL CALCULADA:* ${currentProperty.m2} m²\n\n` +
-                          `💳 *MÉTODOS DE PAGO:* ${currentProperty.creditos.join(', ') || 'A convenir'}\n\n` +
+                          `💳 *MÉTODOS DE PAGO / CRÉDITOS:* ${currentProperty.creditos.join(', ') || 'A convenir'}\n\n` +
                           `📍 *UBICACIÓN GPS:* ${mapsUrl}\n\n` +
                           `📝 *DESCRIPCIÓN:* ${currentProperty.desc}\n\n` +
                           `📞 *TELÉFONO DE CONTACTO:* ${currentProperty.tel}\n\n` +
@@ -1253,8 +1305,17 @@
             // Poblar template con iconos
             document.getElementById('f-tipo').innerHTML = `<i class="fas fa-home"></i> ${currentProperty.tipo}`;
             document.getElementById('f-precio').innerText = `$${currentProperty.precio}`;
-            document.getElementById('f-m2').innerHTML = `<i class="fas fa-expand-arrows-alt"></i> ${currentProperty.m2} m²`;
-            document.getElementById('f-gps').innerHTML = `<i class="fas fa-map-marker-alt"></i> ${currentProperty.gps}`;
+            document.getElementById('f-m2').innerHTML = `<i class="fas fa-expand-arrows-alt"></i> Área Total: ${currentProperty.m2} m²`;
+            
+            let extra = "";
+            if (currentProperty.tipo === '🏠 Casa') {
+                extra = `${currentProperty.casaM2Const} m² Const. | ${currentProperty.casaPisos} Niveles`;
+            } else if (currentProperty.tipo === '🏢 Terreno') {
+                extra = `${currentProperty.terrenoM2} m² de Terreno`;
+            }
+            document.getElementById('f-extra').innerText = extra;
+
+            document.getElementById('f-gps').innerHTML = `<i class="fas fa-map-marker-alt"></i> UBICACIÓN GPS ACTIVA`;
             document.getElementById('f-tel').innerHTML = `<i class="fab fa-whatsapp"></i> ${currentProperty.tel}`;
             document.getElementById('f-desc').innerText = currentProperty.desc;
             
