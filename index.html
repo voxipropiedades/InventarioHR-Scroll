@@ -843,7 +843,7 @@
                 </div>
             </div>
 
-            <div id="pr-lista"></div>
+            <div id="pr-lista" style="margin-top:12px;"></div>
 
         </section>
 
@@ -1898,6 +1898,11 @@ function prGuardar(){
   document.getElementById('pr-credito').value='';
   document.getElementById('pr-monto').value='';
   prRender();
+  // Scroll a la lista para que se vea
+  setTimeout(function(){
+    var l=document.getElementById('pr-lista');
+    if(l) l.scrollIntoView({behavior:'smooth',block:'nearest'});
+  },100);
 }
 
 function prDel(id){
