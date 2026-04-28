@@ -678,15 +678,9 @@
                 </div>
             </div>
 
-            <div class="form-row">
-                <div class="form-group">
-                    <label>PRECIO TOTAL ($)</label>
-                    <input type="number" id="precio-total" placeholder="0" oninput="calcularMetro()">
-                </div>
-                <div class="form-group" style="background: #e3f2fd; padding: 10px; border-radius: 8px; border: 2px solid #2196f3;">
-                    <label style="color: #0d47a1; font-weight: bold;">ÁREA TOTAL (M² / CM²)</label>
-                    <input type="number" id="m2-totales" placeholder="0.00" oninput="calcularMetro()" style="font-size: 1.2em; font-weight: bold; color: #d32f2f; background: white;">
-                </div>
+            <div class="form-group">
+                <label>PRECIO TOTAL ($)</label>
+                <input type="number" id="precio-total" placeholder="0" oninput="calcularMetro()">
             </div>
 
             <div class="card" style="background: #f9f9f9; border: 1px solid #ddd; margin-bottom: 15px;">
@@ -710,6 +704,12 @@
                         <label>OESTE</label>
                         <input type="text" id="m-oeste" placeholder="0.00m" oninput="calcularSuperficie()">
                     </div>
+                </div>
+                
+                <!-- Área Total debajo de las medidas -->
+                <div class="form-group" style="background: #e3f2fd; padding: 15px; border-radius: 12px; border: 3px solid #2196f3; margin-top: 10px;">
+                    <label style="color: #0d47a1; font-weight: bold; font-size: 1em;">ÁREA TOTAL (SUMA DE LADOS)</label>
+                    <input type="number" id="m2-totales" placeholder="0.00" oninput="calcularMetro()" style="font-size: 1.5em; font-weight: bold; color: #d32f2f; background: white; text-align: center;">
                 </div>
             </div>
 
@@ -998,7 +998,8 @@
             const s = parseFloat(document.getElementById('m-sur').value) || 0;
             const e = parseFloat(document.getElementById('m-este').value) || 0;
             const o = parseFloat(document.getElementById('m-oeste').value) || 0;
-            const area = ((n + s) / 2) * ((e + o) / 2);
+            // El usuario solicitó específicamente la SUMA de las 4 medidas
+            const area = n + s + e + o;
             const m2Input = document.getElementById('m2-totales');
             if (m2Input) {
                 m2Input.value = area > 0 ? area.toFixed(2) : "";
@@ -1173,18 +1174,22 @@
 
         function enviarWhatsApp() {
             const mapsUrl = `https://www.google.com/maps?q=${encodeURIComponent(currentProperty.gps)}`;
-            const texto = `🏠 *${currentProperty.tipo.toUpperCase()} - INVENTARIO HR*\n\n` +
-                          `💰 *Precio:* $${currentProperty.precio}\n` +
-                          `📏 *Superficie Total:* ${currentProperty.m2} m² (${currentProperty.m2.split('.')[0]} metros y ${currentProperty.m2.split('.')[1] || '00'} cm²)\n\n` +
-                          `📐 *MEDIDAS:* \n` +
-                          `• Norte: ${currentProperty.norte}\n` +
-                          `• Sur: ${currentProperty.sur}\n` +
-                          `• Este: ${currentProperty.este}\n` +
-                          `• Oeste: ${currentProperty.oeste}\n\n` +
-                          `💳 *CRÉDITOS:* ${currentProperty.creditos.join(', ') || 'Consultar'}\n\n` +
-                          `📍 *UBICACIÓN:* ${mapsUrl}\n\n` +
-                          `📞 *CONTACTO:* ${currentProperty.tel}\n\n` +
-                          `_Asesoría Profesional Inmobiliaria HR_`;
+            const texto = `🌟 *FICHA TÉCNICA - ASESORÍA INMOBILIARIA HR*\n\n` +
+                          `Hola, le comparto la información de la propiedad de su interés:\n\n` +
+                          `🏠 *TIPO:* ${currentProperty.tipo.toUpperCase()}\n` +
+                          `💰 *PRECIO:* $${currentProperty.precio}\n\n` +
+                          `📏 *MEDIDAS Y COLINDANCIAS:* \n` +
+                          `• NORTE: ${currentProperty.norte}\n` +
+                          `• SUR: ${currentProperty.sur}\n` +
+                          `• ESTE: ${currentProperty.este}\n` +
+                          `• OESTE: ${currentProperty.oeste}\n\n` +
+                          `📐 *ÁREA TOTAL CALCULADA:* ${currentProperty.m2} m²\n\n` +
+                          `💳 *MÉTODOS DE PAGO:* ${currentProperty.creditos.join(', ') || 'A convenir'}\n\n` +
+                          `📍 *UBICACIÓN GPS:* ${mapsUrl}\n\n` +
+                          `📝 *DESCRIPCIÓN:* ${currentProperty.desc}\n\n` +
+                          `📞 *TELÉFONO DE CONTACTO:* ${currentProperty.tel}\n\n` +
+                          `_Quedo a sus órdenes para cualquier duda o para agendar una visita._\n` +
+                          `*Atentamente, su Asesor Inmobiliario HR*`;
             
             const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(texto)}`;
             window.open(url, '_blank');
