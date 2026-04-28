@@ -478,8 +478,11 @@
             <i class="fas fa-home"></i> InventarioHR
         </div>
         <div class="header-actions">
-            <button class="btn-action-header" onclick="if(confirm('¿Borrar TODO y dejar en CERO?')){localStorage.clear(); location.reload();}" style="background:#fff; color:#d32f2f;">
-                <i class="fas fa-trash-alt"></i> LIMPIAR TODO
+            <button class="btn-action-header" onclick="window.print()">
+                <i class="fas fa-print"></i>
+            </button>
+            <button class="btn-action-header" onclick="switchSection('inventario', document.querySelector('[onclick*=\'inventario\']'))">
+                <i class="fas fa-camera"></i>
             </button>
         </div>
     </header>
@@ -526,34 +529,29 @@
         
         <!-- Sección Tablero -->
         <section id="section-tablero" class="app-section">
-            <div class="card" style="border: 2px solid #d32f2f; text-align: center; padding: 40px 20px;">
-                <div style="font-size: 4em; color: #d32f2f; margin-bottom: 20px;">
-                    <i class="fas fa-folder-open"></i>
-                </div>
-                <h2 style="color: #d32f2f; margin-bottom: 10px;">ESTADO: 0 PROPIEDADES</h2>
-                <p style="color: #666; margin-bottom: 25px;">Tu lista de inventario está totalmente vacía en este momento.</p>
-                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 25px;">
-                    <div style="background:#f5f5f5; padding:10px; border-radius:8px;">
-                        <span style="display:block; font-size:1.5em; font-weight:bold; color:#d32f2f;">0</span>
-                        <span style="font-size:0.7em; color:#999;">TOTAL</span>
+            <div class="card">
+                <div class="section-title"><i class="fas fa-list-ol"></i> ESTADO DE MI LISTA (VACÍA)</div>
+                
+                <div class="metrics-grid">
+                    <div class="metric-item">
+                        <span class="metric-value" id="count-total">0</span>
+                        <span class="metric-label">Total Propiedades</span>
                     </div>
-                    <div style="background:#f5f5f5; padding:10px; border-radius:8px;">
-                        <span style="display:block; font-size:1.5em; font-weight:bold; color:#d32f2f;">0</span>
-                        <span style="font-size:0.7em; color:#999;">CASAS</span>
+                    <div class="metric-item">
+                        <span class="metric-value" id="count-casas">0</span>
+                        <span class="metric-label">🏠 Casas</span>
                     </div>
-                    <div style="background:#f5f5f5; padding:10px; border-radius:8px;">
-                        <span style="display:block; font-size:1.5em; font-weight:bold; color:#d32f2f;">0</span>
-                        <span style="font-size:0.7em; color:#999;">TERRENOS</span>
+                    <div class="metric-item">
+                        <span class="metric-value" id="count-terrenos">0</span>
+                        <span class="metric-label">🏢 Terrenos</span>
                     </div>
                 </div>
-                <button class="btn-main" onclick="switchSection('inventario', document.querySelector('[onclick*=\'inventario\']'))">
-                    <i class="fas fa-plus-circle"></i> HACER MI PRIMERA CAPTURA
-                </button>
-            </div>
-            
-            <div class="card" style="margin-top:20px; opacity: 0.5;">
-                <div class="section-title"><i class="fas fa-search"></i> Buscador (Desactivado - Sin datos)</div>
-                <input type="text" disabled placeholder="No hay propiedades para buscar..." style="background:#eee;">
+
+                <div id="empty-msg-area" style="text-align:center; padding:20px; margin-top:15px; border:2px dashed #ddd; border-radius:15px; color:#999;">
+                    <i class="fas fa-folder-open" style="font-size:2em; margin-bottom:10px;"></i>
+                    <p>No tienes nada registrado. Tu inventario está en 0.</p>
+                    <button class="btn-main" onclick="if(confirm('¿Borrar datos viejos del teléfono para dejar en CERO real?')){localStorage.clear(); location.reload();}" style="background:#444; margin-top:10px; font-size:0.8em; padding:10px;">BORRAR MEMORIA DEL TELÉFONO</button>
+                </div>
             </div>
         </section>
 
@@ -1209,13 +1207,36 @@
 
         function renderInventario() {
             const data = JSON.parse(localStorage.getItem('hr_inventario') || '[]');
-            const listContainer = document.getElementById('inventory-list');
             
-            // Si no hay datos, mostrar mensaje de vacío absoluto
+            // Actualizar contadores
+            if (document.getElementById('count-total')) document.getElementById('count-total').innerText = data.length;
+            if (document.getElementById('count-casas')) document.getElementById('count-casas').innerText = data.filter(p => p.tipo && p.tipo.includes('Casa')).length;
+            if (document.getElementById('count-terrenos')) document.getElementById('count-terrenos').innerText = data.filter(p => p.tipo && p.tipo.includes('Terreno')).length;
+
+            const emptyMsg = document.getElementById('empty-msg-area');
+            if (emptyMsg) emptyMsg.style.display = (data.length === 0) ? 'block' : 'none';
+
+            const listContainer = document.getElementById('inventory-list');
+            if (!listContainer) return;
+
             if (data.length === 0) {
-                if (listContainer) listContainer.innerHTML = '<div style="text-align:center; padding:40px; color:#999;"><i class="fas fa-ghost" style="font-size:3em;"></i><br><br>No tienes ninguna propiedad guardada todavía.</div>';
+                listContainer.innerHTML = '<div style="text-align:center; padding:40px; color:#999;">Inventario Vacío</div>';
                 return;
             }
+
+            listContainer.innerHTML = data.reverse().map((p, index) => `
+                <div class="card" style="border-left:5px solid #d32f2f; margin-bottom:15px; padding:15px;">
+                    <div style="display:flex; gap:15px;">
+                        <img src="${p.photos && p.photos[0] ? p.photos[0] : 'https://via.placeholder.com/100'}" style="width:80px; height:80px; object-fit:cover; border-radius:8px;">
+                        <div style="flex:1;">
+                            <strong style="color:#d32f2f;">${p.tipo}</strong><br>
+                            <span style="font-size:1.1em; font-weight:bold;">$${parseFloat(p.precio).toLocaleString()}</span><br>
+                            <span style="font-size:0.8em; color:#666;">${p.gps}</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
 
             if (listContainer) {
                 listContainer.innerHTML = data.reverse().map((p, index) => `
