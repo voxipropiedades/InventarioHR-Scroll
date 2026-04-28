@@ -1790,6 +1790,25 @@ document.addEventListener('DOMContentLoaded',function(){
   var al=document.createElement('div');al.id='ia-alert';document.body.appendChild(al);
 });
 
+
+/* ── LIMPIADOR datos de prueba (ejecución única) ── */
+(function(){
+  var d = JSON.parse(localStorage.getItem('hr_inventario') || '[]');
+  if (!d.length) return;
+  // Detectar si son los datos de prueba por sus valores únicos
+  var esPrueba = d.every(function(p){
+    return (
+      (p.gps === '20.123,-98.456' || p.gps === '20.234,-98.567' ||
+       p.gps === '20.345,-98.678' || p.gps === 'No capturado') &&
+      (p.tel === '7711111111' || p.tel === '7712222222' || p.tel === '771' || p.tel === '')
+    );
+  });
+  if (esPrueba) {
+    localStorage.removeItem('hr_inventario');
+    console.log('[IA] Datos de prueba eliminados del localStorage');
+  }
+})();
+
 /* ── INIT ── */
 function iaInit(){iaDash();setTimeout(iaAutoMsg,900);}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',iaInit);
