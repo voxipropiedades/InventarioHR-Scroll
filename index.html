@@ -114,6 +114,23 @@
             max-width: 800px;
             margin: 0 auto;
             width: 100%;
+            position: relative;
+        }
+
+        .app-section {
+            display: none;
+            width: 100%;
+            will-change: transform, opacity;
+        }
+
+        .app-section.active {
+            display: block;
+            animation: fadeIn 0.2s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .card {
@@ -291,45 +308,55 @@
     <!-- Nav Horizontal -->
     <nav class="horizontal-nav">
         <div class="nav-container">
-            <a href="#" class="nav-item">
+            <div class="nav-item" onclick="switchSection('tablero', this)">
                 <i class="fas fa-chart-pie"></i>
                 <span>TABLERO</span>
-            </a>
-            <a href="#" class="nav-item active">
+            </div>
+            <div class="nav-item active" onclick="switchSection('inventario', this)">
                 <i class="fas fa-home"></i>
                 <span>Inventario</span>
-            </a>
-            <a href="#" class="nav-item">
+            </div>
+            <div class="nav-item" onclick="switchSection('prospectos', this)">
                 <i class="fas fa-bullseye"></i>
                 <span>Prospectos</span>
-            </a>
-            <a href="#" class="nav-item">
+            </div>
+            <div class="nav-item" onclick="switchSection('contactos', this)">
                 <i class="fas fa-phone-alt"></i>
                 <span>Contactos</span>
-            </a>
-            <a href="#" class="nav-item">
+            </div>
+            <div class="nav-item" onclick="switchSection('archivos', this)">
                 <i class="fas fa-folder-open"></i>
                 <span>Archivos</span>
-            </a>
-            <a href="#" class="nav-item">
+            </div>
+            <div class="nav-item" onclick="switchSection('galeria', this)">
                 <i class="fas fa-images"></i>
                 <span>Galería</span>
-            </a>
-            <a href="#" class="nav-item">
+            </div>
+            <div class="nav-item" onclick="switchSection('pensamientos', this)">
                 <i class="fas fa-brain"></i>
                 <span>Pensamientos</span>
-            </a>
-            <a href="#" class="nav-item">
+            </div>
+            <div class="nav-item" onclick="switchSection('citas', this)">
                 <i class="fas fa-calendar-alt"></i>
                 <span>Citas</span>
-            </a>
+            </div>
         </div>
     </nav>
 
     <div class="main-content">
         
-        <!-- Formulario Principal -->
-        <div class="card">
+        <!-- Sección Tablero -->
+        <section id="section-tablero" class="app-section">
+            <div class="card">
+                <div class="section-title"><i class="fas fa-chart-pie"></i> Tablero de Control</div>
+                <p>Resumen de actividades y métricas...</p>
+            </div>
+        </section>
+
+        <!-- Sección Inventario (Principal) -->
+        <section id="section-inventario" class="app-section active">
+            <!-- Formulario Principal -->
+            <div class="card">
             <div class="section-title">
                 <i class="fas fa-plus-circle"></i> Nueva Captura
             </div>
@@ -451,7 +478,51 @@
                     </button>
                 </div>
             </div>
-        </div>
+        </section>
+
+        <!-- Secciones Adicionales -->
+        <section id="section-prospectos" class="app-section">
+            <div class="card">
+                <div class="section-title"><i class="fas fa-bullseye"></i> Prospectos</div>
+                <p>Lista de prospectos militares y de contado...</p>
+            </div>
+        </section>
+
+        <section id="section-contactos" class="app-section">
+            <div class="card">
+                <div class="section-title"><i class="fas fa-phone-alt"></i> Agenda de Contactos</div>
+                <p>Gestiona tus contactos aquí.</p>
+            </div>
+        </section>
+
+        <section id="section-archivos" class="app-section">
+            <div class="card">
+                <div class="section-title"><i class="fas fa-folder-open"></i> Archivos</div>
+                <p>Documentación y expedientes.</p>
+            </div>
+        </section>
+
+        <section id="section-galeria" class="app-section">
+            <div class="card">
+                <div class="section-title"><i class="fas fa-images"></i> Galería</div>
+                <p>Fotos de todas tus propiedades.</p>
+            </div>
+        </section>
+
+        <section id="section-pensamientos" class="app-section">
+            <div class="card">
+                <div class="section-title"><i class="fas fa-brain"></i> Pensamientos</div>
+                <p>Notas rápidas y estrategias de venta.</p>
+            </div>
+        </section>
+
+        <section id="section-citas" class="app-section">
+            <div class="card">
+                <div class="section-title"><i class="fas fa-calendar-alt"></i> Citas Programadas</div>
+                <p>Próximos cierres y visitas.</p>
+            </div>
+        </section>
+
     </div>
 
     <!-- Template Oculto para Flyer -->
@@ -484,6 +555,27 @@
         let currentProperty = {
             tipo: '', precio: '', m2: '', gps: '', desc: '', tel: '', rec: '', ban: '', photo: ''
         };
+
+        // Navegación Fluida (Optimizado)
+        function switchSection(sectionId, element) {
+            // Cambio inmediato de clases de navegación
+            const items = document.querySelectorAll('.nav-item');
+            items.forEach(item => item.classList.remove('active'));
+            element.classList.add('active');
+
+            // Cambio inmediato de secciones
+            const sections = document.querySelectorAll('.app-section');
+            
+            // Usamos requestAnimationFrame para asegurar fluidez sin bloqueos
+            requestAnimationFrame(() => {
+                sections.forEach(sec => sec.classList.remove('active'));
+                const target = document.getElementById(`section-${sectionId}`);
+                if (target) {
+                    target.classList.add('active');
+                    window.scrollTo({ top: 0, behavior: 'auto' }); // Scroll instantáneo
+                }
+            });
+        }
 
         function toggleForm(tipo) {
             document.getElementById('campos-terreno').style.display = 'none';
