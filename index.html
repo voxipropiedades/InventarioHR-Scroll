@@ -750,10 +750,17 @@
 
             <div class="form-group">
                 <label>FOTOS DE LA PROPIEDAD (MÁX 20)</label>
-                <button class="btn-capture" onclick="document.getElementById('photo-input').click()" style="margin-bottom:5px;">CÁMARA</button><button class="btn-capture" onclick="document.getElementById('gallery-input').click()" style="background:#455a64;">GALERÍA</button>
-                    <i class="fas fa-camera"></i> TOMAR FOTO
-                </button>
-                <input type="file" id="photo-input" accept="image/*" capture="environment" style="display:none;"><input type="file" id="gallery-input" accept="image/*" multiple style="display:none;"><div id="photo-preview-container" style="display:flex; gap:5px; flex-wrap:wrap; margin-top:10px;"></div>
+                <div style="display:flex; gap:10px; margin-bottom:10px;">
+                    <button class="btn-capture" onclick="document.getElementById('photo-input').click()" style="flex:1;">
+                        <i class="fas fa-camera"></i> CÁMARA
+                    </button>
+                    <button class="btn-capture" onclick="document.getElementById('gallery-input').click()" style="flex:1; background:#455a64;">
+                        <i class="fas fa-images"></i> GALERÍA
+                    </button>
+                </div>
+                <input type="file" id="photo-input" accept="image/*" capture="environment" style="display:none;">
+                <input type="file" id="gallery-input" accept="image/*" multiple style="display:none;">
+                <div id="photo-preview-container" style="display:flex; gap:5px; flex-wrap:wrap; margin-top:10px;"></div>
             </div>
 
             <div class="form-group">
@@ -1178,7 +1185,8 @@
         document.getElementById("photo-input").addEventListener("change", handleFiles);
         if(document.getElementById("gallery-input")) document.getElementById("gallery-input").addEventListener("change", handleFiles);
 
-        function guardarInventario() {\n            currentProperty.photos = [...tempPhotos];
+        function guardarInventario() {
+            currentProperty.photos = [...tempPhotos];
             // Capturar datos básicos
             currentProperty.tipo = document.getElementById('tipo-propiedad').value || 'Propiedad';
             currentProperty.precio = document.getElementById('precio-total').value || '0';
@@ -1256,7 +1264,7 @@
             // Mostrar módulo de salida de éxito
             const mod = document.getElementById('modulo-salida');
             mod.classList.add('active');
-            mod.style.display = 'block'; 
+            mod.style.display = 'block'; tempPhotos = []; if(document.getElementById('photo-preview-container')) document.getElementById('photo-preview-container').innerHTML = '';
             
             // Forzar actualización de vista
             setTimeout(() => {
