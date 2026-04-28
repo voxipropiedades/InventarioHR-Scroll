@@ -13,22 +13,8 @@
     </script>
 
     <meta charset="UTF-8">
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>InventarioHR</title>
-    <script>
-        const APP_VERSION = '2.1.0';
-        if (localStorage.getItem('hr_app_version') !== APP_VERSION) {
-            localStorage.setItem('hr_app_version', APP_VERSION);
-            // Si la versión cambia, forzamos recarga para limpiar caché de recursos
-            if (window.location.search.indexOf('v=') === -1) {
-                window.location.href = window.location.pathname + '?v=' + APP_VERSION;
-            }
-        }
-    </script>
-
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -841,12 +827,44 @@
         </section>
 
         <!-- Secciones Adicionales -->
+        
         <section id="section-prospectos" class="app-section">
             <div class="card">
-                <div class="section-title"><i class="fas fa-bullseye"></i> Prospectos</div>
-                <p>Lista de prospectos militares y de contado...</p>
+                <div class="section-title"><i class="fas fa-bullseye"></i> Agregar Nuevo Prospecto</div>
+                <div class="form-group">
+                    <label>Nombre del Prospecto:</label>
+                    <input type="text" id="pros-nombre" placeholder="Ej. Juan Pérez">
+                </div>
+                <div class="form-group">
+                    <label>Tipo de Crédito / Cliente:</label>
+                    <select id="pros-tipo" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ddd; background: white;">
+                        <option value="Militar">🎖️ Militar (ISSFAM)</option>
+                        <option value="Efectivo">💵 Efectivo</option>
+                        <option value="Infonavit">🏠 Infonavit</option>
+                        <option value="Fovissste">🏦 Fovissste</option>
+                        <option value="CFE">⚡ CFE</option>
+                        <option value="Bancario">💳 Bancario</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Teléfono:</label>
+                    <input type="tel" id="pros-tel" placeholder="Ej. 7711234567">
+                </div>
+                <div class="form-group">
+                    <label>Notas:</label>
+                    <textarea id="pros-notas" rows="2" placeholder="Ej. Interesado en casa de Acayuca..."></textarea>
+                </div>
+                <button class="btn-main" onclick="guardarProspecto()">REGISTRAR PROSPECTO</button>
+            </div>
+
+            <div class="card" style="margin-top: 20px;">
+                <div class="section-title"><i class="fas fa-users"></i> Lista de Prospectos</div>
+                <div id="prospectos-list">
+                    <p style="text-align:center; padding:20px; color:#666;">No hay prospectos registrados.</p>
+                </div>
             </div>
         </section>
+
 
         <section id="section-contactos" class="app-section">
             <div class="card">
@@ -1223,6 +1241,7 @@
             renderInventario();
             renderAlarms();
             renderStrategy();
+            renderProspectos();
 
             // Mostrar módulo de salida de éxito
             const mod = document.getElementById('modulo-salida');
@@ -1236,27 +1255,13 @@
         }
 
         
-        
         function renderStrategy() {
+            const panel = document.getElementById('smart-panel-content');
             const dailyPanel = document.getElementById('socio-strategy');
-            if (!dailyPanel) return;
+            if (!panel && !dailyPanel) return;
 
             const strategies = [
-                { m: "La disciplina es el puente entre las metas y el éxito.", e: "Hoy enfócate en prospectos de Issfam. Tienen excelente historial de crédito y estabilidad." },
-                { m: "Vender no es convencer, es ayudar a tomar decisiones.", e: "Revisa tu inventario de terrenos. Hay clientes con efectivo buscando inversiones seguras ahora mismo." },
-                { m: "El éxito inmobiliario depende de la ubicación y el seguimiento.", e: "Envía un mensaje de seguimiento a los 3 prospectos más antiguos. El interés se enfría rápido." },
-                { m: "Haz un cliente, no una venta.", e: "Hoy es buen día para captar nuevas propiedades en Zapotlán de Juárez. La zona tiene alta demanda." },
-                { m: "Tu actitud determina tu altitud.", e: "Prepara tus fichas técnicas en PDF. El profesionalismo es lo que realmente cierra los tratos grandes." },
-                { m: "No esperes el momento perfecto, tómalo y hazlo perfecto.", e: "Llama a tus leads de Fovissste. El cierre de mes es el momento crítico para sus trámites." },
-                { m: "La confianza se gana con honestidad.", e: "Verifica los precios por m² en Acayuca. Mantente competitivo para no perder oportunidades de cierre." }
-            ];
-
-            const dayOfYear = Math.floor((new Date() - new Date(new Date().getFullYear(), 0, 0)) / (1000 * 60 * 60 * 24));
-            const today = strategies[dayOfYear % strategies.length];
-            
-            dailyPanel.innerHTML = `<strong>💡 Estrategia del día:</strong> ${today.e}<br><br><small style="opacity:0.7;">"${today.m}"</small>`;
-        }
-,
+                { m: "La disciplina es el puente entre las metas y el éxito.", e: "Hoy enfócate en prospectos de Issfam. Tienen excelente historial de crédito." },
                 { m: "Vender no es convencer, es ayudar a tomar decisiones.", e: "Revisa tu inventario de terrenos. Hay clientes con efectivo buscando opciones seguras." },
                 { m: "El éxito inmobiliario depende de la ubicación y el seguimiento.", e: "Envía un mensaje de seguimiento a los 3 prospectos más antiguos. No los dejes enfriar." },
                 { m: "Haz un cliente, no una venta.", e: "Hoy es buen día para captar nuevas propiedades en Zapotlán. La zona está creciendo." },
@@ -1349,6 +1354,7 @@
             renderInventario();
             renderAlarms();
             renderStrategy();
+            renderProspectos();
             renderCitas();
         });
 
@@ -1500,6 +1506,70 @@
         } else {
             btnVoice.style.display = 'none';
         }
+
+        // --- MÓDULO PROSPECTOS ---
+        function renderProspectos() {
+            const list = document.getElementById('prospectos-list');
+            if (!list) return;
+            const pros = JSON.parse(localStorage.getItem('hr_prospectos') || '[]');
+            
+            const emojis = {
+                'Militar': '🎖️',
+                'Efectivo': '💵',
+                'Infonavit': '🏠',
+                'Fovissste': '🏦',
+                'CFE': '⚡',
+                'Bancario': '💳'
+            };
+
+            list.innerHTML = pros.length === 0 
+                ? '<p style="text-align:center; padding:20px; color:#666;">No hay prospectos registrados.</p>'
+                : pros.map((p, i) => `
+                    <div class="card" style="margin-bottom:10px; border-left: 5px solid #d32f2f; background: #fff;">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <div>
+                                <h4 style="margin:0; color:#d32f2f;">${emojis[p.tipo] || '👤'} ${p.nombre}</h4>
+                                <p style="margin:5px 0; font-size:0.85em; color:#333;"><strong>Tipo:</strong> ${p.tipo}</p>
+                                <p style="margin:5px 0; font-size:0.85em; color:#333;"><strong>📞 Tel:</strong> ${p.tel}</p>
+                                <p style="margin:5px 0; font-size:0.8em; color:#666;">${p.notas}</p>
+                            </div>
+                            <div style="display:flex; gap:10px;">
+                                <button onclick="eliminarProspecto(${i})" style="background:none; border:none; color:#d32f2f; cursor:pointer;"><i class="fas fa-trash"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+        }
+
+        function guardarProspecto() {
+            const nombre = document.getElementById('pros-nombre').value;
+            const tipo = document.getElementById('pros-tipo').value;
+            const tel = document.getElementById('pros-tel').value;
+            const notas = document.getElementById('pros-notas').value;
+
+            if (!nombre || !tel) return alert("Por favor completa al menos el nombre y teléfono.");
+
+            const pros = JSON.parse(localStorage.getItem('hr_prospectos') || '[]');
+            pros.push({ nombre, tipo, tel, notas, id: Date.now() });
+            localStorage.setItem('hr_prospectos', JSON.stringify(pros));
+            
+            renderProspectos();
+            showToast("Prospecto registrado con éxito");
+
+            // Limpiar
+            document.getElementById('pros-nombre').value = '';
+            document.getElementById('pros-tel').value = '';
+            document.getElementById('pros-notas').value = '';
+        }
+
+        function eliminarProspecto(index) {
+            if (!confirm("¿Eliminar este prospecto?")) return;
+            const pros = JSON.parse(localStorage.getItem('hr_prospectos') || '[]');
+            pros.splice(index, 1);
+            localStorage.setItem('hr_prospectos', JSON.stringify(pros));
+            renderProspectos();
+        }
+
         function renderCitas() {
             const list = document.getElementById('citas-list');
             const dashboardList = document.getElementById('dashboard-citas-list');
