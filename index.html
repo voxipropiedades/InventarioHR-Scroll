@@ -677,8 +677,17 @@
             </div>
 
             <div class="form-group">
+                <label>UBICACIÓN GPS (SE CAPTURA AL TOMAR FOTO)</label>
+                <div style="display:flex; gap:10px;">
+                    <input type="text" id="gps-coords" placeholder="Esperando ubicación..." readonly style="flex:1; background:#f0f0f0;">
+                    <button class="btn-capture" onclick="getGPS()" style="width:auto; padding:0 15px; margin:0;">
+                        <i class="fas fa-map-marker-alt"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="form-group">
                 <label>TELÉFONO DE CONTACTO</label>
-                <input type="tel" placeholder="771..." value="771">
+                <input type="tel" id="tel-contacto" placeholder="771..." value="771">
             </div>
 
             <div class="form-group">
@@ -1119,39 +1128,42 @@
         if(document.getElementById("gallery-input")) document.getElementById("gallery-input").addEventListener("change", handleFiles);
 
         function guardarInventario() {
-            currentProperty.photos = [...tempPhotos];
-            // Capturar datos básicos
-            currentProperty.tipo = document.getElementById('tipo-propiedad').value || 'Propiedad';
-            currentProperty.precio = document.getElementById('precio-total').value || '0';
-            currentProperty.m2 = document.getElementById('m2-totales').value || '0';
-            currentProperty.gps = document.getElementById('gps-coords').value || 'No capturado';
-            currentProperty.desc = document.getElementById('dictado-desc').value || '';
-            currentProperty.tel = document.querySelector('input[type="tel"]').value || '771';
-            
+            const props = {
+                id: new Date().getTime(),
+                photos: [...tempPhotos],
+                tipo: document.getElementById('tipo-propiedad').value || 'Propiedad',
+                precio: document.getElementById('precio-total').value || '0',
+                m2: document.getElementById('m2-totales').value || '0',
+                gps: document.getElementById('gps-coords').value || 'No capturado',
+                desc: document.getElementById('dictado-desc').value || '',
+                tel: document.getElementById('tel-contacto').value || '771',
+                creditos: [],
+                timestamp: new Date().getTime()
+            };
+
             // Capturar créditos
-            currentProperty.creditos = [];
-            if (document.getElementById('c-efectivo').checked) currentProperty.creditos.push('Efectivo');
-            if (document.getElementById('c-fovissste').checked) currentProperty.creditos.push('Fovissste');
-            if (document.getElementById('c-issfam').checked) currentProperty.creditos.push('Issfam');
-            if (document.getElementById('c-bancario').checked) currentProperty.creditos.push('Bancario');
-            if (document.getElementById('c-infonavit').checked) currentProperty.creditos.push('Infonavit');
-            if (document.getElementById('c-cfe').checked) currentProperty.creditos.push('CFE');
+            ['efectivo', 'fovissste', 'issfam', 'bancario', 'infonavit', 'cfe'].forEach(c => {
+                if (document.getElementById('c-'+c).checked) props.creditos.push(c.charAt(0).toUpperCase() + c.slice(1));
+            });
             
-            // Medidas
-            currentProperty.norte = document.getElementById('m-norte').value || 'N/A';
-            currentProperty.sur = document.getElementById('m-sur').value || 'N/A';
-            currentProperty.este = document.getElementById('m-este').value || 'N/A';
-            currentProperty.oeste = document.getElementById('m-oeste').value || 'N/A';
+            // Guardar localmente
+            const existing = JSON.parse(localStorage.getItem('hr_inventario') || '[]');
+            existing.push(props);
+            localStorage.setItem('hr_inventario', JSON.stringify(existing));
             
-            // Captura condicional Casa
-            if (currentProperty.tipo === '🏠 Casa') {
-                currentProperty.casaMetodo = document.getElementById('casa-metodo').value || '';
-                currentProperty.casaM2Const = document.getElementById('casa-m2-const').value || '';
-                currentProperty.casaStatus = document.getElementById('casa-status').value || '';
-                currentProperty.casaExistente = document.getElementById('casa-existente').value || '';
-                currentProperty.casaPisos = document.getElementById('casa-pisos').value || '';
-                currentProperty.casaRec = document.getElementById('casa-rec').value || '';
-            }
+            // Limpiar para el siguiente
+            tempPhotos = [];
+            renderPhotoPreviews();
+            document.getElementById('dictado-desc').value = '';
+            document.getElementById('gps-coords').value = '';
+            
+            showToast("✅ Guardado con éxito");
+            renderInventario();
+            
+            // Mostrar éxito
+            const mod = document.getElementById('modulo-salida');
+            if(mod) mod.classList.add('active');
+        }
 
             // Captura condicional Terreno / Parcela
             if (currentProperty.tipo === '🏢 Terreno' || currentProperty.tipo === '🌾 Parcela') {
