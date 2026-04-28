@@ -721,6 +721,30 @@
                 </div>
             </div>
 
+            <div class="card" style="background: #f9f9f9; border: 1px solid #ddd; margin-bottom: 15px;">
+                <div class="section-title" style="font-size: 0.9em;"><i class="fas fa-ruler-combined"></i> Medidas y Colindancias</div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>NORTE</label>
+                        <input type="text" id="m-norte" placeholder="0.00m">
+                    </div>
+                    <div class="form-group">
+                        <label>SUR</label>
+                        <input type="text" id="m-sur" placeholder="0.00m">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>ESTE</label>
+                        <input type="text" id="m-este" placeholder="0.00m">
+                    </div>
+                    <div class="form-group">
+                        <label>OESTE</label>
+                        <input type="text" id="m-oeste" placeholder="0.00m">
+                    </div>
+                </div>
+            </div>
+
             <div class="form-group">
                 <label>PRECIO POR M² (CALCULADO)</label>
                 <input type="text" id="precio-m2" placeholder="$0.00" readonly style="background: #f0f0f0;">
@@ -998,7 +1022,13 @@
             currentProperty.m2 = document.getElementById('m2-totales').value || '0';
             currentProperty.gps = document.getElementById('gps-coords').value || 'No capturado';
             currentProperty.desc = document.getElementById('dictado-desc').value || '';
-            currentProperty.tel = document.querySelector('input[type="tel"]').value || '';
+            currentProperty.tel = document.querySelector('input[type="tel"]').value || '771';
+            
+            // Medidas
+            currentProperty.norte = document.getElementById('m-norte').value || 'N/A';
+            currentProperty.sur = document.getElementById('m-sur').value || 'N/A';
+            currentProperty.este = document.getElementById('m-este').value || 'N/A';
+            currentProperty.oeste = document.getElementById('m-oeste').value || 'N/A';
             
             if (currentProperty.tipo === '🏠 Casa') {
                 const inputsCasa = document.querySelectorAll('#campos-casa input');
@@ -1037,7 +1067,7 @@
             document.getElementById('modal-save').classList.remove('active');
 
             // Mostrar módulo de salida de éxito
-            document.getElementById('modulo-salida').classList.add('visible');
+            document.getElementById('modulo-salida').classList.add('active');
             document.getElementById('modulo-salida').scrollIntoView({ behavior: 'smooth' });
         }
 
@@ -1051,6 +1081,7 @@
         }
 
         function enviarWhatsApp() {
+            const currentUrl = window.location.href;
             const texto = `🏠 *${currentProperty.tipo.toUpperCase()} - NUEVA PROPIEDAD*\n\n` +
                           `📍 *Ubicación:* ${currentProperty.gps}\n` +
                           `💰 *Precio:* $${currentProperty.precio}\n` +
@@ -1058,6 +1089,7 @@
                           `🛏️ *Habitaciones:* ${currentProperty.rec || '0'}\n` +
                           `🚿 *Baños:* ${currentProperty.ban || '0'}\n\n` +
                           `📝 *Descripción:* ${currentProperty.desc}\n\n` +
+                          `🔗 *Link de Visualización:* ${currentUrl}\n\n` +
                           `📞 *Contacto:* ${currentProperty.tel}\n\n` +
                           `_Enviado desde InventarioHR_`;
             
@@ -1070,58 +1102,73 @@
             const { jsPDF } = window.jspdf;
             const pdf = new jsPDF();
             
+            // Encabezado
             pdf.setFontSize(22);
             pdf.setTextColor(211, 47, 47);
             pdf.text('INVENTARIO HR - FICHA TÉCNICA', 20, 30);
             
+            // Datos Principales
             pdf.setFontSize(14);
             pdf.setTextColor(0, 0, 0);
             pdf.text(`Tipo: ${currentProperty.tipo}`, 20, 50);
             pdf.text(`Precio: $${currentProperty.precio}`, 20, 60);
             pdf.text(`Superficie: ${currentProperty.m2} m²`, 20, 70);
             pdf.text(`Ubicación GPS: ${currentProperty.gps}`, 20, 80);
-            pdf.text(`Contacto: ${currentProperty.tel}`, 20, 90);
             
+            // Medidas y Colindancias
+            pdf.setFontSize(16);
+            pdf.setTextColor(211, 47, 47);
+            pdf.text('MEDIDAS Y COLINDANCIAS', 20, 100);
+            pdf.setFontSize(12);
+            pdf.setTextColor(0, 0, 0);
+            pdf.text(`Norte: ${currentProperty.norte}`, 20, 110);
+            pdf.text(`Sur: ${currentProperty.sur}`, 20, 120);
+            pdf.text(`Este: ${currentProperty.este}`, 20, 130);
+            pdf.text(`Oeste: ${currentProperty.oeste}`, 20, 140);
+            
+            // Foto
             if (currentProperty.photo) {
                 try {
-                    pdf.addImage(currentProperty.photo, 'JPEG', 20, 110, 170, 100);
+                    pdf.addImage(currentProperty.photo, 'JPEG', 20, 150, 170, 90);
                 } catch(e) { console.error("Error al añadir imagen al PDF", e); }
             }
             
-            pdf.text('Descripción:', 20, 220);
+            // Descripción
+            pdf.setFontSize(14);
+            pdf.text('Descripción:', 20, 250);
             pdf.setFontSize(11);
             const splitDesc = pdf.splitTextToSize(currentProperty.desc, 170);
-            pdf.text(splitDesc, 20, 230);
+            pdf.text(splitDesc, 20, 260);
+            
+            // Pie de página
+            pdf.setFontSize(12);
+            pdf.text(`Contacto: ${currentProperty.tel}`, 20, 285);
             
             pdf.save(`Ficha_${currentProperty.tipo}_HR.pdf`);
         }
-            
-            pdf.save('Ficha_Propiedad_HR.pdf');
-        }
 
         async function generarFlyer() {
+            showToast("Generando Flyer Profesional...");
             const template = document.getElementById('flyer-template');
             
-            // Llenar template
-            document.getElementById('f-tipo').innerText = currentProperty.tipo;
+            // Poblar template con iconos
+            document.getElementById('f-tipo').innerHTML = `<i class="fas fa-home"></i> ${currentProperty.tipo}`;
             document.getElementById('f-precio').innerText = `$${currentProperty.precio}`;
-            document.getElementById('f-m2').innerText = `Superficie: ${currentProperty.m2} m²`;
-            document.getElementById('f-gps').innerText = `Ubicación: ${currentProperty.gps}`;
-            document.getElementById('f-tel').innerText = currentProperty.tel;
+            document.getElementById('f-m2').innerHTML = `<i class="fas fa-expand-arrows-alt"></i> ${currentProperty.m2} m²`;
+            document.getElementById('f-gps').innerHTML = `<i class="fas fa-map-marker-alt"></i> ${currentProperty.gps}`;
+            document.getElementById('f-tel').innerHTML = `<i class="fab fa-whatsapp"></i> ${currentProperty.tel}`;
             document.getElementById('f-desc').innerText = currentProperty.desc;
             
             if (currentProperty.photo) {
                 document.getElementById('f-img').src = currentProperty.photo;
             }
 
-            // Convertir a imagen
-            const canvas = await html2canvas(template, {
-                scale: 1,
-                useCORS: true
-            });
+            template.style.display = 'block';
+            const canvas = await html2canvas(template, { scale: 2, useCORS: true });
+            template.style.display = 'none';
             
             const link = document.createElement('a');
-            link.download = 'Flyer_HR_Master.png';
+            link.download = `Flyer_HR_${currentProperty.tipo}.png`;
             link.href = canvas.toDataURL();
             link.click();
         }
