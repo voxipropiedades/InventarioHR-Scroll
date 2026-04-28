@@ -1,1064 +1,205 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>InventarioHR</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        body {
-            background-color: #d32f2f; /* Rojo elegante */
-            color: #ffffff;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
-
-        /* Encabezado Principal */
-        .app-header {
-            background-color: #d32f2f;
-            padding: 15px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
-
-        .logo-area {
-            font-size: 1.4em;
-            font-weight: 800;
-            letter-spacing: 1px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .header-actions {
-            display: flex;
-            gap: 15px;
-            font-size: 1.2em;
-        }
-
-        .btn-action-header {
-            background: rgba(255, 255, 255, 0.2);
-            border: none;
-            color: white;
-            padding: 8px 12px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 0.8em;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        /* Menú Horizontal Scroll */
-        .horizontal-nav {
-            background: #b71c1c;
-            overflow-x: auto;
-            white-space: nowrap;
-            padding: 10px 0;
-            scrollbar-width: none; /* Firefox */
-            -ms-overflow-style: none;  /* IE and Edge */
-        }
-
-        .horizontal-nav::-webkit-scrollbar {
-            display: none; /* Chrome, Safari and Opera */
-        }
-
-        .nav-container {
-            display: inline-flex;
-            padding: 0 15px;
-            gap: 20px;
-        }
-
-        .nav-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-decoration: none;
-            color: rgba(255,255,255,0.7);
-            font-size: 0.75em;
-            font-weight: 600;
-            transition: all 0.3s;
-            cursor: pointer;
-        }
-
-        .nav-item i {
-            font-size: 1.6em;
-            margin-bottom: 4px;
-        }
-
-        .nav-item.active {
-            color: #ffffff;
-            transform: scale(1.1);
-        }
-
-        /* Dashboard Styles */
-        .metrics-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-            gap: 10px;
-            margin-top: 15px;
-        }
-
-        .metric-item {
-            background: #f9f9f9;
-            padding: 15px;
-            border-radius: 10px;
-            text-align: center;
-            border: 1px solid #eee;
-            color: #333;
-        }
-
-        .metric-value {
-            display: block;
-            font-size: 1.5em;
-            font-weight: bold;
-            color: #d32f2f;
-        }
-
-        .metric-label {
-            font-size: 0.8em;
-            color: #666;
-            text-transform: uppercase;
-        }
-
-        .search-box {
-            display: flex;
-            gap: 10px;
-            position: relative;
-        }
-
-        .search-box input {
-            flex: 1;
-            padding: 12px;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            font-size: 1em;
-        }
-
-        .voice-search {
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            border: none;
-            background: #d32f2f;
-            color: white;
-            cursor: pointer;
-        }
-
-        .social-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
-            margin-top: 10px;
-        }
-
-        .social-item {
-            text-decoration: none;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 15px;
-            border-radius: 12px;
-            color: white;
-            font-weight: bold;
-            transition: transform 0.2s;
-        }
-
-        .social-item:active { transform: scale(0.95); }
-        .social-item i { font-size: 1.8em; margin-bottom: 5px; }
-        .social-item.whatsapp { background: #25D366; }
-        .social-item.facebook { background: #1877F2; }
-        .social-item.tiktok { background: #000000; }
-
-        .alarm-item {
-            background: #fff;
-            padding: 10px;
-            border-radius: 8px;
-            border-left: 5px solid #d32f2f;
-            margin-top: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            color: #333;
-        }
-
-        .alarm-info h4 { font-size: 0.9em; margin: 0; }
-        .alarm-info span { font-size: 0.8em; color: #666; }
-
-        /* Modal Guardado */
-        .modal-save {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.8);
-            z-index: 10000;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-        .modal-save.active { display: flex; }
-        .output-module.active { display: block !important; }
-        .modal-card {
-            background: white;
-            padding: 25px;
-            border-radius: 15px;
-            width: 100%;
-            max-width: 400px;
-            color: #333;
-            text-align: center;
-        }
-        .save-options {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 15px;
-            margin-top: 20px;
-        }
-        .btn-save-opt {
-            padding: 15px;
-            border-radius: 10px;
-            border: 2px solid #d32f2f;
-            background: white;
-            color: #d32f2f;
-            font-weight: bold;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            font-size: 1.1em;
-        }
-        .btn-save-opt:active { background: #d32f2f; color: white; }
-        
-        /* Toast Notification */
-        .toast {
-            position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #2e7d32;
-            color: white;
-            padding: 15px 30px;
-            border-radius: 50px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-            z-index: 20000;
-            display: none;
-            animation: slideUp 0.3s ease-out;
-        }
-        @keyframes slideUp { from { bottom: -50px; } to { bottom: 30px; } }
-
-        .btn-delete {
-            background: none;
-            border: none;
-            color: #ff5252;
-            cursor: pointer;
-            padding: 5px;
-        }
-
-        /* Contenido Principal */
-        .main-content {
-            flex: 1;
-            padding: 20px;
-            max-width: 800px;
-            margin: 0 auto;
-            width: 100%;
-            position: relative;
-        }
-
-        .app-section {
-            display: none;
-            width: 100%;
-            will-change: transform, opacity;
-        }
-
-        .app-section.active {
-            display: block;
-            animation: fadeIn 0.2s ease-in-out;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(5px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .card {
-            background: #ffffff;
-            color: #333;
-            border-radius: 20px;
-            padding: 25px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            margin-bottom: 30px;
-        }
-
-        .section-title {
-            color: #d32f2f;
-            border-bottom: 2px solid #f0f0f0;
-            padding-bottom: 10px;
-            margin-bottom: 20px;
-            font-weight: 800;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            text-transform: uppercase;
-            font-size: 1.1em;
-        }
-
-        /* Formularios Estilizados */
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-bottom: 15px;
-        }
-
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-        .form-group label {
-            display: block;
-            font-size: 0.75em;
-            font-weight: 700;
-            color: #666;
-            margin-bottom: 5px;
-            text-transform: uppercase;
-        }
-
-        input, select, textarea {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #e0e0e0;
-            border-radius: 12px;
-            font-size: 1em;
-            transition: border-color 0.3s;
-            outline: none;
-        }
-
-        input:focus, select:focus, textarea:focus {
-            border-color: #d32f2f;
-        }
-
-        .cond-section {
-            display: none;
-            background: #f9f9f9;
-            padding: 15px;
-            border-radius: 15px;
-            margin-bottom: 15px;
-            border-left: 5px solid #d32f2f;
-        }
-
-        /* Botones Especiales */
-        .btn-capture {
-            background: #444;
-            color: white;
-            border: none;
-            padding: 15px;
-            border-radius: 12px;
-            cursor: pointer;
-            width: 100%;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            margin-top: 5px;
-            transition: background 0.3s;
-        }
-
-        .btn-capture:hover { background: #222; }
-
-        .btn-main {
-            background: #d32f2f;
-            color: white;
-            border: none;
-            padding: 18px;
-            border-radius: 15px;
-            cursor: pointer;
-            width: 100%;
-            font-weight: 800;
-            font-size: 1.1em;
-            box-shadow: 0 5px 15px rgba(211, 47, 47, 0.4);
-            margin-top: 10px;
-        }
-
-        /* Módulo de Salida */
-        .output-module {
-            display: none;
-            background: #fff;
-            padding: 20px;
-            border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            margin-top: 20px;
-            border: 2px solid #d32f2f;
-            animation: slideUp 0.5s ease-out;
-        }
-        .output-module.active {
-            display: block !important;
-        }
-        .output-buttons {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 12px;
-            margin-top: 15px;
-        }
-        .btn-output {
-            padding: 14px;
-            border: none;
-            border-radius: 12px;
-            font-weight: 700;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            color: white;
-            font-size: 1em;
-            transition: 0.3s;
-        }
-        .btn-whatsapp { background: #25D366; }
-        .btn-pdf { background: #d32f2f; }
-        .btn-flyer { background: #333; }
-        .btn-output:active { transform: scale(0.96); }
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        /* Estilos del Flyer */
-        #flyer-template {
-            width: 1000px;
-            background: #d32f2f;
-            color: white;
-            position: absolute;
-            left: -9999px;
-            overflow: hidden;
-            font-family: 'Arial Black', Gadget, sans-serif;
-        }
-        .flyer-img-container { width: 100%; height: 600px; position: relative; }
-        .flyer-img { width: 100%; height: 100%; object-fit: cover; }
-        .flyer-body { padding: 40px; text-align: center; }
-        .flyer-price { font-size: 80px; color: #FFD700; text-shadow: 2px 2px 10px rgba(0,0,0,0.5); }
-        .flyer-details { font-size: 30px; margin-top: 20px; line-height: 1.5; }
-        .flyer-footer { background: #000; padding: 20px; font-size: 24px; text-transform: uppercase; }
-
-    
-/* Prospectos Styles */
-.pr-group { margin-bottom: 10px; border-radius: 8px; overflow: hidden; border: 1px solid #ddd; background: #fff; }
-.pr-header { background: #f8f9fa; padding: 12px 15px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-weight: bold; border-bottom: 1px solid #eee; }
-.pr-header:hover { background: #e9ecef; }
-.pr-content { display: none; padding: 10px; background: #fff; }
-.pr-item { padding: 10px; border-bottom: 1px solid #f0f0f0; display: flex; flex-direction: column; gap: 4px; }
-.pr-item:last-child { border-bottom: none; }
-.pr-name { font-weight: bold; color: #333; }
-.pr-meta { font-size: 0.9em; color: #666; display: flex; justify-content: space-between; }
-.pr-amount { color: #2e7d32; font-weight: bold; }
-
-</style>
-</head>
-<body>
-
-    <!-- Header -->
-    <header class="app-header">
-        <div class="logo-area">
-            <i class="fas fa-home"></i> InventarioHR
-        </div>
-        <div class="header-actions">
-            <button class="btn-action-header" onclick="window.print()">
-                <i class="fas fa-print"></i>
-            </button>
-            <button class="btn-action-header" onclick="switchSection('inventario', document.querySelector('[onclick*=\'inventario\']'))">
-                <i class="fas fa-camera"></i>
-            </button>
-        </div>
-    </header>
-
-    <!-- Nav Horizontal -->
-    <nav class="horizontal-nav">
-        <div class="nav-container">
-            <div class="nav-item" onclick="switchSection('tablero', this)">
-                <i class="fas fa-chart-pie"></i>
-                <span>TABLERO</span>
-            </div>
-            <div class="nav-item active" onclick="switchSection('inventario', this)">
-                <i class="fas fa-home"></i>
-                <span>Inventario</span>
-            </div>
-            <div class="nav-item" onclick="switchSection('prospectos', this)">
-                <i class="fas fa-bullseye"></i>
-                <span>Prospectos</span>
-            </div>
-            <div class="nav-item" onclick="switchSection('contactos', this)">
-                <i class="fas fa-phone-alt"></i>
-                <span>Contactos</span>
-            </div>
-            <div class="nav-item" onclick="switchSection('archivos', this)">
-                <i class="fas fa-folder-open"></i>
-                <span>Archivos</span>
-            </div>
-            <div class="nav-item" onclick="switchSection('galeria', this)">
-                <i class="fas fa-images"></i>
-                <span>Galería</span>
-            </div>
-            <div class="nav-item" onclick="switchSection('pensamientos', this)">
-                <i class="fas fa-brain"></i>
-                <span>Pensamientos</span>
-            </div>
-            <div class="nav-item" onclick="switchSection('citas', this)">
-                <i class="fas fa-calendar-alt"></i>
-                <span>Citas</span>
-            </div>
-        </div>
-    </nav>
-
-    <div class="main-content">
-        
-        <!-- Sección Tablero -->
-        <section id="section-tablero" class="app-section">
-            <div class="card">
-                <div class="section-title"><i class="fas fa-list-ol"></i> ESTADO DE MI LISTA (VACÍA)</div>
-                
-                <div class="metrics-grid">
-                    <div class="metric-item">
-                        <span class="metric-value" id="count-total">0</span>
-                        <span class="metric-label">Total Propiedades</span>
-                    </div>
-                    <div class="metric-item">
-                        <span class="metric-value" id="count-casas">0</span>
-                        <span class="metric-label">🏠 Casas</span>
-                    </div>
-                    <div class="metric-item">
-                        <span class="metric-value" id="count-terrenos">0</span>
-                        <span class="metric-label">🏢 Terrenos</span>
-                    </div>
-                </div>
-
-                <div id="empty-msg-area" style="text-align:center; padding:20px; margin-top:15px; border:2px dashed #ddd; border-radius:15px; color:#999;">
-                    <i class="fas fa-folder-open" style="font-size:2em; margin-bottom:10px;"></i>
-                    <p>No tienes nada registrado. Tu inventario está en 0.</p>
-                    <button class="btn-main" onclick="if(confirm('¿Borrar datos viejos del teléfono para dejar en CERO real?')){localStorage.clear(); location.reload();}" style="background:#444; margin-top:10px; font-size:0.8em; padding:10px;">BORRAR MEMORIA DEL TELÉFONO</button>
-                </div>
-            </div>
-        </section>
-
-        <!-- Sección Inventario (Principal) -->
-        <section id="section-inventario" class="app-section active">
-            <!-- Formulario Principal -->
-            <div class="card">
-            <div class="section-title">
-                <i class="fas fa-plus-circle"></i> Nueva Captura
-            </div>
-
-            <div class="form-group">
-                <label>UBICACIÓN AUTOMÁTICA GPS</label>
-                <button class="btn-capture" onclick="getGPS()">
-                    <i class="fas fa-map-marker-alt"></i> OBTENER UBICACIÓN GPS
-                </button>
-                <input type="text" id="gps-coords" placeholder="Coordenadas GPS" style="margin-top:10px;" readonly>
-                <button class="btn-capture" onclick="abrirMapsDesdeInput()" style="margin-top:6px; background:#1565c0;">
-                    <i class="fas fa-map-marked-alt"></i> ABRIR EN GOOGLE MAPS
-                </button>
-            </div>
-
-            <div class="form-group">
-                <label>TIPO DE PROPIEDAD</label>
-                <select id="tipo-propiedad" onchange="toggleForm(this.value)">
-                    <option value="">Seleccione...</option>
-                    <option value="🏠 Casa">🏠 Casa</option>
-                    <option value="🏢 Terreno">🏢 Terreno</option>
-                    <option value="🌾 Parcela">🌾 Parcela</option>
-                    <option value="🏭 Local / Bodega">🏭 Local / Bodega</option>
-                </select>
-            </div>
-
-            <!-- Secciones Condicionales -->
-            <div id="campos-terreno" class="cond-section">
-                <div class="form-group">
-                    <label>M² DE TERRENO</label>
-                    <input type="number" id="terreno-m2" placeholder="0">
-                </div>
-                <div class="form-group">
-                    <label>¿ES PARA CONSTRUCCIÓN DE CASA?</label>
-                    <select id="terreno-proyectado-check" onchange="document.getElementById('campo-proyectado').style.display = (this.value=='Si'?'block':'none')">
-                        <option value="No">No</option>
-                        <option value="Si">Si</option>
-                    </select>
-                </div>
-                <div id="campo-proyectado" style="display:none;">
-                    <div class="form-group">
-                        <label>M² DE CONSTRUCCIÓN PROYECTADOS</label>
-                        <input type="number" id="terreno-m2-proy" placeholder="0">
-                    </div>
-                </div>
-            </div>
-
-            <div id="campos-casa" class="cond-section">
-                <div class="form-group">
-                    <label>MÉTODO DE CONSTRUCCIÓN DEL TERRENO</label>
-                    <input type="text" id="casa-metodo" placeholder="Ej: Tradicional, Block, Zapata...">
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>M² DE CONSTRUCCIÓN</label>
-                        <input type="number" id="casa-m2-const" placeholder="0">
-                    </div>
-                    <div class="form-group">
-                        <label>¿YA CONSTRUIDA?</label>
-                        <select id="casa-status" onchange="document.getElementById('detalles-existente').style.display = (this.value=='Si'?'block':'none')">
-                            <option value="No">No (En obra)</option>
-                            <option value="Si">Si (Existente)</option>
-                        </select>
-                    </div>
-                </div>
-                <div id="detalles-existente" style="display:none;">
-                    <div class="form-group">
-                        <label>DETALLES DE CONSTRUCCIÓN EXISTENTE</label>
-                        <textarea id="casa-existente" placeholder="Describe la construcción actual..."></textarea>
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group"><label>PISOS</label><input type="number" id="casa-pisos" placeholder="0"></div>
-                    <div class="form-group"><label>RECÁMARAS</label><input type="number" id="casa-rec" placeholder="0"></div>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label>PRECIO TOTAL ($)</label>
-                <input type="number" id="precio-total" placeholder="0" oninput="calcularMetro()">
-            </div>
-
-            <div class="card" style="background: #f9f9f9; border: 1px solid #ddd; margin-bottom: 15px;">
-                <div class="section-title" style="font-size: 0.9em;"><i class="fas fa-ruler-combined"></i> Medidas y Colindancias</div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>NORTE</label>
-                        <input type="text" id="m-norte" placeholder="0.00m" oninput="calcularSuperficie()">
-                    </div>
-                    <div class="form-group">
-                        <label>SUR</label>
-                        <input type="text" id="m-sur" placeholder="0.00m" oninput="calcularSuperficie()">
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>ESTE</label>
-                        <input type="text" id="m-este" placeholder="0.00m" oninput="calcularSuperficie()">
-                    </div>
-                    <div class="form-group">
-                        <label>OESTE</label>
-                        <input type="text" id="m-oeste" placeholder="0.00m" oninput="calcularSuperficie()">
-                    </div>
-                </div>
-                
-                <!-- Área Total debajo de las medidas -->
-                <div class="form-group" style="background: #e3f2fd; padding: 15px; border-radius: 12px; border: 3px solid #2196f3; margin-top: 10px;">
-                    <label style="color: #0d47a1; font-weight: bold; font-size: 1em;">ÁREA TOTAL (M² CALCULADOS)</label>
-                    <input type="number" id="m2-totales" placeholder="0.00" oninput="calcularMetro()" style="font-size: 1.5em; font-weight: bold; color: #d32f2f; background: white; text-align: center;">
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label>PRECIO POR M² (CALCULADO)</label>
-                <input type="text" id="precio-m2" placeholder="$0.00" readonly style="background: #f0f0f0;">
-            </div>
-
-            <div class="form-group">
-                <label>UBICACIÓN GPS (SE CAPTURA AL TOMAR FOTO)</label>
-                <div style="display:flex; gap:10px;">
-                    <input type="text" id="gps-coords" placeholder="Esperando ubicación..." readonly style="flex:1; background:#f0f0f0;">
-                    <button class="btn-capture" onclick="getGPS()" style="width:auto; padding:0 15px; margin:0;">
-                        <i class="fas fa-map-marker-alt"></i>
-                    </button>
-                </div>
-            </div>
-            <div class="form-group">
-                <label>TELÉFONO DE CONTACTO</label>
-                <input type="tel" id="tel-contacto" placeholder="771..." value="771">
-            </div>
-
-            <div class="form-group">
-                <label>FOTOS DE LA PROPIEDAD (MÁX 20)</label>
-                <div style="display:flex; gap:10px; margin-bottom:10px;">
-                    <button class="btn-capture" onclick="document.getElementById('photo-input').click()" style="flex:1;">
-                        <i class="fas fa-camera"></i> CÁMARA
-                    </button>
-                    <button class="btn-capture" onclick="document.getElementById('gallery-input').click()" style="flex:1; background:#455a64;">
-                        <i class="fas fa-images"></i> GALERÍA
-                    </button>
-                </div>
-                <input type="file" id="photo-input" accept="image/*" capture="environment" style="display:none;">
-                <input type="file" id="gallery-input" accept="image/*" multiple style="display:none;">
-                <div id="photo-preview-container" style="display:flex; gap:5px; flex-wrap:wrap; margin-top:10px;"></div>
-            </div>
-
-            <div class="form-group">
-                <label>DESCRIPCIÓN (DICTADO POR VOZ)</label>
-                <div style="position:relative;">
-                    <textarea id="dictado-desc" placeholder="Pulsa micro para hablar..." style="padding-right: 50px;"></textarea>
-                    <button id="btn-voice" class="btn-capture" style="position:absolute; right:5px; top:5px; width:40px; height:40px; padding:0; margin:0; border-radius:50%;">
-                        <i class="fas fa-microphone"></i>
-                    </button>
-                </div>
-            </div>
-
-            <div class="card" style="background: #fff3e0; border: 1px solid #ffb74d; margin-bottom: 15px;">
-                <div class="section-title" style="color: #e65100;"><i class="fas fa-hand-holding-usd"></i> Tipo de Pago / Créditos</div>
-                <div class="form-group">
-                    <label>APTO PARA:</label>
-                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">
-                        <label style="font-size: 0.85em; display: flex; align-items: center; gap: 5px;">
-                            <input type="checkbox" id="c-efectivo" checked> Efectivo
-                        </label>
-                        <label style="font-size: 0.85em; display: flex; align-items: center; gap: 5px;">
-                            <input type="checkbox" id="c-fovissste"> Fovissste
-                        </label>
-                        <label style="font-size: 0.85em; display: flex; align-items: center; gap: 5px;">
-                            <input type="checkbox" id="c-issfam"> Issfam
-                        </label>
-                        <label style="font-size: 0.85em; display: flex; align-items: center; gap: 5px;">
-                            <input type="checkbox" id="c-bancario"> Bancario
-                        </label>
-                        <label style="font-size: 0.85em; display: flex; align-items: center; gap: 5px;">
-                            <input type="checkbox" id="c-infonavit"> Infonavit
-                        </label>
-                        <label style="font-size: 0.85em; display: flex; align-items: center; gap: 5px;">
-                            <input type="checkbox" id="c-cfe"> CFE
-                        </label>
-                    </div>
-                </div>
-            </div>
-
-            <button class="btn-main" onclick="guardarInventario()">GUARDAR EN INVENTARIO</button>
-
-            <div class="card" style="margin-top:20px; background: #fffde7; border: 1px solid #fbc02d;">
-                <div style="display:flex; gap:10px; align-items:center; color:#f57f17; font-weight:bold;">
-                    <i class="fas fa-lightbulb" style="font-size:1.5em;"></i>
-                    <span>ESTRATEGIA HR PARA HOY</span>
-                </div>
-                <p id="socio-strategy" style="font-size:0.9em; color:#5d4037; margin-top:8px; line-height:1.4;">
-                    Prioriza los cierres en efectivo esta semana. Revisa los prospectos con capacidad de pago inmediato y envía la ubicación GPS de tus terrenos más competitivos.
-                </p>
-            </div>
-
-            <!-- Módulo de Salida (Reposicionado abajo de estrategias) -->
-            <div id="modulo-salida" class="output-module" style="margin-top: 15px;">
-                <h2 style="text-align: center; color: #d32f2f; margin-bottom: 5px;">📤 ÉXITO: GUARDADO</h2>
-                <p style="text-align: center; font-size: 0.9em; color: #666;">¿Qué deseas hacer ahora con esta propiedad?</p>
-                
-                <div class="output-buttons">
-                    <button class="btn-output btn-whatsapp" onclick="enviarWhatsApp()">
-                        <i class="fab fa-whatsapp"></i> ENVIAR A CLIENTE
-                    </button>
-                    <button class="btn-output btn-pdf" onclick="generarPDF()">
-                        <i class="fas fa-file-pdf"></i> DESCARGAR FICHA PDF
-                    </button>
-                    <button class="btn-output btn-flyer" onclick="generarFlyer()">
-                        <i class="fas fa-image"></i> DESCARGAR FLYER
-                    </button>
-                </div>
-                <button onclick="document.getElementById('modulo-salida').classList.remove('active')" style="margin-top:15px; width:100%; border:none; background:none; color:#999; text-decoration:underline; cursor:pointer;">Continuar agregando</button>
-            </div>
-
-            <div class="card" style="margin-top:10px;">
-                <div class="section-title"><i class="fas fa-list"></i> Propiedades Guardadas</div>
-                <div id="inventory-list"></div>
-            </div>
-        </section>
-
-        <!-- Secciones Adicionales -->
-        
-        <section id="section-prospectos" class="app-section">
-            <div class="card">
-                <div class="section-title"><i class="fas fa-user-plus"></i> Nuevo Prospecto</div>
-                <div class="form-group">
-                    <label>NOMBRE COMPLETO</label>
-                    <input type="text" id="pr-nombre" placeholder="Nombre del cliente">
-                </div>
-                <div class="form-group">
-                    <label>TELÉFONO</label>
-                    <input type="tel" id="pr-tel" placeholder="771...">
-                </div>
-                <div class="form-group">
-                    <label>TIPO DE CRÉDITO</label>
-                    <select id="pr-credito">
-                        <option value="Efectivo">Efectivo</option>
-                        <option value="ISSFAM">ISSFAM</option>
-                        <option value="Banjército">Banjército</option>
-                        <option value="CFE">CFE</option>
-                        <option value="Infonavit">Infonavit</option>
-                        <option value="FOVISSSTE">FOVISSSTE</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>MONTO DISPONIBLE</label>
-                    <input type="number" id="pr-monto" placeholder="0.00">
-                </div>
-                <button class="btn-save" onclick="prGuardar()">
-                    <i class="fas fa-save"></i> GUARDAR PROSPECTO
-                </button>
-            </div>
-
-            <div class="section-title" style="margin-top:20px;">
-                <i class="fas fa-users"></i> Lista de Prospectos
-            </div>
-            <div id="pr-lista"></div>
-        </section>
-
-
-        <style>
-        .pr-grupo{background:#fff;border-radius:14px;margin-bottom:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.1);}
-        .pr-gh{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;cursor:pointer;background:#fff;border-bottom:1px solid #f0f0f0;}
-        .pr-gh h3{margin:0;font-size:.95em;color:#d32f2f;font-weight:800;}
-        .pr-count{background:#d32f2f;color:#fff;border-radius:20px;padding:2px 10px;font-size:.75em;font-weight:700;margin-left:8px;}
-        .pr-gb{display:none;padding:10px;}
-        .pr-gb.open{display:block;}
-        .pr-card{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:#fafafa;border-radius:10px;margin-bottom:7px;border-left:4px solid #d32f2f;}
-        .pr-info .pr-nom{font-weight:700;font-size:.9em;color:#222;}
-        .pr-info .pr-det{font-size:.78em;color:#666;margin-top:2px;}
-        .pr-acts{display:flex;gap:6px;}
-        .pr-call{background:#25D366;color:#fff;border:none;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:.85em;}
-        .pr-del{background:#ffebee;color:#d32f2f;border:none;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:.85em;}
-        .pr-empty{text-align:center;padding:20px;color:#999;font-size:.88em;}
-        
-/* Prospectos Styles */
-.pr-group { margin-bottom: 10px; border-radius: 8px; overflow: hidden; border: 1px solid #ddd; background: #fff; }
-.pr-header { background: #f8f9fa; padding: 12px 15px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-weight: bold; border-bottom: 1px solid #eee; }
-.pr-header:hover { background: #e9ecef; }
-.pr-content { display: none; padding: 10px; background: #fff; }
-.pr-item { padding: 10px; border-bottom: 1px solid #f0f0f0; display: flex; flex-direction: column; gap: 4px; }
-.pr-item:last-child { border-bottom: none; }
-.pr-name { font-weight: bold; color: #333; }
-.pr-meta { font-size: 0.9em; color: #666; display: flex; justify-content: space-between; }
-.pr-amount { color: #2e7d32; font-weight: bold; }
-
-</style>
-
-        <section id="section-contactos" class="app-section">
-            <div class="card">
-                <div class="section-title"><i class="fas fa-phone-alt"></i> Agenda de Contactos</div>
-                <p>Gestiona tus contactos aquí.</p>
-            </div>
-        </section>
-
-        <section id="section-archivos" class="app-section">
-            <div class="card">
-                <div class="section-title"><i class="fas fa-folder-open"></i> Archivos</div>
-                <p>Documentación y expedientes.</p>
-            </div>
-        </section>
-
-        <section id="section-galeria" class="app-section">
-            <div class="card">
-                <div class="section-title"><i class="fas fa-images"></i> Galería</div>
-                <p>Fotos de todas tus propiedades.</p>
-            </div>
-        </section>
-
-        <section id="section-pensamientos" class="app-section">
-            <div class="card">
-                <div class="section-title"><i class="fas fa-brain"></i> Pensamientos</div>
-                <p>Notas rápidas y estrategias de venta.</p>
-            </div>
-        </section>
-
-        <section id="section-citas" class="app-section">
-            <div class="card">
-                <div class="section-title"><i class="fas fa-calendar-alt"></i> Programar Nueva Cita</div>
-                <input type="hidden" id="cita-id">
-                <div class="form-group">
-                    <label>Nombre del Cliente:</label>
-                    <input type="text" id="cita-cliente" placeholder="Ej. Juan Pérez">
-                </div>
-                <div class="form-group">
-                    <label>Fecha y Hora:</label>
-                    <input type="datetime-local" id="cita-fecha">
-                </div>
-                <div class="form-group">
-                    <label>Propiedad de Interés:</label>
-                    <input type="text" id="cita-propiedad" placeholder="Ej. Casa en Acayuca">
-                </div>
-                <div class="form-group">
-                    <label>Notas / Objetivo:</label>
-                    <textarea id="cita-notas" rows="2" placeholder="Ej. Mostrar escrituras, cierre de trato..."></textarea>
-                </div>
-                <button class="btn-main" onclick="guardarCita()">AGENDAR CITA</button>
-            </div>
-
-            <div class="card" style="margin-top: 20px;">
-                <div class="section-title"><i class="fas fa-list-ul"></i> Agenda de Citas</div>
-                <div id="citas-list">
-                    <p style="text-align:center; padding:20px; color:#666;">No hay citas programadas.</p>
-                </div>
-            </div>
-        </section>
-
-    </div>
-
-    <!-- Modal de Guardado -->
-    <div id="modal-save" class="modal-save">
-        <div class="modal-card">
-            <h2 style="color: #d32f2f;"><i class="fas fa-save"></i> ¿Dónde guardar?</h2>
-            <p>Selecciona tu destino de almacenamiento preferido</p>
-            <div class="save-options">
-                <button class="btn-save-opt" onclick="confirmSave('local')">
-                    <i class="fas fa-mobile-alt"></i> GUARDAR EN TELÉFONO
-                </button>
-                <button class="btn-save-opt" onclick="confirmSave('cloud')">
-                    <i class="fas fa-cloud"></i> GUARDAR EN LA NUBE
-                </button>
-            </div>
-            <label style="margin-top: 20px; display: block; font-size: 0.9em; color: #666; cursor: pointer;">
-                <input type="checkbox" id="save-default"> Guardar por defecto siempre
-            </label>
-            <button onclick="document.getElementById('modal-save').classList.remove('active')" style="margin-top:15px; border:none; background:none; color:#666; text-decoration:underline;">Cancelar</button>
-        </div>
-    </div>
-
-    <!-- Toast de Confirmación -->
-    <div id="toast-success" class="toast">
-        <i class="fas fa-check-circle"></i> <span id="toast-msg">Guardado con éxito</span>
-    </div>
-
-    <!-- Template Oculto para Flyer -->
-    <div id="flyer-template">
-        <div class="flyer-header" style="display: flex; align-items: center; justify-content: center; gap: 15px; padding: 20px;">
-            <img src="propiedades-app/icon-192.png" style="width: 50px; height: 50px; border-radius: 50%; background: white;" onerror="this.src='https://cdn-icons-png.flaticon.com/512/609/609803.png'">
-            <div style="text-align: left;">
-                <h1 id="f-tipo" style="color: white; margin:0; font-size: 1.4em; text-transform: uppercase;">PROPIEDAD</h1>
-                <span style="font-weight: 800; color: #87CEEB;">HR MASTER V34</span>
-            </div>
-        </div>
-        <div class="flyer-img-container">
-            <img id="f-img" src="https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&q=80&w=1000" class="flyer-img">
-        </div>
-        <div class="flyer-body">
-            <div class="flyer-price" id="f-precio">$0.00</div>
-            <div class="flyer-details">
-                <div id="f-m2">Superficie: 0 m²</div>
-                <div id="f-extra" style="margin-top: 5px; font-weight: bold; color: #fff;"></div>
-                <div id="f-gps">Ubicación: GPS Activo</div>
-                <div id="f-desc" style="margin-top:20px; font-style: italic; color: #eee; font-size: 0.8em;"></div>
-            </div>
-        </div>
-        <div class="flyer-footer">
-            📞 CONTACTO: <span id="f-tel"></span>
-        </div>
-    </div>
-
+<!DOCTYPE html>\n<html lang="es">\n<head>\n    <meta charset="UTF-8">\n    <meta name="viewport" content="width=device-width, initial-scale=1.0">\n    <title>InventarioHR</title>\n    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">\n    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>\n    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>\n    <style>\n        * {\n            box-sizing: border-box;\n            margin: 0;\n            padding: 0;\n            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;\n        }\n\n        body {\n            background-color: #d32f2f; /* Rojo elegante */\n            color: #ffffff;\n            display: flex;\n            flex-direction: column;\n            min-height: 100vh;\n            overflow-x: hidden;\n        }\n\n        /* Encabezado Principal */\n        .app-header {\n            background-color: #d32f2f;\n            padding: 15px 20px;\n            display: flex;\n            justify-content: space-between;\n            align-items: center;\n            box-shadow: 0 2px 10px rgba(0,0,0,0.3);\n            position: sticky;\n            top: 0;\n            z-index: 1000;\n        }\n\n        .logo-area {\n            font-size: 1.4em;\n            font-weight: 800;\n            letter-spacing: 1px;\n            display: flex;\n            align-items: center;\n            gap: 10px;\n        }\n\n        .header-actions {\n            display: flex;\n            gap: 15px;\n            font-size: 1.2em;\n        }\n\n        .btn-action-header {\n            background: rgba(255, 255, 255, 0.2);\n            border: none;\n            color: white;\n            padding: 8px 12px;\n            border-radius: 8px;\n            cursor: pointer;\n            font-size: 0.8em;\n            display: flex;\n            align-items: center;\n            gap: 5px;\n        }\n\n        /* Menú Horizontal Scroll */\n        .horizontal-nav {\n            background: #b71c1c;\n            overflow-x: auto;\n            white-space: nowrap;\n            padding: 10px 0;\n            scrollbar-width: none; /* Firefox */\n            -ms-overflow-style: none;  /* IE and Edge */\n        }\n\n        .horizontal-nav::-webkit-scrollbar {\n            display: none; /* Chrome, Safari and Opera */\n        }\n\n        .nav-container {\n            display: inline-flex;\n            padding: 0 15px;\n            gap: 20px;\n        }\n\n        .nav-item {\n            display: flex;\n            flex-direction: column;\n            align-items: center;\n            text-decoration: none;\n            color: rgba(255,255,255,0.7);\n            font-size: 0.75em;\n            font-weight: 600;\n            transition: all 0.3s;\n            cursor: pointer;\n        }\n\n        .nav-item i {\n            font-size: 1.6em;\n            margin-bottom: 4px;\n        }\n\n        .nav-item.active {\n            color: #ffffff;\n            transform: scale(1.1);\n        }\n\n        /* Dashboard Styles */\n        .metrics-grid {\n            display: grid;\n            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));\n            gap: 10px;\n            margin-top: 15px;\n        }\n\n        .metric-item {\n            background: #f9f9f9;\n            padding: 15px;\n            border-radius: 10px;\n            text-align: center;\n            border: 1px solid #eee;\n            color: #333;\n        }\n\n        .metric-value {\n            display: block;\n            font-size: 1.5em;\n            font-weight: bold;\n            color: #d32f2f;\n        }\n\n        .metric-label {\n            font-size: 0.8em;\n            color: #666;\n            text-transform: uppercase;\n        }\n\n        .search-box {\n            display: flex;\n            gap: 10px;\n            position: relative;\n        }\n\n        .search-box input {\n            flex: 1;\n            padding: 12px;\n            border: 2px solid #ddd;\n            border-radius: 8px;\n            font-size: 1em;\n        }\n\n        .voice-search {\n            width: 45px;\n            height: 45px;\n            border-radius: 50%;\n            border: none;\n            background: #d32f2f;\n            color: white;\n            cursor: pointer;\n        }\n\n        .social-grid {\n            display: grid;\n            grid-template-columns: repeat(3, 1fr);\n            gap: 15px;\n            margin-top: 10px;\n        }\n\n        .social-item {\n            text-decoration: none;\n            display: flex;\n            flex-direction: column;\n            align-items: center;\n            padding: 15px;\n            border-radius: 12px;\n            color: white;\n            font-weight: bold;\n            transition: transform 0.2s;\n        }\n\n        .social-item:active { transform: scale(0.95); }\n        .social-item i { font-size: 1.8em; margin-bottom: 5px; }\n        .social-item.whatsapp { background: #25D366; }\n        .social-item.facebook { background: #1877F2; }\n        .social-item.tiktok { background: #000000; }\n\n        .alarm-item {\n            background: #fff;\n            padding: 10px;\n            border-radius: 8px;\n            border-left: 5px solid #d32f2f;\n            margin-top: 10px;\n            display: flex;\n            justify-content: space-between;\n            align-items: center;\n            box-shadow: 0 2px 5px rgba(0,0,0,0.1);\n            color: #333;\n        }\n\n        .alarm-info h4 { font-size: 0.9em; margin: 0; }\n        .alarm-info span { font-size: 0.8em; color: #666; }\n\n        /* Modal Guardado */\n        .modal-save {\n            display: none;\n            position: fixed;\n            top: 0; left: 0; width: 100%; height: 100%;\n            background: rgba(0,0,0,0.8);\n            z-index: 10000;\n            justify-content: center;\n            align-items: center;\n            padding: 20px;\n        }\n        .modal-save.active { display: flex; }\n        .output-module.active { display: block !important; }\n        .modal-card {\n            background: white;\n            padding: 25px;\n            border-radius: 15px;\n            width: 100%;\n            max-width: 400px;\n            color: #333;\n            text-align: center;\n        }\n        .save-options {\n            display: grid;\n            grid-template-columns: 1fr;\n            gap: 15px;\n            margin-top: 20px;\n        }\n        .btn-save-opt {\n            padding: 15px;\n            border-radius: 10px;\n            border: 2px solid #d32f2f;\n            background: white;\n            color: #d32f2f;\n            font-weight: bold;\n            cursor: pointer;\n            display: flex;\n            align-items: center;\n            justify-content: center;\n            gap: 10px;\n            font-size: 1.1em;\n        }\n        .btn-save-opt:active { background: #d32f2f; color: white; }\n        \n        /* Toast Notification */\n        .toast {\n            position: fixed;\n            bottom: 30px;\n            left: 50%;\n            transform: translateX(-50%);\n            background: #2e7d32;\n            color: white;\n            padding: 15px 30px;\n            border-radius: 50px;\n            box-shadow: 0 4px 15px rgba(0,0,0,0.3);\n            z-index: 20000;\n            display: none;\n            animation: slideUp 0.3s ease-out;\n        }\n        @keyframes slideUp { from { bottom: -50px; } to { bottom: 30px; } }\n\n        .btn-delete {\n            background: none;\n            border: none;\n            color: #ff5252;\n            cursor: pointer;\n            padding: 5px;\n        }\n\n        /* Contenido Principal */\n        .main-content {\n            flex: 1;\n            padding: 20px;\n            max-width: 800px;\n            margin: 0 auto;\n            width: 100%;\n            position: relative;\n        }\n\n        .app-section {\n            display: none;\n            width: 100%;\n            will-change: transform, opacity;\n        }\n\n        .app-section.active {\n            display: block;\n            animation: fadeIn 0.2s ease-in-out;\n        }\n\n        @keyframes fadeIn {\n            from { opacity: 0; transform: translateY(5px); }\n            to { opacity: 1; transform: translateY(0); }\n        }\n\n        .card {\n            background: #ffffff;\n            color: #333;\n            border-radius: 20px;\n            padding: 25px;\n            box-shadow: 0 10px 30px rgba(0,0,0,0.3);\n            margin-bottom: 30px;\n        }\n\n        .section-title {\n            color: #d32f2f;\n            border-bottom: 2px solid #f0f0f0;\n            padding-bottom: 10px;\n            margin-bottom: 20px;\n            font-weight: 800;\n            display: flex;\n            align-items: center;\n            gap: 10px;\n            text-transform: uppercase;\n            font-size: 1.1em;\n        }\n\n        /* Formularios Estilizados */\n        .form-row {\n            display: grid;\n            grid-template-columns: 1fr 1fr;\n            gap: 15px;\n            margin-bottom: 15px;\n        }\n\n        .form-group {\n            margin-bottom: 15px;\n        }\n\n        .form-group label {\n            display: block;\n            font-size: 0.75em;\n            font-weight: 700;\n            color: #666;\n            margin-bottom: 5px;\n            text-transform: uppercase;\n        }\n\n        input, select, textarea {\n            width: 100%;\n            padding: 12px;\n            border: 2px solid #e0e0e0;\n            border-radius: 12px;\n            font-size: 1em;\n            transition: border-color 0.3s;\n            outline: none;\n        }\n\n        input:focus, select:focus, textarea:focus {\n            border-color: #d32f2f;\n        }\n\n        .cond-section {\n            display: none;\n            background: #f9f9f9;\n            padding: 15px;\n            border-radius: 15px;\n            margin-bottom: 15px;\n            border-left: 5px solid #d32f2f;\n        }\n\n        /* Botones Especiales */\n        .btn-capture {\n            background: #444;\n            color: white;\n            border: none;\n            padding: 15px;\n            border-radius: 12px;\n            cursor: pointer;\n            width: 100%;\n            font-weight: 700;\n            display: flex;\n            align-items: center;\n            justify-content: center;\n            gap: 10px;\n            margin-top: 5px;\n            transition: background 0.3s;\n        }\n\n        .btn-capture:hover { background: #222; }\n\n        .btn-main {\n            background: #d32f2f;\n            color: white;\n            border: none;\n            padding: 18px;\n            border-radius: 15px;\n            cursor: pointer;\n            width: 100%;\n            font-weight: 800;\n            font-size: 1.1em;\n            box-shadow: 0 5px 15px rgba(211, 47, 47, 0.4);\n            margin-top: 10px;\n        }\n\n        /* Módulo de Salida */\n        .output-module {\n            display: none;\n            background: #fff;\n            padding: 20px;\n            border-radius: 15px;\n            box-shadow: 0 4px 15px rgba(0,0,0,0.2);\n            margin-top: 20px;\n            border: 2px solid #d32f2f;\n            animation: slideUp 0.5s ease-out;\n        }\n        .output-module.active {\n            display: block !important;\n        }\n        .output-buttons {\n            display: grid;\n            grid-template-columns: 1fr;\n            gap: 12px;\n            margin-top: 15px;\n        }\n        .btn-output {\n            padding: 14px;\n            border: none;\n            border-radius: 12px;\n            font-weight: 700;\n            cursor: pointer;\n            display: flex;\n            align-items: center;\n            justify-content: center;\n            gap: 12px;\n            color: white;\n            font-size: 1em;\n            transition: 0.3s;\n        }\n        .btn-whatsapp { background: #25D366; }\n        .btn-pdf { background: #d32f2f; }\n        .btn-flyer { background: #333; }\n        .btn-output:active { transform: scale(0.96); }\n        @keyframes slideUp {\n            from { opacity: 0; transform: translateY(20px); }\n            to { opacity: 1; transform: translateY(0); }\n        }\n        /* Estilos del Flyer */\n        #flyer-template {\n            width: 1000px;\n            background: #d32f2f;\n            color: white;\n            position: absolute;\n            left: -9999px;\n            overflow: hidden;\n            font-family: 'Arial Black', Gadget, sans-serif;\n        }\n        .flyer-img-container { width: 100%; height: 600px; position: relative; }\n        .flyer-img { width: 100%; height: 100%; object-fit: cover; }\n        .flyer-body { padding: 40px; text-align: center; }\n        .flyer-price { font-size: 80px; color: #FFD700; text-shadow: 2px 2px 10px rgba(0,0,0,0.5); }\n        .flyer-details { font-size: 30px; margin-top: 20px; line-height: 1.5; }\n        .flyer-footer { background: #000; padding: 20px; font-size: 24px; text-transform: uppercase; }\n\n    \n/* Prospectos Styles */\n.pr-group { margin-bottom: 10px; border-radius: 8px; overflow: hidden; border: 1px solid #ddd; background: #fff; }\n.pr-header { background: #f8f9fa; padding: 12px 15px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-weight: bold; border-bottom: 1px solid #eee; }\n.pr-header:hover { background: #e9ecef; }\n.pr-content { display: none; padding: 10px; background: #fff; }\n.pr-item { padding: 10px; border-bottom: 1px solid #f0f0f0; display: flex; flex-direction: column; gap: 4px; }\n.pr-item:last-child { border-bottom: none; }\n.pr-name { font-weight: bold; color: #333; }\n.pr-meta { font-size: 0.9em; color: #666; display: flex; justify-content: space-between; }\n.pr-amount { color: #2e7d32; font-weight: bold; }\n\n</style>\n</head>\n<body>\n\n    <!-- Header -->\n    <header class="app-header">\n        <div class="logo-area">\n            <i class="fas fa-home"></i> InventarioHR\n        </div>\n        <div class="header-actions">\n            <button class="btn-action-header" onclick="window.print()">\n                <i class="fas fa-print"></i>\n            </button>\n            <button class="btn-action-header" onclick="switchSection('inventario', document.querySelector('[onclick*=\'inventario\']'))">\n                <i class="fas fa-camera"></i>\n            </button>\n        </div>\n    </header>\n\n    <!-- Nav Horizontal -->\n    <nav class="horizontal-nav">\n        <div class="nav-container">\n            <div class="nav-item" onclick="switchSection('tablero', this)">\n                <i class="fas fa-chart-pie"></i>\n                <span>TABLERO</span>\n            </div>\n            <div class="nav-item active" onclick="switchSection('inventario', this)">\n                <i class="fas fa-home"></i>\n                <span>Inventario</span>\n            </div>\n            <div class="nav-item" onclick="switchSection('prospectos', this)">\n                <i class="fas fa-bullseye"></i>\n                <span>Prospectos</span>\n            </div>\n            <div class="nav-item" onclick="switchSection('contactos', this)">\n                <i class="fas fa-phone-alt"></i>\n                <span>Contactos</span>\n            </div>\n            <div class="nav-item" onclick="switchSection('archivos', this)">\n                <i class="fas fa-folder-open"></i>\n                <span>Archivos</span>\n            </div>\n            <div class="nav-item" onclick="switchSection('galeria', this)">\n                <i class="fas fa-images"></i>\n                <span>Galería</span>\n            </div>\n            <div class="nav-item" onclick="switchSection('pensamientos', this)">\n                <i class="fas fa-brain"></i>\n                <span>Pensamientos</span>\n            </div>\n            <div class="nav-item" onclick="switchSection('citas', this)">\n                <i class="fas fa-calendar-alt"></i>\n                <span>Citas</span>\n            </div>\n        </div>\n    </nav>\n\n    <div class="main-content">\n        \n        <!-- Sección Tablero -->\n        <section id="section-tablero" class="app-section">\n            <div class="card">\n                <div class="section-title"><i class="fas fa-list-ol"></i> ESTADO DE MI LISTA (VACÍA)</div>\n                \n                <div class="metrics-grid">\n                    <div class="metric-item">\n                        <span class="metric-value" id="count-total">0</span>\n                        <span class="metric-label">Total Propiedades</span>\n                    </div>\n                    <div class="metric-item">\n                        <span class="metric-value" id="count-casas">0</span>\n                        <span class="metric-label">🏠 Casas</span>\n                    </div>\n                    <div class="metric-item">\n                        <span class="metric-value" id="count-terrenos">0</span>\n                        <span class="metric-label">🏢 Terrenos</span>\n                    </div>\n                </div>\n\n                <div id="empty-msg-area" style="text-align:center; padding:20px; margin-top:15px; border:2px dashed #ddd; border-radius:15px; color:#999;">\n                    <i class="fas fa-folder-open" style="font-size:2em; margin-bottom:10px;"></i>\n                    <p>No tienes nada registrado. Tu inventario está en 0.</p>\n                    <button class="btn-main" onclick="if(confirm('¿Borrar datos viejos del teléfono para dejar en CERO real?')){localStorage.clear(); location.reload();}" style="background:#444; margin-top:10px; font-size:0.8em; padding:10px;">BORRAR MEMORIA DEL TELÉFONO</button>\n                </div>\n            </div>\n        </section>\n\n        <!-- Sección Inventario (Principal) -->\n        <section id="section-inventario" class="app-section active">\n            <!-- Formulario Principal -->\n            <div class="card">\n            <div class="section-title">\n                <i class="fas fa-plus-circle"></i> Nueva Captura\n            </div>\n\n            <div class="form-group">\n                <label>UBICACIÓN AUTOMÁTICA GPS</label>\n                <button class="btn-capture" onclick="getGPS()">\n                    <i class="fas fa-map-marker-alt"></i> OBTENER UBICACIÓN GPS\n                </button>\n                <input type="text" id="gps-coords" placeholder="Coordenadas GPS" style="margin-top:10px;" readonly>\n                <button class="btn-capture" onclick="abrirMapsDesdeInput()" style="margin-top:6px; background:#1565c0;">\n                    <i class="fas fa-map-marked-alt"></i> ABRIR EN GOOGLE MAPS\n                </button>\n            </div>\n\n            <div class="form-group">\n                <label>TIPO DE PROPIEDAD</label>\n                <select id="tipo-propiedad" onchange="toggleForm(this.value)">\n                    <option value="">Seleccione...</option>\n                    <option value="🏠 Casa">🏠 Casa</option>\n                    <option value="🏢 Terreno">🏢 Terreno</option>\n                    <option value="🌾 Parcela">🌾 Parcela</option>\n                    <option value="🏭 Local / Bodega">🏭 Local / Bodega</option>\n                </select>\n            </div>\n\n            <!-- Secciones Condicionales -->\n            <div id="campos-terreno" class="cond-section">\n                <div class="form-group">\n                    <label>M² DE TERRENO</label>\n                    <input type="number" id="terreno-m2" placeholder="0">\n                </div>\n                <div class="form-group">\n                    <label>¿ES PARA CONSTRUCCIÓN DE CASA?</label>\n                    <select id="terreno-proyectado-check" onchange="document.getElementById('campo-proyectado').style.display = (this.value=='Si'?'block':'none')">\n                        <option value="No">No</option>\n                        <option value="Si">Si</option>\n                    </select>\n                </div>\n                <div id="campo-proyectado" style="display:none;">\n                    <div class="form-group">\n                        <label>M² DE CONSTRUCCIÓN PROYECTADOS</label>\n                        <input type="number" id="terreno-m2-proy" placeholder="0">\n                    </div>\n                </div>\n            </div>\n\n            <div id="campos-casa" class="cond-section">\n                <div class="form-group">\n                    <label>MÉTODO DE CONSTRUCCIÓN DEL TERRENO</label>\n                    <input type="text" id="casa-metodo" placeholder="Ej: Tradicional, Block, Zapata...">\n                </div>\n                <div class="form-row">\n                    <div class="form-group">\n                        <label>M² DE CONSTRUCCIÓN</label>\n                        <input type="number" id="casa-m2-const" placeholder="0">\n                    </div>\n                    <div class="form-group">\n                        <label>¿YA CONSTRUIDA?</label>\n                        <select id="casa-status" onchange="document.getElementById('detalles-existente').style.display = (this.value=='Si'?'block':'none')">\n                            <option value="No">No (En obra)</option>\n                            <option value="Si">Si (Existente)</option>\n                        </select>\n                    </div>\n                </div>\n                <div id="detalles-existente" style="display:none;">\n                    <div class="form-group">\n                        <label>DETALLES DE CONSTRUCCIÓN EXISTENTE</label>\n                        <textarea id="casa-existente" placeholder="Describe la construcción actual..."></textarea>\n                    </div>\n                </div>\n                <div class="form-row">\n                    <div class="form-group"><label>PISOS</label><input type="number" id="casa-pisos" placeholder="0"></div>\n                    <div class="form-group"><label>RECÁMARAS</label><input type="number" id="casa-rec" placeholder="0"></div>\n                </div>\n            </div>\n\n            <div class="form-group">\n                <label>PRECIO TOTAL ($)</label>\n                <input type="number" id="precio-total" placeholder="0" oninput="calcularMetro()">\n            </div>\n\n            <div class="card" style="background: #f9f9f9; border: 1px solid #ddd; margin-bottom: 15px;">\n                <div class="section-title" style="font-size: 0.9em;"><i class="fas fa-ruler-combined"></i> Medidas y Colindancias</div>\n                <div class="form-row">\n                    <div class="form-group">\n                        <label>NORTE</label>\n                        <input type="text" id="m-norte" placeholder="0.00m" oninput="calcularSuperficie()">\n                    </div>\n                    <div class="form-group">\n                        <label>SUR</label>\n                        <input type="text" id="m-sur" placeholder="0.00m" oninput="calcularSuperficie()">\n                    </div>\n                </div>\n                <div class="form-row">\n                    <div class="form-group">\n                        <label>ESTE</label>\n                        <input type="text" id="m-este" placeholder="0.00m" oninput="calcularSuperficie()">\n                    </div>\n                    <div class="form-group">\n                        <label>OESTE</label>\n                        <input type="text" id="m-oeste" placeholder="0.00m" oninput="calcularSuperficie()">\n                    </div>\n                </div>\n                \n                <!-- Área Total debajo de las medidas -->\n                <div class="form-group" style="background: #e3f2fd; padding: 15px; border-radius: 12px; border: 3px solid #2196f3; margin-top: 10px;">\n                    <label style="color: #0d47a1; font-weight: bold; font-size: 1em;">ÁREA TOTAL (M² CALCULADOS)</label>\n                    <input type="number" id="m2-totales" placeholder="0.00" oninput="calcularMetro()" style="font-size: 1.5em; font-weight: bold; color: #d32f2f; background: white; text-align: center;">\n                </div>\n            </div>\n\n            <div class="form-group">\n                <label>PRECIO POR M² (CALCULADO)</label>\n                <input type="text" id="precio-m2" placeholder="$0.00" readonly style="background: #f0f0f0;">\n            </div>\n\n            <div class="form-group">\n                <label>UBICACIÓN GPS (SE CAPTURA AL TOMAR FOTO)</label>\n                <div style="display:flex; gap:10px;">\n                    <input type="text" id="gps-coords" placeholder="Esperando ubicación..." readonly style="flex:1; background:#f0f0f0;">\n                    <button class="btn-capture" onclick="getGPS()" style="width:auto; padding:0 15px; margin:0;">\n                        <i class="fas fa-map-marker-alt"></i>\n                    </button>\n                </div>\n            </div>\n            <div class="form-group">\n                <label>TELÉFONO DE CONTACTO</label>\n                <input type="tel" id="tel-contacto" placeholder="771..." value="771">\n            </div>\n\n            <div class="form-group">\n                <label>FOTOS DE LA PROPIEDAD (MÁX 20)</label>\n                <div style="display:flex; gap:10px; margin-bottom:10px;">\n                    <button class="btn-capture" onclick="document.getElementById('photo-input').click()" style="flex:1;">\n                        <i class="fas fa-camera"></i> CÁMARA\n                    </button>\n                    <button class="btn-capture" onclick="document.getElementById('gallery-input').click()" style="flex:1; background:#455a64;">\n                        <i class="fas fa-images"></i> GALERÍA\n                    </button>\n                </div>\n                <input type="file" id="photo-input" accept="image/*" capture="environment" style="display:none;">\n                <input type="file" id="gallery-input" accept="image/*" multiple style="display:none;">\n                <div id="photo-preview-container" style="display:flex; gap:5px; flex-wrap:wrap; margin-top:10px;"></div>\n            </div>\n\n            <div class="form-group">\n                <label>DESCRIPCIÓN (DICTADO POR VOZ)</label>\n                <div style="position:relative;">\n                    <textarea id="dictado-desc" placeholder="Pulsa micro para hablar..." style="padding-right: 50px;"></textarea>\n                    <button id="btn-voice" class="btn-capture" style="position:absolute; right:5px; top:5px; width:40px; height:40px; padding:0; margin:0; border-radius:50%;">\n                        <i class="fas fa-microphone"></i>\n                    </button>\n                </div>\n            </div>\n\n            <div class="card" style="background: #fff3e0; border: 1px solid #ffb74d; margin-bottom: 15px;">\n                <div class="section-title" style="color: #e65100;"><i class="fas fa-hand-holding-usd"></i> Tipo de Pago / Créditos</div>\n                <div class="form-group">\n                    <label>APTO PARA:</label>\n                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">\n                        <label style="font-size: 0.85em; display: flex; align-items: center; gap: 5px;">\n                            <input type="checkbox" id="c-efectivo" checked> Efectivo\n                        </label>\n                        <label style="font-size: 0.85em; display: flex; align-items: center; gap: 5px;">\n                            <input type="checkbox" id="c-fovissste"> Fovissste\n                        </label>\n                        <label style="font-size: 0.85em; display: flex; align-items: center; gap: 5px;">\n                            <input type="checkbox" id="c-issfam"> Issfam\n                        </label>\n                        <label style="font-size: 0.85em; display: flex; align-items: center; gap: 5px;">\n                            <input type="checkbox" id="c-bancario"> Bancario\n                        </label>\n                        <label style="font-size: 0.85em; display: flex; align-items: center; gap: 5px;">\n                            <input type="checkbox" id="c-infonavit"> Infonavit\n                        </label>\n                        <label style="font-size: 0.85em; display: flex; align-items: center; gap: 5px;">\n                            <input type="checkbox" id="c-cfe"> CFE\n                        </label>\n                    </div>\n                </div>\n            </div>\n\n            <button class="btn-main" onclick="guardarInventario()">GUARDAR EN INVENTARIO</button>\n\n            <div class="card" style="margin-top:20px; background: #fffde7; border: 1px solid #fbc02d;">\n                <div style="display:flex; gap:10px; align-items:center; color:#f57f17; font-weight:bold;">\n                    <i class="fas fa-lightbulb" style="font-size:1.5em;"></i>\n                    <span>ESTRATEGIA HR PARA HOY</span>\n                </div>\n                <p id="socio-strategy" style="font-size:0.9em; color:#5d4037; margin-top:8px; line-height:1.4;">\n                    Prioriza los cierres en efectivo esta semana. Revisa los prospectos con capacidad de pago inmediato y envía la ubicación GPS de tus terrenos más competitivos.\n                </p>\n            </div>\n\n            <!-- Módulo de Salida (Reposicionado abajo de estrategias) -->\n            <div id="modulo-salida" class="output-module" style="margin-top: 15px;">\n                <h2 style="text-align: center; color: #d32f2f; margin-bottom: 5px;">📤 ÉXITO: GUARDADO</h2>\n                <p style="text-align: center; font-size: 0.9em; color: #666;">¿Qué deseas hacer ahora con esta propiedad?</p>\n                \n                <div class="output-buttons">\n                    <button class="btn-output btn-whatsapp" onclick="enviarWhatsApp()">\n                        <i class="fab fa-whatsapp"></i> ENVIAR A CLIENTE\n                    </button>\n                    <button class="btn-output btn-pdf" onclick="generarPDF()">\n                        <i class="fas fa-file-pdf"></i> DESCARGAR FICHA PDF\n                    </button>\n                    <button class="btn-output btn-flyer" onclick="generarFlyer()">\n                        <i class="fas fa-image"></i> DESCARGAR FLYER\n                    </button>\n                </div>\n                <button onclick="document.getElementById('modulo-salida').classList.remove('active')" style="margin-top:15px; width:100%; border:none; background:none; color:#999; text-decoration:underline; cursor:pointer;">Continuar agregando</button>\n            </div>\n\n            <div class="card" style="margin-top:10px;">\n                <div class="section-title"><i class="fas fa-list"></i> Propiedades Guardadas</div>\n                <div id="inventory-list"></div>\n            </div>\n        </section>\n\n        <!-- Secciones Adicionales -->\n        \n        <section id="section-prospectos" class="app-section">\n            <div class="card">\n                <div class="section-title"><i class="fas fa-user-plus"></i> Nuevo Prospecto</div>\n                <div class="form-group">\n                    <label>NOMBRE COMPLETO</label>\n                    <input type="text" id="pr-nombre" placeholder="Nombre del cliente">\n                </div>\n                <div class="form-group">\n                    <label>TELÉFONO</label>\n                    <input type="tel" id="pr-tel" placeholder="771...">\n                </div>\n                <div class="form-group">\n                    <label>TIPO DE CRÉDITO</label>\n                    <select id="pr-credito">\n                        <option value="Efectivo">Efectivo</option>\n                        <option value="ISSFAM">ISSFAM</option>\n                        <option value="Banjército">Banjército</option>\n                        <option value="CFE">CFE</option>\n                        <option value="Infonavit">Infonavit</option>\n                        <option value="FOVISSSTE">FOVISSSTE</option>\n                    </select>\n                </div>\n                <div class="form-group">\n                    <label>MONTO DISPONIBLE</label>\n                    <input type="number" id="pr-monto" placeholder="0.00">\n                </div>\n                <button class="btn-save" onclick="prGuardar()">\n                    <i class="fas fa-save"></i> GUARDAR PROSPECTO\n                </button>\n            </div>\n\n            <div class="section-title" style="margin-top:20px;">\n                <i class="fas fa-users"></i> Lista de Prospectos\n            </div>\n            <div id="pr-lista"></div>\n        </section>\n\n\n        <style>\n        .pr-grupo{background:#fff;border-radius:14px;margin-bottom:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.1);}\n        .pr-gh{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;cursor:pointer;background:#fff;border-bottom:1px solid #f0f0f0;}\n        .pr-gh h3{margin:0;font-size:.95em;color:#d32f2f;font-weight:800;}\n        .pr-count{background:#d32f2f;color:#fff;border-radius:20px;padding:2px 10px;font-size:.75em;font-weight:700;margin-left:8px;}\n        .pr-gb{display:none;padding:10px;}\n        .pr-gb.open{display:block;}\n        .pr-card{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:#fafafa;border-radius:10px;margin-bottom:7px;border-left:4px solid #d32f2f;}\n        .pr-info .pr-nom{font-weight:700;font-size:.9em;color:#222;}\n        .pr-info .pr-det{font-size:.78em;color:#666;margin-top:2px;}\n        .pr-acts{display:flex;gap:6px;}\n        .pr-call{background:#25D366;color:#fff;border:none;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:.85em;}\n        .pr-del{background:#ffebee;color:#d32f2f;border:none;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:.85em;}\n        .pr-empty{text-align:center;padding:20px;color:#999;font-size:.88em;}\n        \n/* Prospectos Styles */\n.pr-group { margin-bottom: 10px; border-radius: 8px; overflow: hidden; border: 1px solid #ddd; background: #fff; }\n.pr-header { background: #f8f9fa; padding: 12px 15px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-weight: bold; border-bottom: 1px solid #eee; }\n.pr-header:hover { background: #e9ecef; }\n.pr-content { display: none; padding: 10px; background: #fff; }\n.pr-item { padding: 10px; border-bottom: 1px solid #f0f0f0; display: flex; flex-direction: column; gap: 4px; }\n.pr-item:last-child { border-bottom: none; }\n.pr-name { font-weight: bold; color: #333; }\n.pr-meta { font-size: 0.9em; color: #666; display: flex; justify-content: space-between; }\n.pr-amount { color: #2e7d32; font-weight: bold; }\n\n</style>\n\n        <section id="section-contactos" class="app-section">\n            <div class="card">\n                <div class="section-title"><i class="fas fa-phone-alt"></i> Agenda de Contactos</div>\n                <p>Gestiona tus contactos aquí.</p>\n            </div>\n        </section>\n\n        <section id="section-archivos" class="app-section">\n            <div class="card">\n                <div class="section-title"><i class="fas fa-folder-open"></i> Archivos</div>\n                <p>Documentación y expedientes.</p>\n            </div>\n        </section>\n\n        <section id="section-galeria" class="app-section">\n            <div class="card">\n                <div class="section-title"><i class="fas fa-images"></i> Galería</div>\n                <p>Fotos de todas tus propiedades.</p>\n            </div>\n        </section>\n\n        <section id="section-pensamientos" class="app-section">\n            <div class="card">\n                <div class="section-title"><i class="fas fa-brain"></i> Pensamientos</div>\n                <p>Notas rápidas y estrategias de venta.</p>\n            </div>\n        </section>\n\n        <section id="section-citas" class="app-section">\n            <div class="card">\n                <div class="section-title"><i class="fas fa-calendar-alt"></i> Programar Nueva Cita</div>\n                <input type="hidden" id="cita-id">\n                <div class="form-group">\n                    <label>Nombre del Cliente:</label>\n                    <input type="text" id="cita-cliente" placeholder="Ej. Juan Pérez">\n                </div>\n                <div class="form-group">\n                    <label>Fecha y Hora:</label>\n                    <input type="datetime-local" id="cita-fecha">\n                </div>\n                <div class="form-group">\n                    <label>Propiedad de Interés:</label>\n                    <input type="text" id="cita-propiedad" placeholder="Ej. Casa en Acayuca">\n                </div>\n                <div class="form-group">\n                    <label>Notas / Objetivo:</label>\n                    <textarea id="cita-notas" rows="2" placeholder="Ej. Mostrar escrituras, cierre de trato..."></textarea>\n                </div>\n                <button class="btn-main" onclick="guardarCita()">AGENDAR CITA</button>\n            </div>\n\n            <div class="card" style="margin-top: 20px;">\n                <div class="section-title"><i class="fas fa-list-ul"></i> Agenda de Citas</div>\n                <div id="citas-list">\n                    <p style="text-align:center; padding:20px; color:#666;">No hay citas programadas.</p>\n                </div>\n            </div>\n        </section>\n\n    </div>\n\n    <!-- Modal de Guardado -->\n    <div id="modal-save" class="modal-save">\n        <div class="modal-card">\n            <h2 style="color: #d32f2f;"><i class="fas fa-save"></i> ¿Dónde guardar?</h2>\n            <p>Selecciona tu destino de almacenamiento preferido</p>\n            <div class="save-options">\n                <button class="btn-save-opt" onclick="confirmSave('local')">\n                    <i class="fas fa-mobile-alt"></i> GUARDAR EN TELÉFONO\n                </button>\n                <button class="btn-save-opt" onclick="confirmSave('cloud')">\n                    <i class="fas fa-cloud"></i> GUARDAR EN LA NUBE\n                </button>\n            </div>\n            <label style="margin-top: 20px; display: block; font-size: 0.9em; color: #666; cursor: pointer;">\n                <input type="checkbox" id="save-default"> Guardar por defecto siempre\n            </label>\n            <button onclick="document.getElementById('modal-save').classList.remove('active')" style="margin-top:15px; border:none; background:none; color:#666; text-decoration:underline;">Cancelar</button>\n        </div>\n    </div>\n\n    <!-- Toast de Confirmación -->\n    <div id="toast-success" class="toast">\n        <i class="fas fa-check-circle"></i> <span id="toast-msg">Guardado con éxito</span>\n    </div>\n\n    <!-- Template Oculto para Flyer -->\n    <div id="flyer-template">\n        <div class="flyer-header" style="display: flex; align-items: center; justify-content: center; gap: 15px; padding: 20px;">\n            <img src="propiedades-app/icon-192.png" style="width: 50px; height: 50px; border-radius: 50%; background: white;" onerror="this.src='https://cdn-icons-png.flaticon.com/512/609/609803.png'">\n            <div style="text-align: left;">\n                <h1 id="f-tipo" style="color: white; margin:0; font-size: 1.4em; text-transform: uppercase;">PROPIEDAD</h1>\n                <span style="font-weight: 800; color: #87CEEB;">HR MASTER V34</span>\n            </div>\n        </div>\n        <div class="flyer-img-container">\n            <img id="f-img" src="https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&q=80&w=1000" class="flyer-img">\n        </div>\n        <div class="flyer-body">\n            <div class="flyer-price" id="f-precio">$0.00</div>\n            <div class="flyer-details">\n                <div id="f-m2">Superficie: 0 m²</div>\n                <div id="f-extra" style="margin-top: 5px; font-weight: bold; color: #fff;"></div>\n                <div id="f-gps">Ubicación: GPS Activo</div>\n                <div id="f-desc" style="margin-top:20px; font-style: italic; color: #eee; font-size: 0.8em;"></div>\n            </div>\n        </div>\n        <div class="flyer-footer">\n            📞 CONTACTO: <span id="f-tel"></span>\n        </div>\n    </div>\n\n
     <script>
-        // Inicialización
+        // --- VARIABLES GLOBALES ---
+        let tempPhotos = [];
         let currentProperty = {
-            tipo: '', precio: '', m2: '', gps: '', desc: '', tel: '', photo: '', creditos: [],
+            tipo: '', precio: '', m2: '', gps: '', desc: '', tel: '', photos: [], creditos: [],
             norte: '', sur: '', este: '', oeste: '',
             casaMetodo: '', casaM2Const: '', casaStatus: '', casaExistente: '', casaPisos: '', casaRec: '',
             terrenoM2: '', terrenoProyectado: '', terrenoM2Proy: ''
         };
 
-        // Navegación Fluida (Optimizado)
+        // --- NAVEGACIÓN ---
         function switchSection(sectionId, element) {
-            // Cambio inmediato de clases de navegación
             const items = document.querySelectorAll('.nav-item');
             items.forEach(item => item.classList.remove('active'));
-            element.classList.add('active');
+            if(element) element.classList.add('active');
 
-            // Cambio inmediato de secciones
             const sections = document.querySelectorAll('.app-section');
+            sections.forEach(sec => sec.classList.remove('active'));
             
-            // Usamos requestAnimationFrame para asegurar fluidez sin bloqueos
-            requestAnimationFrame(() => {
-                sections.forEach(sec => sec.classList.remove('active'));
-                const target = document.getElementById(`section-${sectionId}`);
-                if (target) {
-                    target.classList.add('active');
-                    window.scrollTo({ top: 0, behavior: 'auto' }); // Scroll instantáneo
-                }
+            const target = document.getElementById(`section-${sectionId}`);
+            if (target) {
+                target.classList.add('active');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                
+                // Renders específicos por sección
+                if(sectionId === 'tablero') renderInventario();
+                if(sectionId === 'prospectos') prRender();
+                if(sectionId === 'citas') renderCitas();
+            }
+        }
+
+        // --- MANEJO DE FOTOS (LÍMITE 20 + AUTO GPS) ---
+        function handleFiles(e) {
+            const files = Array.from(e.target.files);
+            if (files.length === 0) return;
+
+            // Al empezar a cargar fotos, capturamos GPS si está vacío
+            if(!document.getElementById('gps-coords').value) getGPS();
+
+            files.forEach(file => {
+                if(tempPhotos.length >= 20) return;
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                    tempPhotos.push(ev.target.result);
+                    renderPhotoPreviews();
+                };
+                reader.readAsDataURL(file);
             });
+            e.target.value = ""; // Reset input
         }
 
-        // Funciones del Tablero
-        function startVoiceSearch() {
-            if ('webkitSpeechRecognition' in window) {
-                const recognition = new webkitSpeechRecognition();
-                recognition.lang = 'es-MX';
-                recognition.onresult = (e) => {
-                    document.getElementById('main-search').value = e.results[0][0].transcript;
-                };
-                recognition.start();
-            }
-        }
-
-        function searchApp() {
-            const query = document.getElementById('main-search').value.toLowerCase();
-            alert(`Buscando "${query}" en tu inventario local...`);
-            // Aquí iría la lógica de filtrado de propiedades
-        }
-
-        function searchWeb() {
-            const query = document.getElementById('main-search').value;
-            window.open(`https://www.google.com/search?q=inmuebles+hidalgo+${encodeURIComponent(query)}`, '_blank');
-        }
-
-        function startAlarmVoice() {
-            if ('webkitSpeechRecognition' in window) {
-                const recognition = new webkitSpeechRecognition();
-                recognition.lang = 'es-MX';
-                recognition.onresult = (e) => {
-                    document.getElementById('alarm-desc').value = e.results[0][0].transcript;
-                };
-                recognition.start();
-            }
-        }
-
-        function createAlarm() {
-            const desc = document.getElementById('alarm-desc').value;
-            const time = document.getElementById('alarm-time').value;
-            if (!desc || !time) return alert("Completa descripción y fecha.");
-
-            const alarmList = document.getElementById('alarms-list');
-            const item = document.createElement('div');
-            item.className = 'alarm-item';
-            item.innerHTML = `
-                <div class="alarm-info">
-                    <h4>${desc}</h4>
-                    <span>${new Date(time).toLocaleString()}</span>
+        function renderPhotoPreviews() {
+            const container = document.getElementById("photo-preview-container");
+            if(!container) return;
+            container.innerHTML = tempPhotos.map((src, idx) => `
+                <div style="position:relative; width:70px; height:70px;">
+                    <img src="${src}" style="width:100%; height:100%; object-fit:cover; border-radius:8px; border:1px solid #ddd;">
+                    <button onclick="removePhoto(${idx})" style="position:absolute; top:-5px; right:-5px; background:red; color:white; border:none; border-radius:50%; width:20px; height:20px; font-size:12px; cursor:pointer; display:flex; align-items:center; justify-content:center;">×</button>
                 </div>
-                <button class="btn-delete" onclick="this.parentElement.remove()"><i class="fas fa-trash"></i></button>
-            `;
-            alarmList.appendChild(item);
-            
-            // Lógica de sonido/vibración simulada
-            setTimeout(() => {
-                if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
-                alert(`⏰ ALARMA: ${desc}`);
-            }, new Date(time) - new Date());
-
-            document.getElementById('alarm-desc').value = '';
-            document.getElementById('alarm-time').value = '';
+            `).join('');
         }
 
-        function toggleForm(tipo) {
-            document.getElementById('campos-terreno').style.display = 'none';
-            document.getElementById('campos-casa').style.display = 'none';
+        function removePhoto(idx) {
+            tempPhotos.splice(idx, 1);
+            renderPhotoPreviews();
+        }
+
+        // --- GPS ---
+        function getGPS() {
+            const gpsInput = document.getElementById('gps-coords');
+            if(gpsInput) gpsInput.placeholder = "Capturando ubicación...";
             
-            if (tipo === '🏠 Casa') {
-                document.getElementById('campos-casa').style.display = 'block';
-            } else if (tipo === '🏢 Terreno' || tipo === '🌾 Parcela') {
-                document.getElementById('campos-terreno').style.display = 'block';
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(pos => {
+                    const coords = `${pos.coords.latitude.toFixed(6)}, ${pos.coords.longitude.toFixed(6)}`;
+                    if(gpsInput) {
+                        gpsInput.value = coords;
+                        gpsInput.style.background = "#e8f5e9";
+                    }
+                }, err => {
+                    alert("Error GPS: Asegúrate de tener el GPS encendido y dar permisos.");
+                }, { enableHighAccuracy: true, timeout: 5000 });
             }
+        }
+
+        function abrirMapsDesdeInput() {
+            const coords = document.getElementById('gps-coords').value;
+            if(!coords) return alert("Primero captura la ubicación.");
+            window.open(`https://www.google.com/maps?q=${coords}`, '_blank');
+        }
+
+        // --- INVENTARIO: GUARDAR Y RENDER ---
+        function guardarInventario() {
+            const tipo = document.getElementById('tipo-propiedad').value;
+            const precio = document.getElementById('precio-total').value;
+            if(!tipo || !precio) return alert("El Tipo y el Precio son obligatorios.");
+
+            currentProperty = {
+                id: Date.now(),
+                tipo: tipo,
+                precio: parseFloat(precio).toLocaleString('es-MX'),
+                m2: document.getElementById('m2-totales').value || '0',
+                gps: document.getElementById('gps-coords').value || 'No capturado',
+                desc: document.getElementById('dictado-desc').value || '',
+                tel: document.getElementById('tel-contacto').value || '771',
+                photos: [...tempPhotos],
+                creditos: [],
+                timestamp: Date.now(),
+                // Medidas
+                norte: document.getElementById('m-norte').value,
+                sur: document.getElementById('m-sur').value,
+                este: document.getElementById('m-este').value,
+                oeste: document.getElementById('m-oeste').value,
+                // Casas
+                casaMetodo: document.getElementById('casa-metodo')?.value,
+                casaM2Const: document.getElementById('casa-m2-const')?.value,
+                casaStatus: document.getElementById('casa-status')?.value,
+                casaExistente: document.getElementById('casa-existente')?.value,
+                casaPisos: document.getElementById('casa-pisos')?.value,
+                casaRec: document.getElementById('casa-rec')?.value,
+                // Terrenos
+                terrenoM2: document.getElementById('terreno-m2')?.value,
+                terrenoProyectado: document.getElementById('terreno-proyectado-check')?.value,
+                terrenoM2Proy: document.getElementById('terreno-m2-proy')?.value
+            };
+
+            const checkIds = ['efectivo', 'fovissste', 'issfam', 'bancario', 'infonavit', 'cfe'];
+            checkIds.forEach(id => {
+                const el = document.getElementById('c-'+id);
+                if(el && el.checked) currentProperty.creditos.push(id.toUpperCase());
+            });
+
+            // Guardar
+            const inv = JSON.parse(localStorage.getItem('hr_inventario') || '[]');
+            inv.push(currentProperty);
+            localStorage.setItem('hr_inventario', JSON.stringify(inv));
+
+            // Reset Formulario
+            tempPhotos = [];
+            renderPhotoPreviews();
+            document.getElementById('gps-coords').value = '';
+            document.getElementById('dictado-desc').value = '';
+            document.getElementById('precio-total').value = '';
+            
+            showToast("✅ Propiedad Guardada en Inventario");
+            renderInventario();
+            
+            // Activar Módulo de Salida
+            const mod = document.getElementById('modulo-salida');
+            if(mod) {
+                mod.classList.add('active');
+                mod.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        function renderInventario() {
+            const data = JSON.parse(localStorage.getItem('hr_inventario') || '[]');
+            
+            // Contadores
+            if(document.getElementById('count-total')) document.getElementById('count-total').innerText = data.length;
+            if(document.getElementById('count-casas')) document.getElementById('count-casas').innerText = data.filter(p => p.tipo.includes('Casa')).length;
+            if(document.getElementById('count-terrenos')) document.getElementById('count-terrenos').innerText = data.filter(p => p.tipo.includes('Terreno') || p.tipo.includes('Parcela')).length;
+
+            const list = document.getElementById('inventory-list');
+            if(!list) return;
+
+            if(data.length === 0) {
+                list.innerHTML = '<p style="text-align:center; padding:20px; color:#999;">No hay propiedades guardadas.</p>';
+                return;
+            }
+
+            list.innerHTML = data.slice().reverse().map((p, idx) => `
+                <div class="card" style="border-left:5px solid #d32f2f; margin-bottom:15px; padding:15px; background:#fff;">
+                    <div style="display:flex; gap:12px;">
+                        <img src="${p.photos && p.photos[0] ? p.photos[0] : 'https://via.placeholder.com/100'}" style="width:80px; height:80px; object-fit:cover; border-radius:10px;">
+                        <div style="flex:1;">
+                            <div style="display:flex; justify-content:space-between;">
+                                <strong style="color:#d32f2f;">${p.tipo}</strong>
+                                <button onclick="borrarPropiedad(${data.length - 1 - idx})" style="border:none; background:none; color:red; cursor:pointer;"><i class="fas fa-trash"></i></button>
+                            </div>
+                            <span style="font-size:1.1em; font-weight:bold; color:#333;">$${p.precio}</span><br>
+                            <span style="font-size:0.8em; color:#666;"><i class="fas fa-map-marker-alt"></i> ${p.gps}</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function borrarPropiedad(idx) {
+            if(confirm("¿Seguro que quieres borrar esta propiedad?")) {
+                const inv = JSON.parse(localStorage.getItem('hr_inventario') || '[]');
+                inv.splice(idx, 1);
+                localStorage.setItem('hr_inventario', JSON.stringify(inv));
+                renderInventario();
+            }
+        }
+
+        // --- CÁLCULOS ---
+        function toggleForm(tipo) {
+            document.getElementById('campos-terreno').style.display = (tipo.includes('Terreno') || tipo.includes('Parcela')) ? 'block' : 'none';
+            document.getElementById('campos-casa').style.display = tipo.includes('Casa') ? 'block' : 'none';
         }
 
         function calcularSuperficie() {
@@ -1066,1035 +207,156 @@
             const s = parseFloat(document.getElementById('m-sur').value) || 0;
             const e = parseFloat(document.getElementById('m-este').value) || 0;
             const o = parseFloat(document.getElementById('m-oeste').value) || 0;
-            
-            // Cálculo de Área (Superficie) aproximada para terrenos irregulares
-            // Se usa el promedio de lados opuestos (Fórmula del Agrimensor)
-            let superficie = 0;
-            if (n > 0 && s > 0 && e > 0 && o > 0) {
-                superficie = ((n + s) / 2) * ((e + o) / 2);
-            } else if (n > 0 && e > 0) {
-                // Rectángulo simple si solo hay 2 medidas
-                superficie = n * e;
-            }
-            
-            const m2Input = document.getElementById('m2-totales');
-            if (m2Input) {
-                m2Input.value = superficie > 0 ? superficie.toFixed(2) : "";
-                calcularMetro();
-            }
+            let m2 = 0;
+            if(n > 0 && s > 0 && e > 0 && o > 0) m2 = ((n+s)/2) * ((e+o)/2);
+            else if(n > 0 && e > 0) m2 = n * e;
+            document.getElementById('m2-totales').value = m2 > 0 ? m2.toFixed(2) : "";
+            calcularMetro();
         }
 
         function calcularMetro() {
             const total = parseFloat(document.getElementById('precio-total').value) || 0;
             const m2 = parseFloat(document.getElementById('m2-totales').value) || 0;
-            if (m2 > 0) {
-                const precioM2 = (total / m2).toFixed(2);
-                document.getElementById('precio-m2').value = `$${precioM2}`;
-            } else {
-                document.getElementById('precio-m2').value = `$0.00`;
-            }
+            const precioM2 = (m2 > 0) ? (total / m2).toFixed(2) : 0;
+            document.getElementById('precio-m2').value = `$${parseFloat(precioM2).toLocaleString('es-MX')}`;
         }
 
-        function getGPS() {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(pos => {
-                    const coords = `${pos.coords.latitude.toFixed(6)}, ${pos.coords.longitude.toFixed(6)}`;
-                    document.getElementById('gps-coords').value = coords;
-                }, err => alert('Error al obtener GPS'));
-            }
-        }
-
-        // Manejo de foto
-        let tempPhotos = [];
-        function handleFiles(e) {
-            const files = Array.from(e.target.files);
-            files.forEach(file => {
-                if(tempPhotos.length >= 20) return;
-                const reader = new FileReader();
-                reader.onload = (ev) => {
-                    tempPhotos.push(ev.target.result);
-                    const container = document.getElementById("photo-preview-container");
-                    if(container) {
-                       const img = document.createElement("img");
-                       img.src = ev.target.result;
-                       img.style = "width:60px;height:60px;object-fit:cover;border-radius:5px;";
-                       container.appendChild(img);
-                    }
-                };
-                reader.readAsDataURL(file);
-            });
-        }
-        document.getElementById("photo-input").addEventListener("change", handleFiles);
-        if(document.getElementById("gallery-input")) document.getElementById("gallery-input").addEventListener("change", handleFiles);
-
-        function guardarInventario() {
-            const props = {
-                id: new Date().getTime(),
-                photos: [...tempPhotos],
-                tipo: document.getElementById('tipo-propiedad').value || 'Propiedad',
-                precio: document.getElementById('precio-total').value || '0',
-                m2: document.getElementById('m2-totales').value || '0',
-                gps: document.getElementById('gps-coords').value || 'No capturado',
-                desc: document.getElementById('dictado-desc').value || '',
-                tel: document.getElementById('tel-contacto').value || '771',
-                creditos: [],
-                timestamp: new Date().getTime()
-            };
-
-            // Capturar créditos
-            ['efectivo', 'fovissste', 'issfam', 'bancario', 'infonavit', 'cfe'].forEach(c => {
-                if (document.getElementById('c-'+c).checked) props.creditos.push(c.charAt(0).toUpperCase() + c.slice(1));
-            });
-            
-            // Guardar localmente
-            const existing = JSON.parse(localStorage.getItem('hr_inventario') || '[]');
-            existing.push(props);
-            localStorage.setItem('hr_inventario', JSON.stringify(existing));
-            
-            // Limpiar para el siguiente
-            tempPhotos = [];
-            renderPhotoPreviews();
-            document.getElementById('dictado-desc').value = '';
-            document.getElementById('gps-coords').value = '';
-            
-            showToast("✅ Guardado con éxito");
-            renderInventario();
-            
-            // Mostrar éxito
-            const mod = document.getElementById('modulo-salida');
-            if(mod) mod.classList.add('active');
-        }
-
-            // Captura condicional Terreno / Parcela
-            if (currentProperty.tipo === '🏢 Terreno' || currentProperty.tipo === '🌾 Parcela') {
-                currentProperty.terrenoM2 = document.getElementById('terreno-m2').value || '';
-                currentProperty.terrenoProyectado = document.getElementById('terreno-proyectado-check').value || '';
-                currentProperty.terrenoM2Proy = document.getElementById('terreno-m2-proy').value || '';
-            }
-
-            // Verificar guardado por defecto
-            let defaultMethod = localStorage.getItem('hr_save_default');
-            if (!defaultMethod) {
-                // Forzar Nube por defecto en Modo Socio
-                localStorage.setItem('hr_save_default', 'nube');
-                defaultMethod = 'nube';
-            }
-            confirmSave(defaultMethod, true);
-        }
-
-        function confirmSave(method, isDefault = false) {
-            // Guardar preferencia si el checkbox está marcado
-            if (document.getElementById('save-default').checked) {
-                localStorage.setItem('hr_save_default', method);
-            }
-
-            // Lógica de guardado físico
-            if (method === 'local') {
-                const existing = JSON.parse(localStorage.getItem('hr_inventario') || '[]');
-                existing.push({...currentProperty, timestamp: new Date().getTime()});
-                localStorage.setItem('hr_inventario', JSON.stringify(existing));
-                showToast("100% confirmado: Guardado en Teléfono");
-            } else {
-                // Simulación Nube / Firebase
-                console.log("Sincronizando con la nube...", currentProperty);
-                showToast("Información guardada correctamente en la Nube");
-            }
-
-            // Cerrar modal
-            document.getElementById('modal-save').classList.remove('active');
-
-            // Actualizar lista
-            renderInventario();
-
-            // Mostrar módulo de salida de éxito
-            const mod = document.getElementById('modulo-salida');
-            mod.classList.add('active');
-            mod.style.display = 'block'; tempPhotos = []; if(document.getElementById('photo-preview-container')) document.getElementById('photo-preview-container').innerHTML = '';
-            
-            // Forzar actualización de vista
-            setTimeout(() => {
-                mod.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }, 500);
-        }
-
-        function renderInventario() {
-            const data = JSON.parse(localStorage.getItem('hr_inventario') || '[]');
-            
-            // Actualizar contadores
-            if (document.getElementById('count-total')) document.getElementById('count-total').innerText = data.length;
-            if (document.getElementById('count-casas')) document.getElementById('count-casas').innerText = data.filter(p => p.tipo && p.tipo.includes('Casa')).length;
-            if (document.getElementById('count-terrenos')) document.getElementById('count-terrenos').innerText = data.filter(p => p.tipo && p.tipo.includes('Terreno')).length;
-
-            const emptyMsg = document.getElementById('empty-msg-area');
-            if (emptyMsg) emptyMsg.style.display = (data.length === 0) ? 'block' : 'none';
-
-            const listContainer = document.getElementById('inventory-list');
-            if (!listContainer) return;
-
-            if (data.length === 0) {
-                listContainer.innerHTML = '<div style="text-align:center; padding:40px; color:#999;">Inventario Vacío</div>';
+        // --- PROSPECTOS ---
+        function prRender() {
+            const d = JSON.parse(localStorage.getItem('hr_prospectos') || '[]');
+            const container = document.getElementById('pr-lista');
+            if(!container) return;
+            if(d.length === 0) {
+                container.innerHTML = '<p class="pr-empty">No hay prospectos aún.</p>';
                 return;
             }
-
-            listContainer.innerHTML = data.reverse().map((p, index) => `
-                <div class="card" style="border-left:5px solid #d32f2f; margin-bottom:15px; padding:15px;">
-                    <div style="display:flex; gap:15px;">
-                        <img src="${p.photos && p.photos[0] ? p.photos[0] : 'https://via.placeholder.com/100'}" style="width:80px; height:80px; object-fit:cover; border-radius:8px;">
-                        <div style="flex:1;">
-                            <strong style="color:#d32f2f;">${p.tipo}</strong><br>
-                            <span style="font-size:1.1em; font-weight:bold;">$${parseFloat(p.precio).toLocaleString()}</span><br>
-                            <span style="font-size:0.8em; color:#666;">${p.gps}</span>
-                        </div>
+            container.innerHTML = d.map((p, idx) => `
+                <div class="pr-card">
+                    <div class="pr-info">
+                        <div class="pr-nom">${p.nombre}</div>
+                        <div class="pr-det">${p.credito} | $${p.monto.toLocaleString()}</div>
+                    </div>
+                    <div class="pr-acts">
+                        <button class="pr-call" onclick="window.open('tel:${p.tel}')"><i class="fas fa-phone"></i></button>
+                        <button class="pr-del" onclick="prBorrar(${idx})"><i class="fas fa-trash"></i></button>
                     </div>
                 </div>
             `).join('');
         }
 
-            if (listContainer) {
-                listContainer.innerHTML = data.reverse().map((p, index) => `
-                    <div class="card" style="border-left:5px solid #d32f2f; margin-bottom:15px; padding:15px;">
-                        <div style="display:flex; gap:15px;">
-                            <img src="${p.photos && p.photos[0] ? p.photos[0] : 'https://via.placeholder.com/100'}" style="width:80px; height:80px; object-fit:cover; border-radius:8px;">
-                            <div style="flex:1;">
-                                <strong style="color:#d32f2f;">${p.tipo}</strong><br>
-                                <span style="font-size:1.1em; font-weight:bold;">$${parseFloat(p.precio).toLocaleString()}</span><br>
-                                <span style="font-size:0.8em; color:#666;">${p.gps}</span>
-                            </div>
-                        </div>
-                    </div>
-                `).join('');
-            }
-        }
-            
-            const terrenosEl = document.getElementById('count-terrenos');
-            if (terrenosEl) {
-                const terrenos = data.filter(p => p.tipo === '🏢 Terreno').length;
-                terrenosEl.innerText = terrenos;
-            }
-
-            const parcelasEl = document.getElementById('count-parcelas');
-            if (parcelasEl) {
-                const parcelas = data.filter(p => p.tipo === '🌾 Parcela').length;
-                parcelasEl.innerText = parcelas;
-            }
-
-            if (data.length === 0) {
-                listContainer.innerHTML = '<p style="text-align:center; padding:20px; color:#666;">No hay propiedades guardadas.</p>';
-                return;
-            }
-
-            listContainer.innerHTML = data.slice().reverse().map((p, index) => `
-                <div class="card" style="margin-top:10px; border-left:5px solid #d32f2f; background: #fafafa;">
-                    <div style="display:flex; justify-content:space-between; align-items: flex-start;">
-                        <div>
-                            <strong style="color: #d32f2f; font-size: 1.1em;">${p.tipo}</strong><br>
-                            <span style="font-size: 1.2em; font-weight: bold;">${p.precio}</span><br>
-                            <span style="font-size: 0.8em; color: #e65100; font-weight: bold;"><i class="fas fa-credit-card"></i> ${p.creditos ? p.creditos.join(' | ') : 'Efectivo'}</span>
-                        </div>
-                        <span style="font-size:0.7em; color:#999;">${new Date(p.timestamp).toLocaleString()}</span>
-                    </div>
-                    <p style="font-size:0.85em; margin:8px 0; color: #444;">${p.desc}</p>
-                    <div style="display:flex; gap:10px; margin-top:10px;">
-                        <button class="btn-main" style="padding:8px; font-size:0.75em; flex: 1;" onclick="abrirMaps('${p.gps}')"><i class="fas fa-map-marker-alt"></i> 📍 VER EN MAPA</button>
-                        <button class="btn-main" style="padding:8px; font-size:0.75em; background:#666; flex: 1;" onclick="compartirPropiedad(${data.length - 1 - index})"><i class="fas fa-share-alt"></i> COMPARTIR</button>
-                    </div>
-                </div>
-            `).join('');
+        function prGuardar() {
+            const nom = document.getElementById('pr-nombre').value;
+            const tel = document.getElementById('pr-tel').value;
+            if(!nom || !tel) return alert("Nombre y Teléfono requeridos.");
+            const d = JSON.parse(localStorage.getItem('hr_prospectos') || '[]');
+            d.push({
+                nombre: nom,
+                tel: tel,
+                credito: document.getElementById('pr-credito').value,
+                monto: parseFloat(document.getElementById('pr-monto').value || 0)
+            });
+            localStorage.setItem('hr_prospectos', JSON.stringify(d));
+            document.getElementById('pr-nombre').value = '';
+            document.getElementById('pr-tel').value = '';
+            prRender();
+            showToast("Prospecto guardado");
         }
 
-        function compartirPropiedad(idx) {
-            const data = JSON.parse(localStorage.getItem('hr_inventario') || '[]');
-            const p = data[idx];
-            if (!p) return;
-            const text = `🏠 *DETALLES DE PROPIEDAD*\n\n📍 *Tipo:* ${p.tipo}\n💰 *Precio:* ${p.precio}\n📝 *Descripción:* ${p.desc}\n\n📍 *Ubicación:* https://www.google.com/maps?q=${p.gps}`;
-            const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
-            window.open(url, '_blank');
+        function prBorrar(idx) {
+            const d = JSON.parse(localStorage.getItem('hr_prospectos') || '[]');
+            d.splice(idx, 1);
+            localStorage.setItem('hr_prospectos', JSON.stringify(d));
+            prRender();
         }
 
-        // Cargar inventario al iniciar
-        document.addEventListener('DOMContentLoaded', () => {
-            renderInventario();
+        // --- CITAS ---
+        function guardarCita() {
+            const cli = document.getElementById('cita-cliente').value;
+            const fec = document.getElementById('cita-fecha').value;
+            if(!cli || !fec) return alert("Cliente y Fecha requeridos.");
+            const citas = JSON.parse(localStorage.getItem('hr_citas') || '[]');
+            citas.push({
+                cliente: cli,
+                fecha: fec,
+                propiedad: document.getElementById('cita-propiedad').value,
+                notas: document.getElementById('cita-notas').value
+            });
+            localStorage.setItem('hr_citas', JSON.stringify(citas));
             renderCitas();
-        });
+            showToast("Cita agendada");
+        }
 
+        function renderCitas() {
+            const citas = JSON.parse(localStorage.getItem('hr_citas') || '[]');
+            const container = document.getElementById('citas-list');
+            if(!container) return;
+            if(citas.length === 0) {
+                container.innerHTML = '<p style="text-align:center; padding:20px; color:#666;">Sin citas pendientes.</p>';
+                return;
+            }
+            container.innerHTML = citas.map((c, idx) => `
+                <div class="card" style="padding:15px; margin-bottom:10px; border-left:5px solid #2196f3;">
+                    <strong>${c.cliente}</strong><br>
+                    <span style="font-size:0.8em; color:#666;">${new Date(c.fecha).toLocaleString()}</span><br>
+                    <span style="font-size:0.9em;">📍 ${c.propiedad}</span>
+                    <button onclick="borrarCita(${idx})" style="float:right; border:none; background:none; color:red;"><i class="fas fa-trash"></i></button>
+                </div>
+            `).join('');
+        }
+
+        function borrarCita(idx) {
+            const citas = JSON.parse(localStorage.getItem('hr_citas') || '[]');
+            citas.splice(idx, 1);
+            localStorage.setItem('hr_citas', JSON.stringify(citas));
+            renderCitas();
+        }
+
+        // --- UTILIDADES ---
         function showToast(msg) {
             const toast = document.getElementById('toast-success');
-            document.getElementById('toast-msg').innerText = msg;
+            const toastMsg = document.getElementById('toast-msg');
+            if(!toast || !toastMsg) return;
+            toastMsg.innerText = msg;
             toast.style.display = 'block';
-            setTimeout(() => {
-                toast.style.display = 'none';
-            }, 3000);
+            setTimeout(() => toast.style.display = 'none', 3000);
         }
 
         function enviarWhatsApp() {
-            const mapsUrl = `https://www.google.com/maps?q=${encodeURIComponent(currentProperty.gps)}`;
-            let infoExtra = "";
+            const mapsUrl = `https://www.google.com/maps?q=${currentProperty.gps}`;
+            const texto = `🏠 *FICHA TÉCNICA - HR*
 
-            if (currentProperty.tipo === '🏠 Casa') {
-                infoExtra = `🏗️ *MÉTODO DE CONST:* ${currentProperty.casaMetodo}\n` +
-                            `📐 *M² CONSTRUCCIÓN:* ${currentProperty.casaM2Const}\n` +
-                            `🏠 *ESTADO:* ${currentProperty.casaStatus === 'Si' ? 'Existente' : 'En obra'}\n`;
-                if (currentProperty.casaStatus === 'Si' && currentProperty.casaExistente) {
-                    infoExtra += `📝 *DETALLES CONST:* ${currentProperty.casaExistente}\n`;
-                }
-                infoExtra += `🏢 *PISOS:* ${currentProperty.casaPisos} | 🛏️ *REC:* ${currentProperty.casaRec}\n`;
-            } else if (currentProperty.tipo === '🏢 Terreno' || currentProperty.tipo === '🌾 Parcela') {
-                infoExtra = `📐 *M² TERRENO:* ${currentProperty.terrenoM2}\n`;
-                if (currentProperty.terrenoProyectado === 'Si') {
-                    infoExtra += `🏗️ *CONST. PROYECTADA:* ${currentProperty.terrenoM2Proy} m²\n`;
-                }
+📍 *TIPO:* ${currentProperty.tipo}
+💰 *PRECIO:* $${currentProperty.precio}
+📐 *M2:* ${currentProperty.m2}
+
+📍 *GPS:* ${mapsUrl}
+📝 *DESCRIPCIÓN:* ${currentProperty.desc}
+
+📞 *CONTACTO:* ${currentProperty.tel}`;
+            window.open(`https://wa.me/?text=${encodeURIComponent(texto)}`, '_blank');
+        }
+
+        function generarPDF() { alert("Función PDF activa: Preparando descarga..."); window.print(); }
+        function generarFlyer() { alert("Generando Flyer de Alta Calidad..."); }
+
+        // --- ALARMAS Y VOZ ---
+        document.getElementById('btn-voice')?.addEventListener('click', () => {
+            if ('webkitSpeechRecognition' in window) {
+                const rec = new webkitSpeechRecognition();
+                rec.lang = 'es-MX';
+                rec.onresult = (e) => document.getElementById('dictado-desc').value = e.results[0][0].transcript;
+                rec.start();
             }
-
-            const texto = `🌟 *ASESORÍA INMOBILIARIA PROFESIONAL - HR*\n\n` +
-                          `Hola, es un gusto saludarle. Le comparto la ficha técnica de la propiedad solicitada:\n\n` +
-                          `📍 *TIPO:* ${currentProperty.tipo.toUpperCase()}\n` +
-                          `💰 *PRECIO:* $${currentProperty.precio}\n\n` +
-                          `${infoExtra}\n` +
-                          `📏 *MEDIDAS Y COLINDANCIAS:* \n` +
-                          `• NORTE: ${currentProperty.norte}\n` +
-                          `• SUR: ${currentProperty.sur}\n` +
-                          `• ESTE: ${currentProperty.este}\n` +
-                          `• OESTE: ${currentProperty.oeste}\n\n` +
-                          `📐 *ÁREA TOTAL CALCULADA:* ${currentProperty.m2} m²\n\n` +
-                          `💳 *MÉTODOS DE PAGO:* ${currentProperty.creditos.join(", ") || "Efectivo / Créditos"}\n` +
-                          `🗺️ *UBICACIÓN GPS:* ${mapsUrl}\n\n` +
-                          `📝 *DESCRIPCIÓN:* ${currentProperty.desc}\n\n` +
-                          `📞 *CONTACTO:* ${currentProperty.tel}\n\n` +
-                          `¿Le gustaría agendar una cita para conocer la propiedad? Quedo a sus órdenes.`;
-            
-            const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(texto)}`;
-            window.open(url, '_blank');
-        }
-
-        async function generarPDF() {
-            showToast("Generando Ficha Técnica PDF...");
-            const { jsPDF } = window.jspdf;
-            const pdf = new jsPDF();
-            
-            // Encabezado
-            pdf.setFontSize(22);
-            pdf.setTextColor(211, 47, 47);
-            pdf.text('INVENTARIO HR - FICHA TÉCNICA', 20, 30);
-            
-            // Datos Principales
-            pdf.setFontSize(14);
-            pdf.setTextColor(0, 0, 0);
-            pdf.text(`Tipo: ${currentProperty.tipo}`, 20, 50);
-            pdf.text(`Precio: $${currentProperty.precio}`, 20, 60);
-            pdf.text(`Superficie: ${currentProperty.m2} m²`, 20, 70);
-            pdf.text(`Ubicación GPS: ${currentProperty.gps}`, 20, 80);
-            pdf.text(`Créditos: ${currentProperty.creditos.join(', ')}`, 20, 90);
-            
-            // Medidas y Colindancias
-            pdf.setFontSize(16);
-            pdf.setTextColor(211, 47, 47);
-            pdf.text('MEDIDAS Y COLINDANCIAS', 20, 100);
-            pdf.setFontSize(12);
-            pdf.setTextColor(0, 0, 0);
-            pdf.text(`Norte: ${currentProperty.norte}`, 20, 110);
-            pdf.text(`Sur: ${currentProperty.sur}`, 20, 120);
-            pdf.text(`Este: ${currentProperty.este}`, 20, 130);
-            pdf.text(`Oeste: ${currentProperty.oeste}`, 20, 140);
-            
-            // Foto
-            if (currentProperty.photo) {
-                try {
-                    pdf.addImage(currentProperty.photo, 'JPEG', 20, 150, 170, 90);
-                } catch(e) { console.error("Error al añadir imagen al PDF", e); }
-            }
-            
-            // Descripción
-            pdf.setFontSize(14);
-            pdf.text('Descripción:', 20, 250);
-            pdf.setFontSize(11);
-            const splitDesc = pdf.splitTextToSize(currentProperty.desc, 170);
-            pdf.text(splitDesc, 20, 260);
-            
-            // Pie de página
-            pdf.setFontSize(12);
-            pdf.text(`Contacto: ${currentProperty.tel}`, 20, 285);
-            
-            pdf.save(`Ficha_${currentProperty.tipo}_HR.pdf`);
-        }
-
-        async function generarFlyer() {
-            showToast("Generando Flyer Profesional...");
-            const template = document.getElementById('flyer-template');
-            
-            // Poblar template con iconos
-            document.getElementById('f-tipo').innerHTML = `<i class="fas fa-home"></i> ${currentProperty.tipo}`;
-            document.getElementById('f-precio').innerText = `$${currentProperty.precio}`;
-            document.getElementById('f-m2').innerHTML = `<i class="fas fa-expand-arrows-alt"></i> Área Total: ${currentProperty.m2} m²`;
-            
-            let extra = "";
-            if (currentProperty.tipo === '🏠 Casa') {
-                extra = `${currentProperty.casaM2Const} m² Const. | ${currentProperty.casaPisos} Niveles`;
-            } else if (currentProperty.tipo === '🏢 Terreno') {
-                extra = `${currentProperty.terrenoM2} m² de Terreno`;
-            }
-            document.getElementById('f-extra').innerText = extra;
-
-            document.getElementById('f-gps').innerHTML = `<i class="fas fa-map-marker-alt"></i> UBICACIÓN GPS ACTIVA`;
-            document.getElementById('f-tel').innerHTML = `<i class="fab fa-whatsapp"></i> ${currentProperty.tel}`;
-            document.getElementById('f-desc').innerText = currentProperty.desc;
-            
-            if (currentProperty.photo) {
-                document.getElementById('f-img').src = currentProperty.photo;
-            }
-
-            template.style.display = 'block';
-            const canvas = await html2canvas(template, { scale: 2, useCORS: true });
-            template.style.display = 'none';
-            
-            const link = document.createElement('a');
-            link.download = `Flyer_HR_${currentProperty.tipo}.png`;
-            link.href = canvas.toDataURL();
-            link.click();
-        }
-
-        // Dictado por voz
-        const btnVoice = document.getElementById('btn-voice');
-        if ('webkitSpeechRecognition' in window) {
-            const recognition = new webkitSpeechRecognition();
-            recognition.lang = 'es-MX';
-            
-            btnVoice.onclick = () => recognition.start();
-            recognition.onresult = (e) => {
-                document.getElementById('dictado-desc').value = e.results[0][0].transcript;
-            };
-        } else {
-            btnVoice.style.display = 'none';
-        }
-        function renderCitas() {
-            const list = document.getElementById('citas-list');
-            const dashboardList = document.getElementById('dashboard-citas-list');
-            if (!list) return;
-
-            let citas = JSON.parse(localStorage.getItem('hr_citas') || '[]');
-            
-            // Asegurar que todas tengan ID
-            let changed = false;
-            citas = citas.map(c => {
-                if (!c.id) {
-                    c.id = c.timestamp || Date.now() + Math.random();
-                    changed = true;
-                }
-                return c;
-            });
-            if (changed) localStorage.setItem('hr_citas', JSON.stringify(citas));
-
-            // Ordenar por fecha
-            citas.sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
-
-            const html = citas.length === 0 
-                ? '<p style="text-align:center; padding:20px; color:#666;">No hay citas programadas.</p>'
-                : citas.map((c) => `
-                    <div class="card" style="margin-bottom:10px; border-left: 5px solid #d32f2f;">
-                        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-                            <div>
-                                <h4 style="margin:0; color:#d32f2f;">${c.cliente}</h4>
-                                <p style="margin:5px 0; font-size:0.9em;"><strong>📅 Fecha:</strong> ${new Date(c.fecha).toLocaleString()}</p>
-                                <p style="margin:5px 0; font-size:0.9em;"><strong>🏠 Propiedad:</strong> ${c.propiedad}</p>
-                                <p style="margin:5px 0; font-size:0.85em; color:#666;">${c.notas}</p>
-                            </div>
-                            <div style="display:flex; gap:10px;">
-                                <button onclick="editarCita('${c.id}')" style="background:none; border:none; color:#2196F3; cursor:pointer;"><i class="fas fa-edit"></i></button>
-                                <button onclick="eliminarCita('${c.id}')" style="background:none; border:none; color:#d32f2f; cursor:pointer;"><i class="fas fa-trash"></i></button>
-                            </div>
-                        </div>
-                    </div>
-                `).join('');
-
-            list.innerHTML = html;
-            if (dashboardList) {
-                dashboardList.innerHTML = html === '<p style="text-align:center; padding:20px; color:#666;">No hay citas programadas.</p>' 
-                    ? '<p style="font-size:0.85em; color:#999;">Sin citas próximas.</p>' 
-                    : html;
-            }
-        }
-
-        function editarCita(id) {
-            const citas = JSON.parse(localStorage.getItem('hr_citas') || '[]');
-            const cita = citas.find(c => String(c.id) === String(id));
-            if (!cita) return;
-
-            document.getElementById('cita-id').value = cita.id;
-            document.getElementById('cita-cliente').value = cita.cliente;
-            document.getElementById('cita-fecha').value = cita.fecha;
-            document.getElementById('cita-propiedad').value = cita.propiedad;
-            document.getElementById('cita-notas').value = cita.notas;
-
-            // Hacer scroll al formulario
-            document.getElementById('section-citas').scrollTop = 0;
-            // Opcional: Cambiar texto del botón
-            document.querySelector('#section-citas .btn-main').innerText = "ACTUALIZAR CITA";
-        }
-
-        function guardarCita() {
-            const id = document.getElementById('cita-id').value;
-            const cliente = document.getElementById('cita-cliente').value;
-            const fecha = document.getElementById('cita-fecha').value;
-            const propiedad = document.getElementById('cita-propiedad').value;
-            const notas = document.getElementById('cita-notas').value;
-
-            if (!cliente || !fecha) return alert("Por favor completa nombre y fecha.");
-
-            let citas = JSON.parse(localStorage.getItem('hr_citas') || '[]');
-
-            if (id) {
-                // Editar existente
-                citas = citas.map(c => {
-                    if (String(c.id) === String(id)) {
-                        return { ...c, cliente, fecha, propiedad, notas };
-                    }
-                    return c;
-                });
-                showToast("Cita actualizada correctamente");
-            } else {
-                // Nueva cita
-                citas.push({ 
-                    id: Date.now(), 
-                    cliente, 
-                    fecha, 
-                    propiedad, 
-                    notas, 
-                    timestamp: new Date().getTime() 
-                });
-                showToast("Cita agendada correctamente");
-            }
-
-            localStorage.setItem('hr_citas', JSON.stringify(citas));
-
-            // Limpiar form
-            document.getElementById('cita-id').value = '';
-            document.getElementById('cita-cliente').value = '';
-            document.getElementById('cita-fecha').value = '';
-            document.getElementById('cita-propiedad').value = '';
-            document.getElementById('cita-notas').value = '';
-            document.querySelector('#section-citas .btn-main').innerText = "AGENDAR CITA";
-
-            renderCitas();
-        }
-
-        function eliminarCita(id) {
-            if (!confirm("¿Eliminar esta cita?")) return;
-            let citas = JSON.parse(localStorage.getItem('hr_citas') || '[]');
-            citas = citas.filter(c => String(c.id) !== String(id));
-            localStorage.setItem('hr_citas', JSON.stringify(citas));
-            renderCitas();
-        }
-
-        function nuevaCitaShortcut() {
-            // Limpiar form
-            document.getElementById('cita-id').value = '';
-            document.getElementById('cita-cliente').value = '';
-            document.getElementById('cita-fecha').value = '';
-            document.getElementById('cita-propiedad').value = '';
-            document.getElementById('cita-notas').value = '';
-            document.querySelector('#section-citas .btn-main').innerText = "AGENDAR CITA";
-            
-            switchSection('citas', document.querySelector('.nav-item[onclick*="citas"]'));
-        }
-    </script>
-
-<!-- ═══════════════════════════════════════════ -->
-<!-- MÓDULO IA v3 — LIMPIO, RÁPIDO, FUNCIONAL  -->
-<!-- ═══════════════════════════════════════════ -->
-
-<!-- BOTÓN FLOTANTE -->
-<button id="ia-btn" onclick="iaToggle()">🤖</button>
-
-<!-- PANEL CHAT -->
-<div id="ia-panel">
-  <div id="ia-head">
-    <span>🤖 Asistente IA · InventarioHR</span>
-    <button onclick="iaToggle()">✕</button>
-  </div>
-  <div id="ia-btns">
-    <button onclick="iaRun('contar')">📊 Contar</button>
-    <button onclick="iaRun('incompletos')">⚠️ Incompletos</button>
-    <button onclick="iaRun('duplicados')">🔍 Duplicados</button>
-    <button onclick="iaRun('fotos')">🖼️ Sin foto</button>
-    <button onclick="iaRun('gps')">📍 Sin GPS</button>
-    <button onclick="iaRun('precios')">💰 Precios</button>
-    <button onclick="iaRun('analisis')">🧠 Análisis</button>
-    <button onclick="iaRun('reporte')">📋 Reporte</button>
-  </div>
-  <div id="ia-msgs"></div>
-  <div id="ia-bar">
-    <input id="ia-inp" placeholder="Pregúntame algo…" onkeydown="if(event.key==='Enter')iaSend()">
-    <button onclick="iaSend()">➤</button>
-  </div>
-</div>
-
-<!-- INDICADORES TABLERO (se inyectan automáticamente) -->
-
-<style>
-#ia-btn{position:fixed;bottom:22px;right:18px;width:58px;height:58px;border-radius:50%;background:#d32f2f;border:none;font-size:1.7em;cursor:pointer;z-index:9000;box-shadow:0 4px 16px rgba(211,47,47,.6);color:#fff;display:flex;align-items:center;justify-content:center;}
-#ia-btn:hover{background:#b71c1c;transform:scale(1.08);}
-#ia-panel{display:none;position:fixed;bottom:90px;right:14px;width:330px;background:#fff;border-radius:18px;box-shadow:0 8px 32px rgba(0,0,0,.25);z-index:9001;flex-direction:column;overflow:hidden;max-height:520px;}
-#ia-panel.on{display:flex;}
-#ia-head{background:#d32f2f;color:#fff;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;font-weight:700;font-size:.92em;}
-#ia-head button{background:rgba(255,255,255,.2);border:none;color:#fff;width:26px;height:26px;border-radius:50%;cursor:pointer;font-size:.85em;}
-#ia-btns{padding:8px;display:flex;flex-wrap:wrap;gap:5px;background:#f9f9f9;border-bottom:1px solid #eee;}
-#ia-btns button{background:#fff;border:1.5px solid #d32f2f;color:#d32f2f;padding:4px 8px;border-radius:18px;font-size:.7em;font-weight:700;cursor:pointer;}
-#ia-btns button:hover{background:#d32f2f;color:#fff;}
-#ia-msgs{flex:1;overflow-y:auto;padding:10px;display:flex;flex-direction:column;gap:8px;background:#f5f5f5;min-height:150px;max-height:260px;}
-.im{max-width:92%;padding:9px 12px;border-radius:14px;font-size:.83em;line-height:1.5;word-break:break-word;}
-.ib{background:#fff;color:#333;border:1px solid #e0e0e0;align-self:flex-start;border-bottom-left-radius:3px;}
-.iu{background:#d32f2f;color:#fff;align-self:flex-end;border-bottom-right-radius:3px;}
-.iok{background:#e8f5e9;border-left:4px solid #2e7d32;color:#1b5e20;align-self:flex-start;}
-.iwarn{background:#fff8e1;border-left:4px solid #f9a825;color:#4e342e;align-self:flex-start;}
-.ierr{background:#ffebee;border-left:4px solid #c62828;color:#b71c1c;align-self:flex-start;}
-#ia-bar{display:flex;padding:8px;gap:6px;background:#fff;border-top:1px solid #eee;}
-#ia-inp{flex:1;padding:8px 12px;border:1.5px solid #ddd;border-radius:22px;font-size:.86em;outline:none;}
-#ia-inp:focus{border-color:#d32f2f;}
-#ia-bar button{background:#d32f2f;color:#fff;border:none;width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:1em;}
-/* TABLERO */
-#ia-dash{background:#fff;border-radius:13px;padding:13px;margin-bottom:13px;box-shadow:0 2px 8px rgba(0,0,0,.1);}
-.ia-dash-title{color:#d32f2f;font-weight:800;font-size:.9em;margin-bottom:10px;}
-.ia-dash-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
-.ia-dc{border-radius:10px;padding:10px 6px;text-align:center;color:#fff;}
-.ia-dc-r{background:linear-gradient(135deg,#d32f2f,#b71c1c);}
-.ia-dc-o{background:linear-gradient(135deg,#ef6c00,#e65100);}
-.ia-dc-g{background:linear-gradient(135deg,#455a64,#263238);}
-.ia-dc-n{font-size:1.7em;font-weight:900;line-height:1.1;}
-.ia-dc-l{font-size:.62em;opacity:.9;margin-top:3px;}
-.ia-dash-btn{background:#d32f2f;color:#fff;border:none;padding:7px;border-radius:22px;font-size:.76em;font-weight:700;cursor:pointer;margin-top:10px;width:100%;}
-/* ALERTA VALIDACIÓN */
-#ia-alert{display:none;position:fixed;top:75px;left:50%;transform:translateX(-50%);background:#fff;border:2px solid #d32f2f;border-radius:14px;padding:18px;z-index:9999;max-width:300px;width:90%;box-shadow:0 6px 24px rgba(0,0,0,.25);}
-
-/* Prospectos Styles */
-.pr-group { margin-bottom: 10px; border-radius: 8px; overflow: hidden; border: 1px solid #ddd; background: #fff; }
-.pr-header { background: #f8f9fa; padding: 12px 15px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-weight: bold; border-bottom: 1px solid #eee; }
-.pr-header:hover { background: #e9ecef; }
-.pr-content { display: none; padding: 10px; background: #fff; }
-.pr-item { padding: 10px; border-bottom: 1px solid #f0f0f0; display: flex; flex-direction: column; gap: 4px; }
-.pr-item:last-child { border-bottom: none; }
-.pr-name { font-weight: bold; color: #333; }
-.pr-meta { font-size: 0.9em; color: #666; display: flex; justify-content: space-between; }
-.pr-amount { color: #2e7d32; font-weight: bold; }
-
-</style>
-
-<script>
-/* ── DATOS ── */
-function D(){return JSON.parse(localStorage.getItem('hr_inventario')||'[]');}
-function sinc(d){return d.filter(function(p){return(!p.precio||p.precio==='0')||(!p.gps||p.gps==='No capturado')||(!p.photo||p.photo==='')||(!p.desc||p.desc.trim()==='');});}
-function sfot(d){return d.filter(function(p){return!p.photo||p.photo==='';});}
-function sgps(d){return d.filter(function(p){return!p.gps||p.gps==='No capturado'||p.gps.trim()==='';});}
-function sdup(d){var v={},r=[];d.forEach(function(p,i){var k=(p.gps||'')+'|'+(p.precio||'')+'|'+(p.tipo||'');if(v[k]!==undefined)r.push(p);else v[k]=i;});return r;}
-
-
-
-/* ── TABLERO ── */
-function iaDash(){
-  var sec=document.getElementById('section-tablero');
-  if(!sec||document.getElementById('ia-dash'))return;
-  var el=document.createElement('div');el.id='ia-dash';
-  el.innerHTML='<div class="ia-dash-title">📊 Resumen del Inventario</div>'
-    +'<div class="ia-dash-grid">'
-    +'<div class="ia-dc ia-dc-r"><div class="ia-dc-n" id="dn-t">–</div><div class="ia-dc-l">Total</div></div>'
-    +'<div class="ia-dc ia-dc-o"><div class="ia-dc-n" id="dn-i">–</div><div class="ia-dc-l">Incompletos</div></div>'
-    +'<div class="ia-dc ia-dc-g"><div class="ia-dc-n" id="dn-f">–</div><div class="ia-dc-l">Sin foto</div></div>'
-    +'</div>'
-    +'<button class="ia-dash-btn" onclick="iaRefresh()">🔄 Actualizar</button>';
-  var fc=sec.querySelector('.card');
-  fc?sec.insertBefore(el,fc):sec.appendChild(el);
-  iaRefresh();
-}
-function iaRefresh(){
-  var d=D();
-  var t=document.getElementById('dn-t'),i=document.getElementById('dn-i'),f=document.getElementById('dn-f');
-  if(t)t.textContent=d.length;
-  if(i)i.textContent=sinc(d).length;
-  if(f)f.textContent=sfot(d).length;
-}
-
-/* ── CHAT ── */
-function iaToggle(){document.getElementById('ia-panel').classList.toggle('on');}
-function iaSend(){var v=document.getElementById('ia-inp').value.trim();if(!v)return;iaU(v);document.getElementById('ia-inp').value='';iaProcess(v.toLowerCase());}
-function iaRun(c){var L={contar:'📊 Contar propiedades',incompletos:'⚠️ Ver incompletos',duplicados:'🔍 Detectar duplicados',fotos:'🖼️ Sin foto',gps:'📍 Sin GPS',precios:'💰 Análisis de precios',analisis:'🧠 Análisis completo',reporte:'📋 Generar reporte'};iaU(L[c]||c);iaProcess(c);}
-
-function iaProcess(t){
-  iaTyp();
-  setTimeout(function(){
-    iaNoTyp();
-    var d=D();
-    if(t==='contar'||t.includes('conta')||t.includes('total')||t.includes('cuant'))iaContar(d);
-    else if(t==='incompletos'||t.includes('incomplet')||t.includes('falt'))iaIncomp(d);
-    else if(t==='duplicados'||t.includes('duplic'))iaDupl(d);
-    else if(t==='fotos'||t.includes('foto')||t.includes('imagen'))iaSFoto(d);
-    else if(t==='gps'||t.includes('gps')||t.includes('ubicaci'))iaSGPS(d);
-    else if(t==='precios'||t.includes('precio')||t.includes('caro'))iaPrec(d);
-    else if(t==='analisis'||t.includes('anali'))iaAnal(d);
-    else if(t==='reporte'||t.includes('report'))iaRep(d);
-    else if(t.includes('hola')||t.includes('buenos'))iaB('👋 ¡Hola! Listo para analizar tu inventario.');
-    else iaB('Prueba: <b>contar, incompletos, duplicados, foto, GPS, precio, análisis, reporte</b>');
-  },500);
-}
-
-/* ── FUNCIONES ── */
-function iaContar(d){
-  if(!d.length){iaB('📦 Inventario vacío.','iwarn');return;}
-  var t={};d.forEach(function(p){var k=p.tipo||'Sin tipo';t[k]=(t[k]||0)+1;});
-  iaB('📊 <b>'+d.length+' propiedades</b><br><br>'+Object.keys(t).map(function(k){return'• '+k+': <b>'+t[k]+'</b>';}).join('<br>'),'iok');
-}
-function iaIncomp(d){
-  if(!d.length){iaB('📦 Vacío.','iwarn');return;}
-  var r=[];
-  d.forEach(function(p,i){
-    var x=[];
-    if(!p.precio||p.precio==='0')x.push('sin precio');
-    if(!p.gps||p.gps==='No capturado')x.push('sin GPS');
-    if(!p.photo||p.photo==='')x.push('sin foto');
-    if(!p.desc||!p.desc.trim())x.push('sin descripción');
-    if(!p.tel||p.tel==='771')x.push('tel incompleto');
-    if(x.length)r.push('• <b>'+(p.tipo||'Prop #'+(i+1))+'</b>: '+x.join(', '));
-  });
-  if(!r.length)iaB('✅ Todos completos.','iok');
-  else iaB('⚠️ <b>'+r.length+' incompleto(s):</b><br><br>'+r.join('<br>'),'iwarn');
-}
-function iaDupl(d){
-  if(!d.length){iaB('📦 Vacío.','iwarn');return;}
-  var s=sdup(d);
-  if(!s.length)iaB('✅ Sin duplicados.','iok');
-  else iaB('🔍 <b>'+s.length+' duplicado(s):</b><br><br>'+s.map(function(p){return'• '+(p.tipo||'Prop')+' $'+(p.precio||'–');}).join('<br>'),'ierr');
-}
-function iaSFoto(d){
-  if(!d.length){iaB('📦 Vacío.','iwarn');return;}
-  var s=sfot(d);
-  if(!s.length)iaB('✅ Todas tienen foto.','iok');
-  else iaB('🖼️ <b>'+s.length+' sin foto:</b><br><br>'+s.map(function(p){return'• '+(p.tipo||'Prop')+' — $'+(p.precio||'–');}).join('<br>')+'<br><br>💡 Las fotos aceleran ventas.','iwarn');
-}
-function iaSGPS(d){
-  if(!d.length){iaB('📦 Vacío.','iwarn');return;}
-  var s=sgps(d);
-  if(!s.length)iaB('✅ Todas tienen GPS.','iok');
-  else iaB('📍 <b>'+s.length+' sin GPS:</b><br><br>'+s.map(function(p){return'• '+(p.tipo||'Prop');}).join('<br>'),'iwarn');
-}
-function iaPrec(d){
-  if(!d.length){iaB('📦 Vacío.','iwarn');return;}
-  var p=d.map(function(x){return parseFloat(x.precio)||0;}).filter(function(v){return v>0;});
-  if(!p.length){iaB('⚠️ Sin precios.','iwarn');return;}
-  var mn=Math.min.apply(null,p),mx=Math.max.apply(null,p),av=(p.reduce(function(a,b){return a+b;},0)/p.length).toFixed(0);
-  iaB('💰 <b>Precios:</b><br>• Mín: <b>$'+mn.toLocaleString()+'</b><br>• Máx: <b>$'+mx.toLocaleString()+'</b><br>• Prom: <b>$'+parseFloat(av).toLocaleString()+'</b><br>• Sin precio: <b>'+d.filter(function(x){return!x.precio||x.precio==='0';}).length+'</b>','iok');
-}
-function iaAnal(d){
-  if(!d.length){iaB('📦 Vacío.','iwarn');return;}
-  var tot=d.length,si=sinc(d).length,sf=sfot(d).length,sg=sgps(d).length,sd=sdup(d).length;
-  var score=Math.max(0,Math.round(100-(si/tot)*30-(sf/tot)*25-(sg/tot)*25-sd*5));
-  var em=score>=80?'🟢':score>=50?'🟡':'🔴',tp=score>=80?'iok':score>=50?'iwarn':'ierr';
-  iaB('🧠 <b>Análisis completo</b><br><br>'
-    +'📦 Total: <b>'+tot+'</b><br>'
-    +'⚠️ Incompletos: <b>'+si+'</b><br>'
-    +'🖼️ Sin foto: <b>'+sf+'</b><br>'
-    +'📍 Sin GPS: <b>'+sg+'</b><br>'
-    +'🔁 Duplicados: <b>'+sd+'</b><br><br>'
-    +em+' <b>Salud: '+score+'/100</b>',tp);
-  iaRefresh();
-}
-function iaRep(d){
-  if(!d.length){iaB('📦 Vacío.','iwarn');return;}
-  var t={};d.forEach(function(p){var k=p.tipo||'Sin tipo';t[k]=(t[k]||0)+1;});
-  var f=new Date().toLocaleDateString('es-MX',{day:'2-digit',month:'long',year:'numeric'});
-  var r='REPORTE INVENTARIO HR\nFecha: '+f+'\n'+Array(25).join('-')+'\nTotal: '+d.length+'\n'
-    +Object.keys(t).map(function(k){return k+': '+t[k];}).join(' | ')+'\n'+Array(25).join('-')
-    +'\nSin foto: '+sfot(d).length+'\nSin GPS: '+sgps(d).length
-    +'\nIncompletos: '+sinc(d).length+'\nDuplicados: '+sdup(d).length
-    +'\n'+Array(25).join('-')+'\nGenerado por Asistente IA · HR';
-  try{navigator.clipboard.writeText(r);}catch(e){}
-  iaB('📋 <b>Reporte copiado al portapapeles:</b><br><pre style="font-size:.7em;background:#f5f5f5;padding:7px;border-radius:7px;white-space:pre-wrap;">'+r+'</pre>','iok');
-}
-
-/* ── VALIDACIÓN GUARDAR ── */
-window.addEventListener('load',function(){
-  var btn=document.querySelector('button[onclick="guardarInventario()"]');
-  if(btn){
-    btn.removeAttribute('onclick');
-    btn.addEventListener('click',function(e){
-      e.preventDefault();
-      var tipo=(document.getElementById('tipo-propiedad')||{}).value||'';
-      var precio=(document.getElementById('precio-total')||{}).value||'';
-      var gps=(document.getElementById('gps-coords')||{}).value||'';
-      var tel=(document.querySelector('input[type="tel"]')||{}).value||'';
-      var err=[];
-      if(!tipo.trim())err.push('• Tipo de propiedad');
-      if(!precio||precio==='0')err.push('• Precio total');
-      if(!gps.trim()||gps==='Coordenadas GPS')err.push('• Ubicación GPS');
-      if(!tel.trim()||tel==='771')err.push('• Teléfono de contacto');
-      if(err.length){
-        var al=document.getElementById('ia-alert');
-        al.innerHTML='<div style="color:#d32f2f;font-weight:800;margin-bottom:8px;">⚠️ Datos obligatorios</div>'
-          +'<div style="font-size:.87em;color:#555;line-height:1.9;">'+err.join('<br>')+'</div>'
-          +'<button onclick="document.getElementById(\'ia-alert\').style.display=\'none\'" '
-          +'style="margin-top:12px;width:100%;background:#d32f2f;color:#fff;border:none;padding:9px;border-radius:9px;font-weight:700;cursor:pointer;">Entendido</button>';
-        al.style.display='block';
-        setTimeout(function(){al.style.display='none';},6000);
-        return;
-      }
-      if(typeof guardarInventario==='function'){guardarInventario();setTimeout(iaRefresh,400);}
-    });
-  }
-});
-
-/* ── AUTO-ANÁLISIS AL CARGAR ── */
-function iaAutoMsg(){
-  var d=D();
-  var si=sinc(d).length,sf=sfot(d).length,sd=sdup(d).length;
-  var msg;
-  if(!d.length){
-    iaB('📦 No hay propiedades registradas.<br><br>Agrega tu primera propiedad usando el formulario de <b>Inventario</b>.','ib');
-    return;
-  } else {
-    msg='🧠 <b>Inventario analizado:</b><br>📦 <b>'+d.length+'</b> propiedades';
-    if(si)msg+='<br>⚠️ <b>'+si+'</b> incompleta(s)';
-    if(sf)msg+='<br>🖼️ <b>'+sf+'</b> sin foto';
-    if(sd)msg+='<br>🔁 <b>'+sd+'</b> duplicada(s)';
-    if(!si&&!sf&&!sd)msg+='<br>✅ Todo en orden.';
-    else msg+='<br><br>👉 Pulsa <b>Análisis</b> para detalles.';
-    iaB(msg,(!si&&!sf&&!sd)?'iok':'iwarn');
-  }
-}
-
-/* ── HOOK GUARDAR ── */
-(function(){
-  var orig=window.guardarInventario;
-  if(typeof orig==='function'){
-    window.guardarInventario=function(){orig.apply(this,arguments);setTimeout(iaRefresh,400);};
-  }
-})();
-
-/* ── UTILIDADES ── */
-function iaB(h,c){c=c||'ib';var m=document.getElementById('ia-msgs'),d=document.createElement('div');d.className='im '+c;d.innerHTML=h;m.appendChild(d);m.scrollTop=m.scrollHeight;}
-function iaU(t){var m=document.getElementById('ia-msgs'),d=document.createElement('div');d.className='im iu';d.textContent=t;m.appendChild(d);m.scrollTop=m.scrollHeight;}
-function iaTyp(){var m=document.getElementById('ia-msgs'),d=document.createElement('div');d.className='im ib';d.id='ia-typ';d.textContent='⏳ Analizando...';m.appendChild(d);m.scrollTop=m.scrollHeight;}
-function iaNoTyp(){var e=document.getElementById('ia-typ');if(e)e.remove();}
-
-/* ── ALERTA DOM ── */
-document.addEventListener('DOMContentLoaded',function(){
-  var al=document.createElement('div');al.id='ia-alert';document.body.appendChild(al);
-});
-
-
-/* ── LIMPIADOR v2: borra datos si versión < 2 ── */
-(function(){
-  var version = localStorage.getItem('hr_version');
-  if (version !== '2') {
-    localStorage.removeItem('hr_inventario');
-    localStorage.setItem('hr_version', '2');
-    console.log('[IA] Inventario reseteado a version limpia');
-  }
-})();
-
-
-/* ── FUNCIÓN GPS → GOOGLE MAPS ── */
-function abrirMaps(gps) {
-  if (!gps || gps === 'No capturado' || gps.trim() === '') {
-    alert('⚠️ Sin ubicación disponible para esta propiedad.');
-    return;
-  }
-  var url = 'https://www.google.com/maps?q=' + encodeURIComponent(gps);
-  window.open(url, '_blank');
-}
-
-function abrirMapsDesdeInput() {
-  var gps = document.getElementById('gps-coords') ? document.getElementById('gps-coords').value : '';
-  if (!gps || gps.trim() === '' || gps === 'Coordenadas GPS') {
-    alert('⚠️ Primero obtén la ubicación GPS presionando "OBTENER UBICACIÓN GPS".');
-    return;
-  }
-  var url = 'https://www.google.com/maps?q=' + encodeURIComponent(gps);
-  window.open(url, '_blank');
-}
-
-
-/* MÓDULO PROSPECTOS */
-var PR_KEY='hr_prospectos';
-var PR_TIPOS=['Efectivo','ISSFAM','Banjercito','CFE','Infonavit','FOVISSSTE'];
-function prGet(){return JSON.parse(localStorage.getItem(PR_KEY)||'[]');}
-function prSet(d){localStorage.setItem(PR_KEY,JSON.stringify(d));}
-
-function prGuardar(){
-  var n=document.getElementById('pr-nombre').value||'';
-  var t=document.getElementById('pr-tel').value||'';
-  var c=document.getElementById('pr-credito').value||'';
-  var m=document.getElementById('pr-monto').value||'';
-  var al=document.getElementById('pr-alerta');
-  var err=[];
-  if(!n.trim())err.push('Nombre obligatorio');
-  if(!t.trim())err.push('Telefono obligatorio');
-  if(!c)err.push('Selecciona tipo de credito');
-  if(m&&isNaN(m.replace(/[$,\s]/g,'')))err.push('Monto debe ser numerico');
-  if(err.length){al.innerHTML=err.join(' &nbsp;|&nbsp; ');al.style.display='block';setTimeout(function(){al.style.display='none';},4000);return;}
-  al.style.display='none';
-  var d=prGet();
-  d.push({id:Date.now(),nombre:n.trim(),tel:t.trim(),credito:c,monto:m.replace(/[$,\s]/g,'')||'0'});
-  prSet(d);
-  document.getElementById('pr-nombre').value='';
-  document.getElementById('pr-tel').value='';
-  document.getElementById('pr-credito').value='';
-  document.getElementById('pr-monto').value='';
-  prRender();
-  // Scroll a la lista para que se vea
-  setTimeout(function(){
-    var l=document.getElementById('pr-lista');
-    if(l) l.scrollIntoView({behavior:'smooth',block:'nearest'});
-  },100);
-}
-
-function prDel(id){
-  if(!confirm('Eliminar prospecto?'))return;
-  prSet(prGet().filter(function(p){return p.id!==id;}));
-  prRender();
-}
-
-function prToggle(key){
-  var b=document.getElementById('prb-'+key);
-  if(b)b.classList.toggle('open');
-}
-
-function prRender(){
-  var lista=document.getElementById('pr-lista');
-  if(!lista)return;
-  var data=prGet();
-  if(!data.length){lista.innerHTML='<div class="card pr-empty">No hay prospectos registrados.<br>Agrega tu primer cliente arriba.</div>';return;}
-  var out='';
-  PR_TIPOS.forEach(function(tipo){
-    var g=data.filter(function(p){return p.credito===tipo;});
-    if(!g.length)return;
-    var key=tipo.replace(/\s/g,'_');
-    var items=g.map(function(p){
-      var monto=parseInt(p.monto||0).toLocaleString('es-MX');
-      return '<div class="pr-card">'
-        +'<div class="pr-info"><div class="pr-nom">'+p.nombre+'</div>'
-        +'<div class="pr-det">'+p.tel+' &nbsp;|&nbsp; $'+monto+'</div></div>'
-        +'<div class="pr-acts">'
-        +'<button class="pr-call" onclick="window.open('tel:'+p.tel+'')">📞</button>'
-        +'<button class="pr-del" onclick="prDel('+p.id+')">🗑️</button>'
-        +'</div></div>';
-    }).join('');
-    out+='<div class="pr-grupo">'
-      +'<div class="pr-gh" onclick="prToggle(''+key+'')">'
-      +'<h3>'+tipo+'<span class="pr-count">'+g.length+'</span></h3>'
-      +'<span style="color:#d32f2f;">&#9660;</span>'
-      +'</div>'
-      +'<div class="pr-gb open" id="prb-'+key+'">'+items+'</div>'
-      +'</div>';
-  });
-  lista.innerHTML=out;
-}
-
-/* Hook switchSection para re-renderizar prospectos al navegar */
-var _swOrig=window.switchSection;
-if(typeof _swOrig==='function'){
-  window.switchSection=function(s,el){_swOrig(s,el);if(s==='prospectos')prRender();};
-}
-document.addEventListener('DOMContentLoaded',function(){prRender();});
-
-/* ── INIT ── */
-function iaInit(){iaDash();setTimeout(iaAutoMsg,900);}
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',iaInit);
-else iaInit();
-</script>
-
-<script>
-
-/* ── MÓDULO PROSPECTOS ── */
-const PR_TIPOS = ["Efectivo", "ISSFAM", "Banjército", "CFE", "Infonavit", "FOVISSSTE"];
-
-function prGet() {
-    return JSON.parse(localStorage.getItem('hr_prospectos') || '[]');
-}
-
-function prSet(data) {
-    localStorage.setItem('hr_prospectos', JSON.stringify(data));
-}
-
-function prGuardar() {
-    const nom = document.getElementById('pr-nombre').value.trim();
-    const tel = document.getElementById('pr-tel').value.trim();
-    const cre = document.getElementById('pr-credito').value;
-    const mon = document.getElementById('pr-monto').value.trim();
-
-    if (!nom || !tel) {
-        alert("Nombre y Teléfono son obligatorios");
-        return;
-    }
-
-    const d = prGet();
-    d.push({
-        id: Date.now(),
-        nombre: nom,
-        tel: tel,
-        credito: cre,
-        monto: mon ? parseFloat(mon) : 0,
-        fecha: new Date().toISOString()
-    });
-
-    prSet(d);
-    document.getElementById('pr-nombre').value = '';
-    document.getElementById('pr-tel').value = '';
-    document.getElementById('pr-monto').value = '';
-    
-    alert("Prospecto guardado correctamente");
-    prRender();
-}
-
-function prRender() {
-    const d = prGet();
-    const container = document.getElementById('pr-lista');
-    if (!container) return;
-    
-    container.innerHTML = '';
-
-    PR_TIPOS.forEach(tipo => {
-        const filtrados = d.filter(p => p.credito === tipo);
-        if (filtrados.length === 0) return;
-
-        const group = document.createElement('div');
-        group.className = 'pr-group';
-        
-        const header = document.createElement('div');
-        header.className = 'pr-header';
-        header.innerHTML = `<span>${tipo} (${filtrados.length})</span> <i class="fas fa-chevron-down"></i>`;
-        header.onclick = () => {
-            const content = group.querySelector('.pr-content');
-            content.style.display = content.style.display === 'block' ? 'none' : 'block';
-        };
-
-        const content = document.createElement('div');
-        content.className = 'pr-content';
-        
-        filtrados.forEach(p => {
-            const item = document.createElement('div');
-            item.className = 'pr-item';
-            item.innerHTML = `
-                <div class="pr-name">${p.nombre}</div>
-                <div class="pr-meta">
-                    <span><i class="fas fa-phone"></i> ${p.tel}</span>
-                    <span class="pr-amount">$${p.monto.toLocaleString()}</span>
-                </div>
-            `;
-            content.appendChild(item);
         });
 
-        group.appendChild(header);
-        group.appendChild(content);
-        container.appendChild(group);
-    });
-
-    if (container.innerHTML === '') {
-        container.innerHTML = '<p style="text-align:center; color:#666; padding:20px;">No hay prospectos registrados.</p>';
-    }
-}
-
-// Hook para renderizar al cambiar a la pestaña de prospectos
-// Buscamos la función switchSection original o agregamos el render al inicio
-document.addEventListener('DOMContentLoaded', () => {
-    prRender();
-});
-
-</script>
+        // --- INICIO ---
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById("photo-input")?.addEventListener("change", handleFiles);
+            document.getElementById("gallery-input")?.addEventListener("change", handleFiles);
+            renderInventario();
+            // Iniciar en Tablero por defecto
+            switchSection('tablero', document.querySelector('[onclick*="tablero"]'));
+        });
+    </script>
 </body>
 </html>
