@@ -456,7 +456,19 @@
         .flyer-details { font-size: 30px; margin-top: 20px; line-height: 1.5; }
         .flyer-footer { background: #000; padding: 20px; font-size: 24px; text-transform: uppercase; }
 
-    </style>
+    
+/* Prospectos Styles */
+.pr-group { margin-bottom: 10px; border-radius: 8px; overflow: hidden; border: 1px solid #ddd; background: #fff; }
+.pr-header { background: #f8f9fa; padding: 12px 15px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-weight: bold; border-bottom: 1px solid #eee; }
+.pr-header:hover { background: #e9ecef; }
+.pr-content { display: none; padding: 10px; background: #fff; }
+.pr-item { padding: 10px; border-bottom: 1px solid #f0f0f0; display: flex; flex-direction: column; gap: 4px; }
+.pr-item:last-child { border-bottom: none; }
+.pr-name { font-weight: bold; color: #333; }
+.pr-meta { font-size: 0.9em; color: #666; display: flex; justify-content: space-between; }
+.pr-amount { color: #2e7d32; font-weight: bold; }
+
+</style>
 </head>
 <body>
 
@@ -819,33 +831,44 @@
         </section>
 
         <!-- Secciones Adicionales -->
+        
         <section id="section-prospectos" class="app-section">
-
             <div class="card">
-                <div class="section-title"><i class="fas fa-user-plus"></i> Agregar Prospecto</div>
+                <div class="section-title"><i class="fas fa-user-plus"></i> Nuevo Prospecto</div>
                 <div class="form-group">
-                    <input type="text" id="pr-nombre" placeholder="Nombre completo" style="width:100%;padding:12px;border:1.5px solid #ddd;border-radius:10px;font-size:.95em;margin-bottom:8px;outline:none;">
-                    <input type="tel" id="pr-tel" placeholder="Teléfono" style="width:100%;padding:12px;border:1.5px solid #ddd;border-radius:10px;font-size:.95em;margin-bottom:8px;outline:none;">
-                    <select id="pr-credito" style="width:100%;padding:12px;border:1.5px solid #ddd;border-radius:10px;font-size:.95em;margin-bottom:8px;outline:none;background:#fff;">
-                        <option value="">-- Tipo de crédito --</option>
+                    <label>NOMBRE COMPLETO</label>
+                    <input type="text" id="pr-nombre" placeholder="Nombre del cliente">
+                </div>
+                <div class="form-group">
+                    <label>TELÉFONO</label>
+                    <input type="tel" id="pr-tel" placeholder="771...">
+                </div>
+                <div class="form-group">
+                    <label>TIPO DE CRÉDITO</label>
+                    <select id="pr-credito">
                         <option value="Efectivo">Efectivo</option>
                         <option value="ISSFAM">ISSFAM</option>
-                        <option value="Banjercito">Banjercito</option>
+                        <option value="Banjército">Banjército</option>
                         <option value="CFE">CFE</option>
                         <option value="Infonavit">Infonavit</option>
                         <option value="FOVISSSTE">FOVISSSTE</option>
                     </select>
-                    <input type="text" id="pr-monto" placeholder="Monto disponible (ej. 850000)" style="width:100%;padding:12px;border:1.5px solid #ddd;border-radius:10px;font-size:.95em;margin-bottom:8px;outline:none;">
-                    <button class="btn-main" onclick="prGuardar()">
-                        <i class="fas fa-save"></i> GUARDAR PROSPECTO
-                    </button>
-                    <div id="pr-alerta" style="display:none;margin-top:10px;padding:10px 14px;background:#ffebee;border-left:4px solid #d32f2f;border-radius:8px;font-size:.87em;color:#b71c1c;"></div>
                 </div>
+                <div class="form-group">
+                    <label>MONTO DISPONIBLE</label>
+                    <input type="number" id="pr-monto" placeholder="0.00">
+                </div>
+                <button class="btn-save" onclick="prGuardar()">
+                    <i class="fas fa-save"></i> GUARDAR PROSPECTO
+                </button>
             </div>
 
-            <div id="pr-lista" style="margin-top:12px;"></div>
-
+            <div class="section-title" style="margin-top:20px;">
+                <i class="fas fa-users"></i> Lista de Prospectos
+            </div>
+            <div id="pr-lista"></div>
         </section>
+
 
         <style>
         .pr-grupo{background:#fff;border-radius:14px;margin-bottom:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.1);}
@@ -861,7 +884,19 @@
         .pr-call{background:#25D366;color:#fff;border:none;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:.85em;}
         .pr-del{background:#ffebee;color:#d32f2f;border:none;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:.85em;}
         .pr-empty{text-align:center;padding:20px;color:#999;font-size:.88em;}
-        </style>
+        
+/* Prospectos Styles */
+.pr-group { margin-bottom: 10px; border-radius: 8px; overflow: hidden; border: 1px solid #ddd; background: #fff; }
+.pr-header { background: #f8f9fa; padding: 12px 15px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-weight: bold; border-bottom: 1px solid #eee; }
+.pr-header:hover { background: #e9ecef; }
+.pr-content { display: none; padding: 10px; background: #fff; }
+.pr-item { padding: 10px; border-bottom: 1px solid #f0f0f0; display: flex; flex-direction: column; gap: 4px; }
+.pr-item:last-child { border-bottom: none; }
+.pr-name { font-weight: bold; color: #333; }
+.pr-meta { font-size: 0.9em; color: #666; display: flex; justify-content: space-between; }
+.pr-amount { color: #2e7d32; font-weight: bold; }
+
+</style>
 
         <section id="section-contactos" class="app-section">
             <div class="card">
@@ -1629,6 +1664,18 @@
 .ia-dash-btn{background:#d32f2f;color:#fff;border:none;padding:7px;border-radius:22px;font-size:.76em;font-weight:700;cursor:pointer;margin-top:10px;width:100%;}
 /* ALERTA VALIDACIÓN */
 #ia-alert{display:none;position:fixed;top:75px;left:50%;transform:translateX(-50%);background:#fff;border:2px solid #d32f2f;border-radius:14px;padding:18px;z-index:9999;max-width:300px;width:90%;box-shadow:0 6px 24px rgba(0,0,0,.25);}
+
+/* Prospectos Styles */
+.pr-group { margin-bottom: 10px; border-radius: 8px; overflow: hidden; border: 1px solid #ddd; background: #fff; }
+.pr-header { background: #f8f9fa; padding: 12px 15px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-weight: bold; border-bottom: 1px solid #eee; }
+.pr-header:hover { background: #e9ecef; }
+.pr-content { display: none; padding: 10px; background: #fff; }
+.pr-item { padding: 10px; border-bottom: 1px solid #f0f0f0; display: flex; flex-direction: column; gap: 4px; }
+.pr-item:last-child { border-bottom: none; }
+.pr-name { font-weight: bold; color: #333; }
+.pr-meta { font-size: 0.9em; color: #666; display: flex; justify-content: space-between; }
+.pr-amount { color: #2e7d32; font-weight: bold; }
+
 </style>
 
 <script>
@@ -1952,5 +1999,103 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 else iaInit();
 </script>
 
+<script>
+
+/* ── MÓDULO PROSPECTOS ── */
+const PR_TIPOS = ["Efectivo", "ISSFAM", "Banjército", "CFE", "Infonavit", "FOVISSSTE"];
+
+function prGet() {
+    return JSON.parse(localStorage.getItem('hr_prospectos') || '[]');
+}
+
+function prSet(data) {
+    localStorage.setItem('hr_prospectos', JSON.stringify(data));
+}
+
+function prGuardar() {
+    const nom = document.getElementById('pr-nombre').value.trim();
+    const tel = document.getElementById('pr-tel').value.trim();
+    const cre = document.getElementById('pr-credito').value;
+    const mon = document.getElementById('pr-monto').value.trim();
+
+    if (!nom || !tel) {
+        alert("Nombre y Teléfono son obligatorios");
+        return;
+    }
+
+    const d = prGet();
+    d.push({
+        id: Date.now(),
+        nombre: nom,
+        tel: tel,
+        credito: cre,
+        monto: mon ? parseFloat(mon) : 0,
+        fecha: new Date().toISOString()
+    });
+
+    prSet(d);
+    document.getElementById('pr-nombre').value = '';
+    document.getElementById('pr-tel').value = '';
+    document.getElementById('pr-monto').value = '';
+    
+    alert("Prospecto guardado correctamente");
+    prRender();
+}
+
+function prRender() {
+    const d = prGet();
+    const container = document.getElementById('pr-lista');
+    if (!container) return;
+    
+    container.innerHTML = '';
+
+    PR_TIPOS.forEach(tipo => {
+        const filtrados = d.filter(p => p.credito === tipo);
+        if (filtrados.length === 0) return;
+
+        const group = document.createElement('div');
+        group.className = 'pr-group';
+        
+        const header = document.createElement('div');
+        header.className = 'pr-header';
+        header.innerHTML = `<span>${tipo} (${filtrados.length})</span> <i class="fas fa-chevron-down"></i>`;
+        header.onclick = () => {
+            const content = group.querySelector('.pr-content');
+            content.style.display = content.style.display === 'block' ? 'none' : 'block';
+        };
+
+        const content = document.createElement('div');
+        content.className = 'pr-content';
+        
+        filtrados.forEach(p => {
+            const item = document.createElement('div');
+            item.className = 'pr-item';
+            item.innerHTML = `
+                <div class="pr-name">${p.nombre}</div>
+                <div class="pr-meta">
+                    <span><i class="fas fa-phone"></i> ${p.tel}</span>
+                    <span class="pr-amount">$${p.monto.toLocaleString()}</span>
+                </div>
+            `;
+            content.appendChild(item);
+        });
+
+        group.appendChild(header);
+        group.appendChild(content);
+        container.appendChild(group);
+    });
+
+    if (container.innerHTML === '') {
+        container.innerHTML = '<p style="text-align:center; color:#666; padding:20px;">No hay prospectos registrados.</p>';
+    }
+}
+
+// Hook para renderizar al cambiar a la pestaña de prospectos
+// Buscamos la función switchSection original o agregamos el render al inicio
+document.addEventListener('DOMContentLoaded', () => {
+    prRender();
+});
+
+</script>
 </body>
 </html>
