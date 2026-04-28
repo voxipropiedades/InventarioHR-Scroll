@@ -203,6 +203,41 @@
         .alarm-info span { font-size: 0.8em; color: #666; }
 
         /* Modal Guardado */
+        .output-module {
+            display: none;
+            margin-top: 20px;
+            padding: 20px;
+            background: #fff;
+            border-radius: 15px;
+            border: 2px dashed #d32f2f;
+            animation: fadeIn 0.5s ease;
+        }
+        .output-module.active { display: block; }
+        .output-buttons {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .btn-output {
+            padding: 15px;
+            border-radius: 10px;
+            border: none;
+            color: white;
+            font-weight: bold;
+            font-size: 1.1em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .btn-whatsapp { background: #25D366; }
+        .btn-pdf { background: #E4405F; }
+        .btn-flyer { background: #333; }
+        .btn-output:active { transform: scale(0.98); opacity: 0.9; }
+
         .modal-save {
             display: none;
             position: fixed;
@@ -1016,17 +1051,22 @@
         }
 
         function enviarWhatsApp() {
-            const msg = `🏠 *PROPIEDAD EN VENTA*\n\n` +
-                        `🔹 *Tipo:* ${currentProperty.tipo}\n` +
-                        `💰 *Precio:* $${currentProperty.precio}\n` +
-                        `📐 *Superficie:* ${currentProperty.m2} m²\n` +
-                        `📍 *GPS:* ${currentProperty.gps}\n\n` +
-                        `*Más info al:* ${currentProperty.tel}`;
-            const url = `https://wa.me/${currentProperty.tel.replace(/\D/g,'')}?text=${encodeURIComponent(msg)}`;
+            const texto = `🏠 *${currentProperty.tipo.toUpperCase()} - NUEVA PROPIEDAD*\n\n` +
+                          `📍 *Ubicación:* ${currentProperty.gps}\n` +
+                          `💰 *Precio:* $${currentProperty.precio}\n` +
+                          `📐 *Superficie:* ${currentProperty.m2} m²\n` +
+                          `🛏️ *Habitaciones:* ${currentProperty.rec || '0'}\n` +
+                          `🚿 *Baños:* ${currentProperty.ban || '0'}\n\n` +
+                          `📝 *Descripción:* ${currentProperty.desc}\n\n` +
+                          `📞 *Contacto:* ${currentProperty.tel}\n\n` +
+                          `_Enviado desde InventarioHR_`;
+            
+            const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(texto)}`;
             window.open(url, '_blank');
         }
 
         async function generarPDF() {
+            showToast("Generando Ficha Técnica PDF...");
             const { jsPDF } = window.jspdf;
             const pdf = new jsPDF();
             
@@ -1043,8 +1083,18 @@
             pdf.text(`Contacto: ${currentProperty.tel}`, 20, 90);
             
             if (currentProperty.photo) {
-                pdf.addImage(currentProperty.photo, 'JPEG', 20, 110, 170, 100);
+                try {
+                    pdf.addImage(currentProperty.photo, 'JPEG', 20, 110, 170, 100);
+                } catch(e) { console.error("Error al añadir imagen al PDF", e); }
             }
+            
+            pdf.text('Descripción:', 20, 220);
+            pdf.setFontSize(11);
+            const splitDesc = pdf.splitTextToSize(currentProperty.desc, 170);
+            pdf.text(splitDesc, 20, 230);
+            
+            pdf.save(`Ficha_${currentProperty.tipo}_HR.pdf`);
+        }
             
             pdf.save('Ficha_Propiedad_HR.pdf');
         }
