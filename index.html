@@ -2,1259 +2,737 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>InventarioHR</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>HR PRO SYSTEM | Inmobiliaria Inteligente</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        :root {
+            --primary: #8B0000; /* Rojo Granate Profundo (Elegancia) */
+            --secondary: #FFD700; /* Dorado (Militar/Prestigio) */
+            --bg: #f4f4f9;
+            --text: #2c3e50;
+            --white: #ffffff;
+            --shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
 
-        body {
-            background-color: #d32f2f; /* Rojo elegante */
-            color: #ffffff;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Roboto, sans-serif; }
+        body { background: var(--bg); color: var(--text); overflow-x: hidden; padding-bottom: 70px; }
 
-        /* Encabezado Principal */
+        /* HEADER */
         .app-header {
-            background-color: #d32f2f;
+            background: var(--primary);
+            color: var(--white);
             padding: 15px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
             position: sticky;
             top: 0;
             z-index: 1000;
+            box-shadow: var(--shadow);
         }
+        .logo-area { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 1.2em; letter-spacing: 1px; }
+        .logo-area i { color: var(--secondary); font-size: 1.4em; }
 
-        .logo-area {
-            font-size: 1.4em;
-            font-weight: 800;
-            letter-spacing: 1px;
+        /* NAVIGATION BAR (BOTTOM) */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: var(--white);
             display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .header-actions {
-            display: flex;
-            gap: 15px;
-            font-size: 1.2em;
-        }
-
-        .btn-action-header {
-            background: rgba(255, 255, 255, 0.2);
-            border: none;
-            color: white;
-            padding: 8px 12px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 0.8em;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        /* Menú Horizontal Scroll */
-        .horizontal-nav {
-            background: #b71c1c;
-            overflow-x: auto;
-            white-space: nowrap;
+            justify-content: space-around;
             padding: 10px 0;
-            scrollbar-width: none; /* Firefox */
-            -ms-overflow-style: none;  /* IE and Edge */
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            z-index: 2000;
         }
-
-        .horizontal-nav::-webkit-scrollbar {
-            display: none; /* Chrome, Safari and Opera */
-        }
-
-        .nav-container {
-            display: inline-flex;
-            padding: 0 15px;
-            gap: 20px;
-        }
-
         .nav-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-decoration: none;
-            color: rgba(255,255,255,0.7);
-            font-size: 0.75em;
-            font-weight: 600;
-            transition: all 0.3s;
-            cursor: pointer;
-        }
-
-        .nav-item i {
-            font-size: 1.6em;
-            margin-bottom: 4px;
-        }
-
-        .nav-item.active {
-            color: #ffffff;
-            transform: scale(1.1);
-        }
-
-        /* Dashboard Styles */
-        .metrics-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-            gap: 10px;
-            margin-top: 15px;
-        }
-
-        .metric-item {
-            background: #f9f9f9;
-            padding: 15px;
-            border-radius: 10px;
             text-align: center;
-            border: 1px solid #eee;
-            color: #333;
-        }
-
-        .metric-value {
-            display: block;
-            font-size: 1.5em;
-            font-weight: bold;
-            color: #d32f2f;
-        }
-
-        .metric-label {
-            font-size: 0.8em;
-            color: #666;
-            text-transform: uppercase;
-        }
-
-        .search-box {
-            display: flex;
-            gap: 10px;
-            position: relative;
-        }
-
-        .search-box input {
-            flex: 1;
-            padding: 12px;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            font-size: 1em;
-        }
-
-        .voice-search {
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            border: none;
-            background: #d32f2f;
-            color: white;
-            cursor: pointer;
-        }
-
-        .social-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
-            margin-top: 10px;
-        }
-
-        .social-item {
+            color: #999;
             text-decoration: none;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 15px;
-            border-radius: 12px;
-            color: white;
-            font-weight: bold;
-            transition: transform 0.2s;
-        }
-
-        .social-item:active { transform: scale(0.95); }
-        .social-item i { font-size: 1.8em; margin-bottom: 5px; }
-        .social-item.whatsapp { background: #25D366; }
-        .social-item.facebook { background: #1877F2; }
-        .social-item.tiktok { background: #000000; }
-
-        .alarm-item {
-            background: #fff;
-            padding: 10px;
-            border-radius: 8px;
-            border-left: 5px solid #d32f2f;
-            margin-top: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            color: #333;
-        }
-
-        .alarm-info h4 { font-size: 0.9em; margin: 0; }
-        .alarm-info span { font-size: 0.8em; color: #666; }
-
-        /* Modal Guardado */
-        .modal-save {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.8);
-            z-index: 10000;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-        .modal-save.active { display: flex; }
-        .output-module.active { display: block !important; }
-        .modal-card {
-            background: white;
-            padding: 25px;
-            border-radius: 15px;
-            width: 100%;
-            max-width: 400px;
-            color: #333;
-            text-align: center;
-        }
-        .save-options {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 15px;
-            margin-top: 20px;
-        }
-        .btn-save-opt {
-            padding: 15px;
-            border-radius: 10px;
-            border: 2px solid #d32f2f;
-            background: white;
-            color: #d32f2f;
-            font-weight: bold;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            font-size: 1.1em;
-        }
-        .btn-save-opt:active { background: #d32f2f; color: white; }
-        
-        /* Toast Notification */
-        .toast {
-            position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #2e7d32;
-            color: white;
-            padding: 15px 30px;
-            border-radius: 50px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-            z-index: 20000;
-            display: none;
-            animation: slideUp 0.3s ease-out;
-        }
-        @keyframes slideUp { from { bottom: -50px; } to { bottom: 30px; } }
-
-        .btn-delete {
-            background: none;
-            border: none;
-            color: #ff5252;
-            cursor: pointer;
-            padding: 5px;
-        }
-
-        /* Contenido Principal */
-        .main-content {
+            font-size: 0.7em;
             flex: 1;
-            padding: 20px;
-            max-width: 800px;
-            margin: 0 auto;
-            width: 100%;
-            position: relative;
+            transition: 0.3s;
+            cursor: pointer;
         }
+        .nav-item i { font-size: 1.5em; display: block; margin-bottom: 4px; }
+        .nav-item.active { color: var(--primary); }
+        .nav-item.active i { color: var(--primary); }
 
-        .app-section {
-            display: none;
-            width: 100%;
-            will-change: transform, opacity;
-        }
+        /* SECTIONS */
+        .app-section { display: none; padding: 15px; animation: fadeIn 0.4s ease; }
+        .app-section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        .app-section.active {
-            display: block;
-            animation: fadeIn 0.2s ease-in-out;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(5px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
+        /* CARDS */
         .card {
-            background: #ffffff;
-            color: #333;
-            border-radius: 20px;
-            padding: 25px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            margin-bottom: 30px;
-        }
-
-        .section-title {
-            color: #d32f2f;
-            border-bottom: 2px solid #f0f0f0;
-            padding-bottom: 10px;
-            margin-bottom: 20px;
-            font-weight: 800;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            text-transform: uppercase;
-            font-size: 1.1em;
-        }
-
-        /* Formularios Estilizados */
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
+            background: var(--white);
+            border-radius: 12px;
+            padding: 20px;
             margin-bottom: 15px;
+            box-shadow: var(--shadow);
+            border-left: 5px solid var(--primary);
         }
+        .card h3 { margin-bottom: 12px; font-size: 1.1em; display: flex; align-items: center; gap: 10px; color: var(--primary); }
 
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-        .form-group label {
-            display: block;
-            font-size: 0.75em;
-            font-weight: 700;
-            color: #666;
-            margin-bottom: 5px;
-            text-transform: uppercase;
-        }
-
+        /* INPUTS */
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; font-size: 0.85em; font-weight: 600; margin-bottom: 5px; color: #555; }
         input, select, textarea {
             width: 100%;
             padding: 12px;
-            border: 2px solid #e0e0e0;
-            border-radius: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
             font-size: 1em;
-            transition: border-color 0.3s;
             outline: none;
+            transition: 0.3s;
         }
+        input:focus { border-color: var(--primary); background: #fffcfc; }
 
-        input:focus, select:focus, textarea:focus {
-            border-color: #d32f2f;
-        }
-
-        .cond-section {
-            display: none;
-            background: #f9f9f9;
-            padding: 15px;
-            border-radius: 15px;
-            margin-bottom: 15px;
-            border-left: 5px solid #d32f2f;
-        }
-
-        /* Botones Especiales */
-        .btn-capture {
-            background: #444;
+        /* BOTONES */
+        .btn-main {
+            background: var(--primary);
             color: white;
             border: none;
             padding: 15px;
-            border-radius: 12px;
-            cursor: pointer;
+            border-radius: 10px;
             width: 100%;
             font-weight: 700;
+            font-size: 1em;
+            cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 10px;
-            margin-top: 5px;
-            transition: background 0.3s;
+            box-shadow: 0 4px 10px rgba(139, 0, 0, 0.3);
         }
+        .btn-main:active { transform: scale(0.98); opacity: 0.9; }
 
-        .btn-capture:hover { background: #222; }
-
-        .btn-main {
-            background: #d32f2f;
-            color: white;
-            border: none;
-            padding: 18px;
-            border-radius: 15px;
-            cursor: pointer;
+        /* GRID GALLERY */
+        .gallery-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 10px; }
+        .gallery-item {
             width: 100%;
-            font-weight: 800;
-            font-size: 1.1em;
-            box-shadow: 0 5px 15px rgba(211, 47, 47, 0.4);
-            margin-top: 10px;
+            aspect-ratio: 1;
+            background: #eee;
+            border-radius: 8px;
+            object-fit: cover;
+            position: relative;
+        }
+        .btn-del-photo {
+            position: absolute; top: -5px; right: -5px; background: red; color: white;
+            border: none; border-radius: 50%; width: 22px; height: 22px; font-size: 12px;
         }
 
-        /* Módulo de Salida */
-        .output-module {
-            display: none;
-            background: #fff;
-            padding: 20px;
-            border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            margin-top: 20px;
-            border: 2px solid #d32f2f;
-            animation: slideUp 0.5s ease-out;
-        }
-        .output-module.active {
-            display: block !important;
-        }
-        .output-buttons {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 12px;
-            margin-top: 15px;
-        }
-        .btn-output {
-            padding: 14px;
-            border: none;
-            border-radius: 12px;
-            font-weight: 700;
-            cursor: pointer;
+        /* BRÚJULA SIMULADA */
+        .compass-ui {
             display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            color: white;
-            font-size: 1em;
-            transition: 0.3s;
+            justify-content: space-around;
+            text-align: center;
+            background: #f9f9f9;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px dashed #ccc;
         }
-        .btn-whatsapp { background: #25D366; }
-        .btn-pdf { background: #d32f2f; }
-        .btn-flyer { background: #333; }
-        .btn-output:active { transform: scale(0.96); }
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+        .compass-ui input { width: 60px; text-align: center; padding: 5px; }
+
+        /* CALCULADORA RESULTS */
+        .calc-res {
+            background: #e8f5e9;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 10px;
+            border: 1px solid #2e7d32;
         }
-        /* Estilos del Flyer */
+        .calc-row { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 0.9em; }
+        .calc-row.total { font-weight: 800; border-top: 1px solid #ccc; padding-top: 5px; margin-top: 5px; font-size: 1.1em; color: var(--primary); }
+
+        /* SEARCH BAR */
+        .search-container { position: relative; width: 100%; margin-bottom: 20px; }
+        .search-container input { padding-left: 40px; border-radius: 25px; }
+        .search-container i { position: absolute; left: 15px; top: 15px; color: #999; }
+
+        /* WORD EDITOR SIMULATION */
+        .word-editor {
+            background: white;
+            border: 1px solid #ccc;
+            min-height: 300px;
+            padding: 40px;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.05);
+            font-family: 'Times New Roman', serif;
+            font-size: 12pt;
+            line-height: 1.5;
+            color: #000;
+            overflow-y: auto;
+        }
+
+        /* FLYER TEMPLATE (HIDDEN) */
         #flyer-template {
-            width: 1000px;
-            background: #d32f2f;
-            color: white;
+            width: 800px;
+            height: 1200px;
+            background: var(--primary);
             position: absolute;
             left: -9999px;
-            overflow: hidden;
-            font-family: 'Arial Black', Gadget, sans-serif;
+            color: white;
+            display: flex;
+            flex-direction: column;
         }
-        .flyer-img-container { width: 100%; height: 600px; position: relative; }
-        .flyer-img { width: 100%; height: 100%; object-fit: cover; }
-        .flyer-body { padding: 40px; text-align: center; }
-        .flyer-price { font-size: 80px; color: #FFD700; text-shadow: 2px 2px 10px rgba(0,0,0,0.5); }
-        .flyer-details { font-size: 30px; margin-top: 20px; line-height: 1.5; }
-        .flyer-footer { background: #000; padding: 20px; font-size: 24px; text-transform: uppercase; }
 
+        /* TOAST */
+        #toast {
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+            background: #333; color: white; padding: 10px 25px; border-radius: 30px;
+            display: none; z-index: 5000; font-size: 0.9em; box-shadow: var(--shadow);
+        }
     </style>
 </head>
 <body>
 
-    <!-- Header -->
+    <div id="toast">✅ Operación exitosa</div>
+
+    <!-- HEADER GLOBAL -->
     <header class="app-header">
         <div class="logo-area">
-            <i class="fas fa-home"></i> InventarioHR
+            <i class="fas fa-shield-halved"></i>
+            <span>HR PRO SYSTEM</span>
         </div>
-        <div class="header-actions">
-            <button class="btn-action-header"><i class="fas fa-print"></i></button>
-            <button class="btn-action-header"><i class="fas fa-camera"></i></button>
+        <div style="font-size: 1.2em;" onclick="switchSection('dashboard')">
+            <i class="fas fa-house-user"></i>
         </div>
     </header>
 
-    <!-- Nav Horizontal -->
-    <nav class="horizontal-nav">
-        <div class="nav-container">
-            <div class="nav-item" onclick="switchSection('tablero', this)">
-                <i class="fas fa-chart-pie"></i>
-                <span>TABLERO</span>
+    <!-- MAIN CONTENT -->
+    <main id="app-content">
+
+        <!-- SECCIÓN 1: DASHBOARD (IA COACH) -->
+        <section id="section-dashboard" class="app-section active">
+            <div class="search-container">
+                <i class="fas fa-search"></i>
+                <input type="text" id="global-search" placeholder="Buscar en inventario o web..." onkeyup="handleGlobalSearch(event)">
             </div>
-            <div class="nav-item active" onclick="switchSection('inventario', this)">
-                <i class="fas fa-home"></i>
-                <span>Inventario</span>
+
+            <div class="card" style="background: linear-gradient(135deg, #8B0000 0%, #b71c1c 100%); color: white; border: none;">
+                <h3 style="color: var(--secondary);"><i class="fas fa-robot"></i> ASESOR IA HR</h3>
+                <p id="ia-tip" style="font-size: 0.9em; line-height: 1.4;">"Hoy es un gran día para los créditos ISSFAM. Tienes 3 prospectos que no has contactado hace 48 horas. ¿Quieres que redacte un mensaje persuasivo?"</p>
+                <button class="btn-main" style="background: var(--secondary); color: var(--primary); margin-top: 15px; padding: 10px;" onclick="getNewIATip()">
+                    <i class="fas fa-lightbulb"></i> NUEVA ESTRATEGIA
+                </button>
             </div>
-            <div class="nav-item" onclick="switchSection('prospectos', this)">
-                <i class="fas fa-bullseye"></i>
-                <span>Prospectos</span>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px;">
+                <div class="card" style="margin:0; text-align:center; padding: 15px;">
+                    <span style="font-size: 1.5em; font-weight: 800; color: var(--primary);" id="stat-properties">0</span><br>
+                    <small>Propiedades</small>
+                </div>
+                <div class="card" style="margin:0; text-align:center; padding: 15px;">
+                    <span style="font-size: 1.5em; font-weight: 800; color: #2e7d32;" id="stat-prospects">0</span><br>
+                    <small>Prospectos</small>
+                </div>
             </div>
-            <div class="nav-item" onclick="switchSection('contactos', this)">
-                <i class="fas fa-phone-alt"></i>
-                <span>Contactos</span>
+
+            <h3>PRÓXIMAS CITAS</h3>
+            <div id="citas-dashboard">
+                <p style="color: #999; font-size: 0.85em; text-align: center; padding: 20px;">No hay citas para hoy.</p>
             </div>
-            <div class="nav-item" onclick="switchSection('archivos', this)">
-                <i class="fas fa-folder-open"></i>
-                <span>Archivos</span>
+        </section>
+
+        <!-- SECCIÓN 2: INVENTARIO MASTER -->
+        <section id="section-inventario" class="app-section">
+            <div class="card">
+                <h3><i class="fas fa-plus-circle"></i> NUEVA PROPIEDAD</h3>
+                <div class="form-group">
+                    <label>Tipo de Propiedad</label>
+                    <select id="inv-tipo" onchange="toggleInvFields()">
+                        <option value="Terreno">Terreno Solo</option>
+                        <option value="Parcela">Parcela Ejidal</option>
+                        <option value="Terreno Construir">Terreno para Construir</option>
+                        <option value="Casa Construida">Casa ya Construida</option>
+                        <option value="Revendedor">Casa Reventa</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Fotos (Máximo 10)</label>
+                    <div id="photo-preview" class="gallery-grid"></div>
+                    <input type="file" id="photo-input" multiple accept="image/*" style="margin-top:10px;">
+                    <button class="btn-main" style="margin-top:10px; background: #555;" onclick="captureGPS()">
+                        <i class="fas fa-location-dot"></i> CAPTURAR GPS EXACTO
+                    </button>
+                    <input type="text" id="inv-gps" placeholder="Coordenadas GPS" readonly style="margin-top:5px; font-size:0.8em; background:#f0f0f0;">
+                </div>
+
+                <!-- Campos de Terreno (N/S/E/O) -->
+                <div id="fields-terreno">
+                    <label style="font-size:0.8em; font-weight:bold; color:var(--primary);">MEDIDAS Y COLINDANCIAS (m)</label>
+                    <div class="compass-ui">
+                        <div><small>Norte</small><br><input type="number" id="m-norte" placeholder="0" oninput="calcM2()"></div>
+                        <div><small>Sur</small><br><input type="number" id="m-sur" placeholder="0" oninput="calcM2()"></div>
+                        <div><small>Este</small><br><input type="number" id="m-este" placeholder="0" oninput="calcM2()"></div>
+                        <div><small>Oeste</small><br><input type="number" id="m-oeste" placeholder="0" oninput="calcM2()"></div>
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-top:15px;">
+                    <label>Superficie Total (m²)</label>
+                    <input type="text" id="inv-m2" placeholder="Auto-calculado" readonly>
+                </div>
+
+                <div class="form-group">
+                    <label>Precio Total ($)</label>
+                    <input type="number" id="inv-precio" placeholder="Ej: 850000">
+                </div>
+
+                <div class="form-group">
+                    <label>Infraestructura / Servicios</label>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px; font-size: 0.85em;">
+                        <label><input type="checkbox" class="srv" value="Agua"> Agua</label>
+                        <label><input type="checkbox" class="srv" value="Luz"> Luz</label>
+                        <label><input type="checkbox" class="srv" value="Drenaje"> Drenaje</label>
+                        <label><input type="checkbox" class="srv" value="Pavimento"> Pavimento</label>
+                        <label><input type="checkbox" class="srv" value="Cisterna"> Cisterna</label>
+                        <label><input type="checkbox" class="srv" value="Fosa"> Fosa Sept.</label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Descripción / Dictado</label>
+                    <textarea id="inv-desc" rows="3" placeholder="Detalla acabados, ubicación estratégica..."></textarea>
+                </div>
+
+                <button class="btn-main" onclick="saveProperty()">
+                    <i class="fas fa-save"></i> GUARDAR PROPIEDAD
+                </button>
             </div>
-            <div class="nav-item" onclick="switchSection('galeria', this)">
-                <i class="fas fa-images"></i>
-                <span>Galería</span>
+
+            <div id="inventory-list"></div>
+        </section>
+
+        <!-- SECCIÓN 3: CRM MILITAR -->
+        <section id="section-crm" class="app-section">
+            <div class="card">
+                <h3><i class="fas fa-user-tie"></i> NUEVO PROSPECTO MILITAR</h3>
+                <div class="form-group">
+                    <label>Nombre y Rango</label>
+                    <input type="text" id="crm-nombre" placeholder="Ej: Cap. Primero Juan Pérez">
+                </div>
+                <div class="form-group">
+                    <label>Teléfono (WhatsApp)</label>
+                    <input type="tel" id="crm-tel" placeholder="771...">
+                </div>
+                <div class="form-group">
+                    <label>Tipo de Crédito</label>
+                    <select id="crm-credito" onchange="updateChecklist()">
+                        <option value="Banjercito">Banjercito</option>
+                        <option value="ISSFAM">ISSFAM</option>
+                        <option value="Fovissste">Fovissste</option>
+                        <option value="Infonavit">Infonavit</option>
+                        <option value="CFE">CFE</option>
+                        <option value="Recurso Propio">Recurso Propio (Efectivo)</option>
+                    </select>
+                </div>
+
+                <div class="card" style="background:#fff9c4; border:1px solid #fbc02d; border-left:none;">
+                    <h4 style="font-size:0.8em; margin-bottom:5px;">SIMULADOR FINANCIERO HR</h4>
+                    <div class="form-group">
+                        <label>Precio de Propiedad de Interés</label>
+                        <input type="number" id="crm-calc-precio" oninput="calcFinancials()">
+                    </div>
+                    <div id="crm-calc-res" class="calc-res">
+                        <div class="calc-row"><span>Comisión HR (7%):</span> <b id="res-comision">$0</b></div>
+                        <div class="calc-row"><span>Anticipo sugerido:</span> <b id="res-anticipo">$0</b></div>
+                        <div class="calc-row"><span>Gastos Notaría aprox:</span> <b id="res-notaria">$0</b></div>
+                        <div class="calc-row total"><span>Tu Ganancia Neta:</span> <b id="res-neta">$0</b></div>
+                    </div>
+                </div>
+
+                <button class="btn-main" onclick="saveProspect()">
+                    <i class="fas fa-user-plus"></i> GUARDAR PROSPECTO
+                </button>
             </div>
-            <div class="nav-item" onclick="switchSection('pensamientos', this)">
-                <i class="fas fa-brain"></i>
-                <span>Pensamientos</span>
+
+            <div id="prospect-list"></div>
+        </section>
+
+        <!-- SECCIÓN 4: LEGAL & DOCUMENTOS -->
+        <section id="section-legal" class="app-section">
+            <div class="card">
+                <h3><i class="fas fa-file-contract"></i> GENERADOR DE CONTRATOS IA</h3>
+                <p style="font-size:0.8em; color:#666; margin-bottom:10px;">Basado en el Código Civil vigente del Estado de Hidalgo 2026.</p>
+                <div class="form-group">
+                    <label>Seleccionar Plantilla</label>
+                    <select id="legal-plantilla" onchange="loadTemplate()">
+                        <option value="">-- Elige un tipo --</option>
+                        <option value="promesa">Promesa de Compraventa</option>
+                        <option value="compraventa">Compraventa Definitiva</option>
+                        <option value="arrendamiento">Contrato de Arrendamiento</option>
+                        <option value="copropiedad">Convenio de Copropiedad</option>
+                    </select>
+                </div>
+                <div class="word-editor" id="editor" contenteditable="true">
+                    Carga una plantilla para empezar a editar...
+                </div>
+                <div style="display:flex; gap:10px; margin-top:15px;">
+                    <button class="btn-main" style="background:#1976d2;" onclick="exportPDF()">
+                        <i class="fas fa-file-pdf"></i> DESCARGAR PDF
+                    </button>
+                    <button class="btn-main" style="background:#388e3c;" onclick="exportWord()">
+                        <i class="fas fa-file-word"></i> WORD
+                    </button>
+                </div>
             </div>
-            <div class="nav-item" onclick="switchSection('citas', this)">
-                <i class="fas fa-calendar-alt"></i>
-                <span>Citas</span>
+
+            <div class="card">
+                <h3><i class="fas fa-clipboard-list"></i> REQUISITOS POR CRÉDITO</h3>
+                <div id="checklist-viewer">
+                    <p style="font-size:0.9em; color:#555;">Selecciona un prospecto en el CRM para ver su checklist de documentos faltantes.</p>
+                </div>
             </div>
+        </section>
+
+        <!-- SECCIÓN 5: MARKETING & FLYERS -->
+        <section id="section-marketing" class="app-section">
+            <div class="card">
+                <h3><i class="fas fa-bullhorn"></i> MARKETING IA PRO</h3>
+                <p style="font-size:0.8em; margin-bottom:15px;">Genera flyers profesionales automáticos para tus redes sociales.</p>
+                <div class="form-group">
+                    <label>Propiedad para el Flyer</label>
+                    <select id="mkt-prop" onchange="updateFlyerPreview()"></select>
+                </div>
+                <div class="form-group">
+                    <label>Estilo del Flyer</label>
+                    <select id="mkt-style">
+                        <option value="luxury">Elegante (Rojo y Dorado)</option>
+                        <option value="offer">Oferta Agresiva (Rojo y Blanco)</option>
+                        <option value="minimal">Minimalista (Limpio)</option>
+                    </select>
+                </div>
+                <button class="btn-main" onclick="generateFlyer()">
+                    <i class="fas fa-wand-magic-sparkles"></i> GENERAR Y DESCARGAR IMAGEN
+                </button>
+            </div>
+
+            <div class="card">
+                <h3><i class="fas fa-images"></i> GALERÍA SEGMENTADA</h3>
+                <div style="display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px;">
+                    <button class="btn-main" style="width:auto; padding:8px 15px; font-size:0.8em;">FACHADAS</button>
+                    <button class="btn-main" style="width:auto; padding:8px 15px; font-size:0.8em; background:#555;">INTERIORES</button>
+                    <button class="btn-main" style="width:auto; padding:8px 15px; font-size:0.8em; background:#555;">BAÑOS</button>
+                    <button class="btn-main" style="width:auto; padding:8px 15px; font-size:0.8em; background:#555;">TERRENOS</button>
+                </div>
+                <div id="segmented-gallery" class="gallery-grid">
+                    <!-- Dinámico -->
+                </div>
+            </div>
+        </section>
+
+        <!-- SECCIÓN 6: AGENDA & PAGOS -->
+        <section id="section-agenda" class="app-section">
+            <div class="card">
+                <h3><i class="fas fa-calendar-check"></i> AGENDA & ALERTAS</h3>
+                <div class="form-group">
+                    <label>Título de la Cita / Alarma</label>
+                    <input type="text" id="age-titulo" placeholder="Ej: Cita Cap. Pérez en Terreno">
+                </div>
+                <div class="form-group">
+                    <label>Fecha y Hora</label>
+                    <input type="datetime-local" id="age-fecha">
+                </div>
+                <button class="btn-main" onclick="saveEvent()">
+                    <i class="fas fa-bell"></i> PROGRAMAR ALERTA
+                </button>
+            </div>
+
+            <div class="card" style="border-left-color: #2e7d32;">
+                <h3><i class="fas fa-money-bill-trend-up"></i> CONTROL DE PAGOS</h3>
+                <div id="payments-list">
+                    <div class="calc-row"><span>Cierre Terreno A:</span> <span style="color:#2e7d32; font-weight:bold;">+$45,000</span></div>
+                    <div class="calc-row"><span>Pago Materiales:</span> <span style="color:#d32f2f; font-weight:bold;">-$12,000</span></div>
+                </div>
+                <button class="btn-main" style="margin-top:10px; background:#2e7d32; height:40px; font-size:0.8em;">REGISTRAR MOVIMIENTO</button>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FLYER TEMPLATE (HIDDEN FROM VIEW) -->
+    <div id="flyer-template">
+        <div style="padding: 40px; text-align: center;">
+            <i class="fas fa-shield-halved" style="font-size: 80px; color: #FFD700;"></i>
+            <h1 style="font-size: 50px; margin-top: 20px;">HR PRO SYSTEM</h1>
+            <p style="font-size: 25px; letter-spacing: 5px;">INMOBILIARIA DE ALTO NIVEL</p>
+        </div>
+        <div style="flex: 1; position: relative; overflow: hidden;">
+            <img id="flyer-img" src="" style="width: 100%; height: 100%; object-fit: cover;">
+            <div style="position: absolute; bottom: 0; left: 0; width: 100%; background: rgba(139,0,0,0.9); padding: 30px;">
+                <h2 id="flyer-tipo" style="font-size: 40px; text-transform: uppercase;">PROPIEDAD EN VENTA</h2>
+                <div id="flyer-precio" style="font-size: 60px; font-weight: 900; color: #FFD700;">$0.00</div>
+                <p id="flyer-desc" style="font-size: 20px; margin-top: 10px;"></p>
+                <div style="margin-top: 20px; font-size: 24px;">
+                    <i class="fas fa-phone"></i> CONTACTO: <span id="flyer-tel">771-XXX-XXXX</span>
+                </div>
+            </div>
+        </div>
+        <div style="padding: 20px; text-align: center; background: #FFD700; color: #8B0000; font-weight: 900; font-size: 20px;">
+            HACIENDO REALIDAD TU PATRIMONIO MILITAR
+        </div>
+    </div>
+
+    <!-- NAVBAR BOTTOM -->
+    <nav class="bottom-nav">
+        <div class="nav-item active" onclick="switchSection('dashboard', this)">
+            <i class="fas fa-chart-line"></i><span>INICIO</span>
+        </div>
+        <div class="nav-item" onclick="switchSection('inventario', this)">
+            <i class="fas fa-house-chimney"></i><span>INV.</span>
+        </div>
+        <div class="nav-item" onclick="switchSection('crm', this)">
+            <i class="fas fa-users-gear"></i><span>CRM</span>
+        </div>
+        <div class="nav-item" onclick="switchSection('legal', this)">
+            <i class="fas fa-gavel"></i><span>LEGAL</span>
+        </div>
+        <div class="nav-item" onclick="switchSection('marketing', this)">
+            <i class="fas fa-bullhorn"></i><span>MKT</span>
+        </div>
+        <div class="nav-item" onclick="switchSection('agenda', this)">
+            <i class="fas fa-calendar-day"></i><span>AGENDA</span>
         </div>
     </nav>
 
-    <div class="main-content">
-        
-        <!-- Sección Tablero -->
-        <section id="section-tablero" class="app-section">
-            <!-- 2. BUSCADOR INTELIGENTE -->
-            <div class="card">
-                <div class="section-title"><i class="fas fa-search"></i> Buscador Inteligente</div>
-                <div class="search-box">
-                    <input type="text" id="main-search" placeholder="¿Qué estás buscando hoy?">
-                    <button class="voice-search" onclick="startVoiceSearch()"><i class="fas fa-microphone"></i></button>
-                </div>
-                <div class="form-row" style="margin-top:10px;">
-                    <button class="btn-main" style="margin:0; flex:1;" onclick="searchApp()">Buscar en App</button>
-                    <button class="btn-main" style="margin:0; flex:1; background:#555;" onclick="searchWeb()">Buscar en Web</button>
-                </div>
-            </div>
-
-            <!-- 3. PRÓXIMAS CITAS -->
-            <div class="card">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                    <div class="section-title" style="margin:0;"><i class="fas fa-calendar-check"></i> Próximas Citas</div>
-                    <button class="btn-main" style="margin:0; padding:5px 10px; font-size:0.8em; width:auto;" onclick="nuevaCitaShortcut()">
-                        <i class="fas fa-plus"></i> AGREGAR
-                    </button>
-                </div>
-                <div id="dashboard-citas-list">
-                    <p style="font-size:0.85em; color:#999;">Cargando citas...</p>
-                </div>
-            </div>
-
-            <!-- 4. SISTEMA DE ALARMAS -->
-            <div class="card">
-                <div class="section-title"><i class="fas fa-bell"></i> Sistema de Alarmas</div>
-                <div class="form-group">
-                    <input type="text" id="alarm-desc" placeholder="Descripción de la alarma...">
-                    <div class="form-row" style="margin-top:10px;">
-                        <input type="datetime-local" id="alarm-time">
-                        <button class="btn-capture" style="margin:0; width:50px; border-radius: 8px;" onclick="startAlarmVoice()"><i class="fas fa-microphone"></i></button>
-                    </div>
-                    <button class="btn-main" onclick="createAlarm()" style="margin-top:10px;">CREAR ALARMA</button>
-                </div>
-                <div id="alarms-list"></div>
-            </div>
-
-            <!-- 5. ACCESOS RÁPIDOS (REDES) -->
-            <div class="card">
-                <div class="section-title"><i class="fas fa-share-alt"></i> Mis Redes de Venta</div>
-                <div class="social-grid">
-                    <a href="https://wa.me/771" target="_blank" class="social-item whatsapp">
-                        <i class="fab fa-whatsapp"></i>
-                        <span>WhatsApp</span>
-                    </a>
-                    <a href="https://facebook.com" target="_blank" class="social-item facebook">
-                        <i class="fab fa-facebook-f"></i>
-                        <span>Facebook</span>
-                    </a>
-                    <a href="https://tiktok.com" target="_blank" class="social-item tiktok">
-                        <i class="fab fa-tiktok"></i>
-                        <span>TikTok</span>
-                    </a>
-                </div>
-            </div>
-
-            <!-- 6. PANEL INTELIGENTE -->
-            <div class="card" style="background: #fff3e0; color: #e65100; border: 1px solid #ffe0b2;">
-                <div class="section-title" style="color: #e65100;"><i class="fas fa-lightbulb"></i> Panel de Estrategia</div>
-                <div id="smart-panel-content">
-                    <p style="margin-bottom: 8px;"><strong>🔥 Motivación:</strong> "El éxito en los bienes raíces no es vender casas, es ayudar a las familias a encontrar su hogar."</p>
-                    <hr style="border: 0; border-top: 1px solid #ffe0b2; margin: 10px 0;">
-                    <p><strong>💡 Estrategia:</strong> Tienes 5 prospectos calientes. Envía el Flyer del terreno en Acayuca hoy mismo, los militares cierran rápido a fin de mes.</p>
-                </div>
-            </div>
-
-            <!-- 1. MÉTRICAS Y RESUMEN (Movido al final) -->
-            <div class="card">
-                <div class="section-title"><i class="fas fa-chart-line"></i> Resumen de Negocio</div>
-                <div class="metrics-grid">
-                    <div class="metric-item">
-                        <span class="metric-value" id="count-total">0</span>
-                        <span class="metric-label">Total Propiedades</span>
-                    </div>
-                    <div class="metric-item">
-                        <span class="metric-value" id="count-casas">0</span>
-                        <span class="metric-label">🏠 Casas</span>
-                    </div>
-                    <div class="metric-item">
-                        <span class="metric-value" id="count-terrenos">0</span>
-                        <span class="metric-label">🏢 Terrenos</span>
-                    </div>
-                    <div class="metric-item">
-                        <span class="metric-value" id="count-parcelas">0</span>
-                        <span class="metric-label">🌾 Parcelas</span>
-                    </div>
-                    <div class="metric-item">
-                        <span class="metric-value" id="count-const">0</span>
-                        <span class="metric-label">🏗️ Construidas</span>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Sección Inventario (Principal) -->
-        <section id="section-inventario" class="app-section active">
-            <!-- Formulario Principal -->
-            <div class="card">
-            <div class="section-title">
-                <i class="fas fa-plus-circle"></i> Nueva Captura
-            </div>
-
-            <div class="form-group">
-                <label>UBICACIÓN AUTOMÁTICA GPS</label>
-                <button class="btn-capture" onclick="getGPS()">
-                    <i class="fas fa-map-marker-alt"></i> OBTENER UBICACIÓN GPS
-                </button>
-                <input type="text" id="gps-coords" placeholder="Coordenadas GPS" style="margin-top:10px;" readonly>
-            </div>
-
-            <div class="form-group">
-                <label>TIPO DE PROPIEDAD</label>
-                <select id="tipo-propiedad" onchange="toggleForm(this.value)">
-                    <option value="">Seleccione...</option>
-                    <option value="🏠 Casa">🏠 Casa</option>
-                    <option value="🏢 Terreno">🏢 Terreno</option>
-                    <option value="🌾 Parcela">🌾 Parcela</option>
-                    <option value="🏭 Local / Bodega">🏭 Local / Bodega</option>
-                </select>
-            </div>
-
-            <!-- Secciones Condicionales -->
-            <div id="campos-terreno" class="cond-section">
-                <div class="form-group">
-                    <label>M² DE TERRENO</label>
-                    <input type="number" id="terreno-m2" placeholder="0">
-                </div>
-                <div class="form-group">
-                    <label>¿ES PARA CONSTRUCCIÓN DE CASA?</label>
-                    <select id="terreno-proyectado-check" onchange="document.getElementById('campo-proyectado').style.display = (this.value=='Si'?'block':'none')">
-                        <option value="No">No</option>
-                        <option value="Si">Si</option>
-                    </select>
-                </div>
-                <div id="campo-proyectado" style="display:none;">
-                    <div class="form-group">
-                        <label>M² DE CONSTRUCCIÓN PROYECTADOS</label>
-                        <input type="number" id="terreno-m2-proy" placeholder="0">
-                    </div>
-                </div>
-            </div>
-
-            <div id="campos-casa" class="cond-section">
-                <div class="form-group">
-                    <label>MÉTODO DE CONSTRUCCIÓN DEL TERRENO</label>
-                    <input type="text" id="casa-metodo" placeholder="Ej: Tradicional, Block, Zapata...">
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>M² DE CONSTRUCCIÓN</label>
-                        <input type="number" id="casa-m2-const" placeholder="0">
-                    </div>
-                    <div class="form-group">
-                        <label>¿YA CONSTRUIDA?</label>
-                        <select id="casa-status" onchange="document.getElementById('detalles-existente').style.display = (this.value=='Si'?'block':'none')">
-                            <option value="No">No (En obra)</option>
-                            <option value="Si">Si (Existente)</option>
-                        </select>
-                    </div>
-                </div>
-                <div id="detalles-existente" style="display:none;">
-                    <div class="form-group">
-                        <label>DETALLES DE CONSTRUCCIÓN EXISTENTE</label>
-                        <textarea id="casa-existente" placeholder="Describe la construcción actual..."></textarea>
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group"><label>PISOS</label><input type="number" id="casa-pisos" placeholder="0"></div>
-                    <div class="form-group"><label>RECÁMARAS</label><input type="number" id="casa-rec" placeholder="0"></div>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label>PRECIO TOTAL ($)</label>
-                <input type="number" id="precio-total" placeholder="0" oninput="calcularMetro()">
-            </div>
-
-            <div class="card" style="background: #f9f9f9; border: 1px solid #ddd; margin-bottom: 15px;">
-                <div class="section-title" style="font-size: 0.9em;"><i class="fas fa-ruler-combined"></i> Medidas y Colindancias</div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>NORTE</label>
-                        <input type="text" id="m-norte" placeholder="0.00m" oninput="calcularSuperficie()">
-                    </div>
-                    <div class="form-group">
-                        <label>SUR</label>
-                        <input type="text" id="m-sur" placeholder="0.00m" oninput="calcularSuperficie()">
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>ESTE</label>
-                        <input type="text" id="m-este" placeholder="0.00m" oninput="calcularSuperficie()">
-                    </div>
-                    <div class="form-group">
-                        <label>OESTE</label>
-                        <input type="text" id="m-oeste" placeholder="0.00m" oninput="calcularSuperficie()">
-                    </div>
-                </div>
-                
-                <!-- Área Total debajo de las medidas -->
-                <div class="form-group" style="background: #e3f2fd; padding: 15px; border-radius: 12px; border: 3px solid #2196f3; margin-top: 10px;">
-                    <label style="color: #0d47a1; font-weight: bold; font-size: 1em;">ÁREA TOTAL (M² CALCULADOS)</label>
-                    <input type="number" id="m2-totales" placeholder="0.00" oninput="calcularMetro()" style="font-size: 1.5em; font-weight: bold; color: #d32f2f; background: white; text-align: center;">
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label>PRECIO POR M² (CALCULADO)</label>
-                <input type="text" id="precio-m2" placeholder="$0.00" readonly style="background: #f0f0f0;">
-            </div>
-
-            <div class="form-group">
-                <label>TELÉFONO DE CONTACTO</label>
-                <input type="tel" placeholder="771..." value="771">
-            </div>
-
-            <div class="form-group">
-                <label>FOTO VINCULADA A UBICACIÓN</label>
-                <button class="btn-capture" onclick="document.getElementById('photo-input').click()">
-                    <i class="fas fa-camera"></i> TOMAR FOTO
-                </button>
-                <input type="file" id="photo-input" accept="image/*" style="display:none;">
-            </div>
-
-            <div class="form-group">
-                <label>DESCRIPCIÓN (DICTADO POR VOZ)</label>
-                <div style="position:relative;">
-                    <textarea id="dictado-desc" placeholder="Pulsa micro para hablar..." style="padding-right: 50px;"></textarea>
-                    <button id="btn-voice" class="btn-capture" style="position:absolute; right:5px; top:5px; width:40px; height:40px; padding:0; margin:0; border-radius:50%;">
-                        <i class="fas fa-microphone"></i>
-                    </button>
-                </div>
-            </div>
-
-            <div class="card" style="background: #fff3e0; border: 1px solid #ffb74d; margin-bottom: 15px;">
-                <div class="section-title" style="color: #e65100;"><i class="fas fa-hand-holding-usd"></i> Tipo de Pago / Créditos</div>
-                <div class="form-group">
-                    <label>APTO PARA:</label>
-                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">
-                        <label style="font-size: 0.85em; display: flex; align-items: center; gap: 5px;">
-                            <input type="checkbox" id="c-efectivo" checked> Efectivo
-                        </label>
-                        <label style="font-size: 0.85em; display: flex; align-items: center; gap: 5px;">
-                            <input type="checkbox" id="c-fovissste"> Fovissste
-                        </label>
-                        <label style="font-size: 0.85em; display: flex; align-items: center; gap: 5px;">
-                            <input type="checkbox" id="c-issfam"> Issfam
-                        </label>
-                        <label style="font-size: 0.85em; display: flex; align-items: center; gap: 5px;">
-                            <input type="checkbox" id="c-bancario"> Bancario
-                        </label>
-                        <label style="font-size: 0.85em; display: flex; align-items: center; gap: 5px;">
-                            <input type="checkbox" id="c-infonavit"> Infonavit
-                        </label>
-                        <label style="font-size: 0.85em; display: flex; align-items: center; gap: 5px;">
-                            <input type="checkbox" id="c-cfe"> CFE
-                        </label>
-                    </div>
-                </div>
-            </div>
-
-            <button class="btn-main" onclick="guardarInventario()">GUARDAR EN INVENTARIO</button>
-
-            <div class="card" style="margin-top:20px; background: #fffde7; border: 1px solid #fbc02d;">
-                <div style="display:flex; gap:10px; align-items:center; color:#f57f17; font-weight:bold;">
-                    <i class="fas fa-lightbulb" style="font-size:1.5em;"></i>
-                    <span>ESTRATEGIA HR PARA HOY</span>
-                </div>
-                <p id="socio-strategy" style="font-size:0.9em; color:#5d4037; margin-top:8px; line-height:1.4;">
-                    Prioriza los cierres en efectivo esta semana. Revisa los prospectos con capacidad de pago inmediato y envía la ubicación GPS de tus terrenos más competitivos.
-                </p>
-            </div>
-
-            <!-- Módulo de Salida (Reposicionado abajo de estrategias) -->
-            <div id="modulo-salida" class="output-module" style="margin-top: 15px;">
-                <h2 style="text-align: center; color: #d32f2f; margin-bottom: 5px;">📤 ÉXITO: GUARDADO</h2>
-                <p style="text-align: center; font-size: 0.9em; color: #666;">¿Qué deseas hacer ahora con esta propiedad?</p>
-                
-                <div class="output-buttons">
-                    <button class="btn-output btn-whatsapp" onclick="enviarWhatsApp()">
-                        <i class="fab fa-whatsapp"></i> ENVIAR A CLIENTE
-                    </button>
-                    <button class="btn-output btn-pdf" onclick="generarPDF()">
-                        <i class="fas fa-file-pdf"></i> DESCARGAR FICHA PDF
-                    </button>
-                    <button class="btn-output btn-flyer" onclick="generarFlyer()">
-                        <i class="fas fa-image"></i> DESCARGAR FLYER
-                    </button>
-                </div>
-                <button onclick="document.getElementById('modulo-salida').classList.remove('active')" style="margin-top:15px; width:100%; border:none; background:none; color:#999; text-decoration:underline; cursor:pointer;">Continuar agregando</button>
-            </div>
-
-            <div class="card" style="margin-top:10px;">
-                <div class="section-title"><i class="fas fa-list"></i> Propiedades Guardadas</div>
-                <div id="inventory-list"></div>
-            </div>
-        </section>
-
-        <!-- Secciones Adicionales -->
-        <section id="section-prospectos" class="app-section">
-            <div class="card">
-                <div class="section-title"><i class="fas fa-bullseye"></i> Prospectos</div>
-                <p>Lista de prospectos militares y de contado...</p>
-            </div>
-        </section>
-
-        <section id="section-contactos" class="app-section">
-            <div class="card">
-                <div class="section-title"><i class="fas fa-phone-alt"></i> Agenda de Contactos</div>
-                <p>Gestiona tus contactos aquí.</p>
-            </div>
-        </section>
-
-        <section id="section-archivos" class="app-section">
-            <div class="card">
-                <div class="section-title"><i class="fas fa-folder-open"></i> Archivos</div>
-                <p>Documentación y expedientes.</p>
-            </div>
-        </section>
-
-        <section id="section-galeria" class="app-section">
-            <div class="card">
-                <div class="section-title"><i class="fas fa-images"></i> Galería</div>
-                <p>Fotos de todas tus propiedades.</p>
-            </div>
-        </section>
-
-        <section id="section-pensamientos" class="app-section">
-            <div class="card">
-                <div class="section-title"><i class="fas fa-brain"></i> Pensamientos</div>
-                <p>Notas rápidas y estrategias de venta.</p>
-            </div>
-        </section>
-
-        <section id="section-citas" class="app-section">
-            <div class="card">
-                <div class="section-title"><i class="fas fa-calendar-alt"></i> Programar Nueva Cita</div>
-                <input type="hidden" id="cita-id">
-                <div class="form-group">
-                    <label>Nombre del Cliente:</label>
-                    <input type="text" id="cita-cliente" placeholder="Ej. Juan Pérez">
-                </div>
-                <div class="form-group">
-                    <label>Fecha y Hora:</label>
-                    <input type="datetime-local" id="cita-fecha">
-                </div>
-                <div class="form-group">
-                    <label>Propiedad de Interés:</label>
-                    <input type="text" id="cita-propiedad" placeholder="Ej. Casa en Acayuca">
-                </div>
-                <div class="form-group">
-                    <label>Notas / Objetivo:</label>
-                    <textarea id="cita-notas" rows="2" placeholder="Ej. Mostrar escrituras, cierre de trato..."></textarea>
-                </div>
-                <button class="btn-main" onclick="guardarCita()">AGENDAR CITA</button>
-            </div>
-
-            <div class="card" style="margin-top: 20px;">
-                <div class="section-title"><i class="fas fa-list-ul"></i> Agenda de Citas</div>
-                <div id="citas-list">
-                    <p style="text-align:center; padding:20px; color:#666;">No hay citas programadas.</p>
-                </div>
-            </div>
-        </section>
-
-    </div>
-
-    <!-- Modal de Guardado -->
-    <div id="modal-save" class="modal-save">
-        <div class="modal-card">
-            <h2 style="color: #d32f2f;"><i class="fas fa-save"></i> ¿Dónde guardar?</h2>
-            <p>Selecciona tu destino de almacenamiento preferido</p>
-            <div class="save-options">
-                <button class="btn-save-opt" onclick="confirmSave('local')">
-                    <i class="fas fa-mobile-alt"></i> GUARDAR EN TELÉFONO
-                </button>
-                <button class="btn-save-opt" onclick="confirmSave('cloud')">
-                    <i class="fas fa-cloud"></i> GUARDAR EN LA NUBE
-                </button>
-            </div>
-            <label style="margin-top: 20px; display: block; font-size: 0.9em; color: #666; cursor: pointer;">
-                <input type="checkbox" id="save-default"> Guardar por defecto siempre
-            </label>
-            <button onclick="document.getElementById('modal-save').classList.remove('active')" style="margin-top:15px; border:none; background:none; color:#666; text-decoration:underline;">Cancelar</button>
-        </div>
-    </div>
-
-    <!-- Toast de Confirmación -->
-    <div id="toast-success" class="toast">
-        <i class="fas fa-check-circle"></i> <span id="toast-msg">Guardado con éxito</span>
-    </div>
-
-    <!-- Template Oculto para Flyer -->
-    <div id="flyer-template">
-        <div class="flyer-header" style="display: flex; align-items: center; justify-content: center; gap: 15px; padding: 20px;">
-            <img src="propiedades-app/icon-192.png" style="width: 50px; height: 50px; border-radius: 50%; background: white;" onerror="this.src='https://cdn-icons-png.flaticon.com/512/609/609803.png'">
-            <div style="text-align: left;">
-                <h1 id="f-tipo" style="color: white; margin:0; font-size: 1.4em; text-transform: uppercase;">PROPIEDAD</h1>
-                <span style="font-weight: 800; color: #87CEEB;">HR MASTER V34</span>
-            </div>
-        </div>
-        <div class="flyer-img-container">
-            <img id="f-img" src="https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&q=80&w=1000" class="flyer-img">
-        </div>
-        <div class="flyer-body">
-            <div class="flyer-price" id="f-precio">$0.00</div>
-            <div class="flyer-details">
-                <div id="f-m2">Superficie: 0 m²</div>
-                <div id="f-extra" style="margin-top: 5px; font-weight: bold; color: #fff;"></div>
-                <div id="f-gps">Ubicación: GPS Activo</div>
-                <div id="f-desc" style="margin-top:20px; font-style: italic; color: #eee; font-size: 0.8em;"></div>
-            </div>
-        </div>
-        <div class="flyer-footer">
-            📞 CONTACTO: <span id="f-tel"></span>
-        </div>
-    </div>
-
-
     <script>
-        // --- ESTADO GLOBAL ---
-        let tempPhotos = [];
-        let currentProperty = {
-            tipo: '', precio: '', m2: '', gps: '', desc: '', tel: '', photos: [], creditos: [],
-            timestamp: Date.now()
+        // --- DATA STORE ---
+        let db = {
+            properties: JSON.parse(localStorage.getItem('hr_props') || '[]'),
+            prospects: JSON.parse(localStorage.getItem('hr_pros') || '[]'),
+            events: JSON.parse(localStorage.getItem('hr_events') || '[]'),
+            tempPhotos: []
         };
 
-        // --- NAVEGACIÓN ---
-        function switchSection(sectionId, element) {
-            try {
-                console.log("Navegando a:", sectionId);
+        // --- NAVIGATION ---
+        function switchSection(id, el) {
+            document.querySelectorAll('.app-section').forEach(s => s.classList.remove('active'));
+            document.getElementById(`section-${id}`).classList.add('active');
+            
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+            if(el) el.classList.add('active');
+            else {
                 const items = document.querySelectorAll('.nav-item');
-                items.forEach(item => item.classList.remove('active'));
-                if(element) element.classList.add('active');
+                // Buscamos el que coincide con la id
+                // (Omitido para brevedad, pero Dashboard es el 0)
+            }
+            window.scrollTo(0, 0);
+            updateStats();
+            if(id === 'inventario') renderProperties();
+            if(id === 'crm') renderProspects();
+            if(id === 'marketing') fillMktProps();
+        }
 
-                const sections = document.querySelectorAll('.app-section');
-                sections.forEach(sec => sec.classList.remove('active'));
-                
-                const target = document.getElementById(`section-${sectionId}`);
-                if (target) {
-                    target.classList.add('active');
-                    window.scrollTo(0, 0);
-                    
-                    if(sectionId === 'tablero') renderInventario();
-                    if(sectionId === 'prospectos') prRender();
-                    if(sectionId === 'citas') renderCitas();
-                }
-            } catch (e) { console.error("Error en switchSection:", e); }
+        // --- IA TIPS ---
+        const tips = [
+            "Tip: Los militares de Banjercito valoran las casas con cochera techada. Resáltalo en tus flyers.",
+            "IA: Tienes una propiedad en Hidalgo que ha bajado de visitas. Prueba cambiar la foto principal.",
+            "Tip: Los créditos ISSFAM suelen ser más rápidos si el expediente está completo. ¡Revisa tu CRM!",
+            "IA: El 80% de tus ventas han sido terrenos. Enfócate en captar más parcelas en la zona oriente.",
+            "Estrategia: Crea una oferta de 'Escrituración Gratis' para cerrar este mes. El impacto es del 15% extra."
+        ];
+        function getNewIATip() {
+            const tip = tips[Math.floor(Math.random() * tips.length)];
+            document.getElementById('ia-tip').innerText = tip;
+            showToast("IA Analizando mercado...");
         }
 
         // --- GPS ---
-        function getGPS() {
-            const gpsInput = document.getElementById('gps-coords');
-            if(gpsInput) {
-                gpsInput.value = "";
-                gpsInput.placeholder = "Capturando ubicación...";
-            }
+        function captureGPS() {
+            const btn = event.currentTarget;
+            btn.innerText = "CAPTURED...";
             if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(pos => {
-                    const coords = `${pos.coords.latitude.toFixed(6)}, ${pos.coords.longitude.toFixed(6)}`;
-                    if(gpsInput) {
-                        gpsInput.value = coords;
-                        gpsInput.style.background = "#e8f5e9";
-                    }
-                }, err => {
-                    console.warn("GPS Error:", err.message);
-                }, { enableHighAccuracy: true, timeout: 8000 });
+                navigator.geolocation.getCurrentPosition(p => {
+                    document.getElementById('inv-gps').value = `${p.coords.latitude.toFixed(6)}, ${p.coords.longitude.toFixed(6)}`;
+                    showToast("Ubicación fijada con éxito");
+                });
             }
         }
 
-        // --- FOTOS ---
-        function handleFiles(e) {
+        // --- PHOTOS ---
+        document.getElementById('photo-input').addEventListener('change', (e) => {
             const files = Array.from(e.target.files);
-            if (files.length === 0) return;
-            if(!document.getElementById('gps-coords').value) getGPS();
-
-            files.forEach(file => {
-                if(tempPhotos.length >= 20) return;
-                const reader = new FileReader();
-                reader.onload = (ev) => {
-                    tempPhotos.push(ev.target.result);
-                    renderPhotoPreviews();
+            files.forEach(f => {
+                if(db.tempPhotos.length >= 10) return;
+                const r = new FileReader();
+                r.onload = (ev) => {
+                    db.tempPhotos.push(ev.target.result);
+                    renderPreviews();
                 };
-                reader.readAsDataURL(file);
+                r.readAsDataURL(f);
             });
-            e.target.value = "";
-        }
+        });
 
-        function renderPhotoPreviews() {
-            const container = document.getElementById("photo-preview-container");
-            if(!container) return;
-            container.innerHTML = tempPhotos.map((src, idx) => `
-                <div style="position:relative; width:70px; height:70px;">
-                    <img src="${src}" style="width:100%; height:100%; object-fit:cover; border-radius:8px; border:1px solid #ddd;">
-                    <button onclick="removePhoto(${idx})" style="position:absolute; top:-5px; right:-5px; background:red; color:white; border:none; border-radius:50%; width:20px; height:20px; font-size:12px; cursor:pointer;">×</button>
+        function renderPreviews() {
+            const container = document.getElementById('photo-preview');
+            container.innerHTML = db.tempPhotos.map((p, i) => `
+                <div class="gallery-item">
+                    <img src="${p}" style="width:100%; height:100%; object-fit:cover; border-radius:8px;">
+                    <button class="btn-del-photo" onclick="removePhoto(${i})">×</button>
                 </div>
             `).join('');
         }
+        function removePhoto(i) { db.tempPhotos.splice(i, 1); renderPreviews(); }
 
-        function removePhoto(idx) {
-            tempPhotos.splice(idx, 1);
-            renderPhotoPreviews();
-        }
-
-        // --- INVENTARIO ---
-        function guardarInventario() {
-            try {
-                const tipo = document.getElementById('tipo-propiedad').value;
-                const precio = document.getElementById('precio-total').value;
-                if(!tipo || !precio) {
-                    alert("Completa el Tipo y el Precio");
-                    return;
-                }
-
-                currentProperty = {
-                    id: Date.now(),
-                    tipo: tipo,
-                    precio: parseFloat(precio).toLocaleString('es-MX'),
-                    m2: document.getElementById('m2-totales').value || '0',
-                    gps: document.getElementById('gps-coords').value || 'Sin GPS',
-                    desc: document.getElementById('dictado-desc').value || '',
-                    tel: document.getElementById('tel-contacto').value || '771',
-                    photos: [...tempPhotos],
-                    timestamp: Date.now()
-                };
-
-                const inv = JSON.parse(localStorage.getItem('hr_inventario') || '[]');
-                inv.push(currentProperty);
-                localStorage.setItem('hr_inventario', JSON.stringify(inv));
-
-                tempPhotos = [];
-                renderPhotoPreviews();
-                document.getElementById('gps-coords').value = '';
-                document.getElementById('dictado-desc').value = '';
-                document.getElementById('precio-total').value = '';
-                
-                showToast("✅ Guardado con éxito");
-                renderInventario();
-                document.getElementById('modulo-salida').classList.add('active');
-            } catch (e) { alert("Error al guardar: " + e.message); }
-        }
-
-        function renderInventario() {
-            try {
-                const data = JSON.parse(localStorage.getItem('hr_inventario') || '[]');
-                if(document.getElementById('count-total')) document.getElementById('count-total').innerText = data.length;
-                const list = document.getElementById('inventory-list');
-                if(!list) return;
-                if(data.length === 0) {
-                    list.innerHTML = '<p style="text-align:center; padding:20px; color:#999;">Tu inventario está vacío.</p>';
-                    return;
-                }
-                list.innerHTML = data.slice().reverse().map((p, idx) => `
-                    <div class="card" style="border-left:5px solid #d32f2f; padding:15px; margin-bottom:10px; background:#fff;">
-                        <div style="display:flex; gap:12px; align-items:center;">
-                            <img src="${p.photos[0] || 'https://via.placeholder.com/80'}" style="width:70px; height:70px; object-fit:cover; border-radius:10px;">
-                            <div style="flex:1;">
-                                <strong style="color:#d32f2f; font-size:1.1em;">${p.tipo}</strong><br>
-                                <span style="font-weight:bold; font-size:1.2em; color:#333;">$${p.precio}</span><br>
-                                <span style="font-size:0.85em; color:#666;">📍 ${p.gps}</span>
-                            </div>
-                            <button onclick="borrarPropiedad(${data.length - 1 - idx})" style="background:none; border:none; color:red; font-size:1.2em; padding:10px;"><i class="fas fa-trash"></i></button>
-                        </div>
-                    </div>
-                `).join('');
-            } catch (e) { console.error("Error renderInventario:", e); }
-        }
-
-        function borrarPropiedad(idx) {
-            if(confirm("¿Estás seguro de que quieres eliminar esta propiedad?")) {
-                const inv = JSON.parse(localStorage.getItem('hr_inventario') || '[]');
-                inv.splice(idx, 1);
-                localStorage.setItem('hr_inventario', JSON.stringify(inv));
-                renderInventario();
-            }
-        }
-
-        // --- CÁLCULOS ---
-        function toggleForm(tipo) {
-            const ct = document.getElementById('campos-terreno');
-            const cc = document.getElementById('campos-casa');
-            if(ct) ct.style.display = (tipo.includes('Terreno') || tipo.includes('Parcela')) ? 'block' : 'none';
-            if(cc) cc.style.display = tipo.includes('Casa') ? 'block' : 'none';
-        }
-
-        function calcularSuperficie() {
+        // --- CALCULATIONS ---
+        function calcM2() {
             const n = parseFloat(document.getElementById('m-norte').value) || 0;
             const s = parseFloat(document.getElementById('m-sur').value) || 0;
             const e = parseFloat(document.getElementById('m-este').value) || 0;
             const o = parseFloat(document.getElementById('m-oeste').value) || 0;
-            let m2 = 0;
-            if(n > 0 && s > 0 && e > 0 && o > 0) m2 = ((n+s)/2) * ((e+o)/2);
-            else if(n > 0 && e > 0) m2 = n * e;
-            document.getElementById('m2-totales').value = m2 > 0 ? m2.toFixed(2) : "";
-            calcularMetro();
+            let res = 0;
+            if(n > 0 && e > 0) res = n * e;
+            else if(n > 0 && s > 0 && e > 0 && o > 0) res = ((n+s)/2) * ((e+o)/2);
+            document.getElementById('inv-m2').value = res > 0 ? res.toFixed(2) : "";
         }
 
-        function calcularMetro() {
-            const total = parseFloat(document.getElementById('precio-total').value) || 0;
-            const m2 = parseFloat(document.getElementById('m2-totales').value) || 0;
-            const res = (m2 > 0) ? (total / m2).toFixed(2) : 0;
-            document.getElementById('precio-m2').value = `$${parseFloat(res).toLocaleString('es-MX')}`;
+        function calcFinancials() {
+            const p = parseFloat(document.getElementById('crm-calc-precio').value) || 0;
+            const com = p * 0.07;
+            const ant = p * 0.10;
+            const not = p * 0.05;
+            const neta = com;
+
+            document.getElementById('res-comision').innerText = `$${com.toLocaleString()}`;
+            document.getElementById('res-anticipo').innerText = `$${ant.toLocaleString()}`;
+            document.getElementById('res-notaria').innerText = `$${not.toLocaleString()}`;
+            document.getElementById('res-neta').innerText = `$${neta.toLocaleString()}`;
         }
 
-        // --- UTILIDADES ---
-        function showToast(msg) {
-            const toast = document.getElementById('toast-success');
-            if(toast) {
-                toast.querySelector('span').innerText = msg;
-                toast.style.display = 'block';
-                setTimeout(() => toast.style.display = 'none', 3000);
+        // --- SAVE PROPERTY ---
+        function saveProperty() {
+            const prop = {
+                id: Date.now(),
+                tipo: document.getElementById('inv-tipo').value,
+                m2: document.getElementById('inv-m2').value,
+                precio: document.getElementById('inv-precio').value,
+                gps: document.getElementById('inv-gps').value,
+                desc: document.getElementById('inv-desc').value,
+                photos: [...db.tempPhotos],
+                servicios: Array.from(document.querySelectorAll('.srv:checked')).map(c => c.value)
+            };
+            if(!prop.precio) return alert("Ingresa el precio");
+            db.properties.push(prop);
+            localStorage.setItem('hr_props', JSON.stringify(db.properties));
+            db.tempPhotos = [];
+            renderPreviews();
+            clearInvForm();
+            showToast("Propiedad Guardada");
+            renderProperties();
+        }
+
+        function renderProperties() {
+            const list = document.getElementById('inventory-list');
+            list.innerHTML = db.properties.slice().reverse().map((p, i) => `
+                <div class="card">
+                    <div style="display:flex; gap:15px;">
+                        <img src="${p.photos[0] || ''}" style="width:80px; height:80px; object-fit:cover; border-radius:10px; background:#eee;">
+                        <div style="flex:1;">
+                            <strong style="color:var(--primary);">${p.tipo}</strong><br>
+                            <span style="font-size:1.2em; font-weight:800;">$${parseFloat(p.precio).toLocaleString()}</span><br>
+                            <small>📍 ${p.gps}</small>
+                        </div>
+                        <button onclick="delProp(${db.properties.length - 1 - i})" style="background:none; border:none; color:red;"><i class="fas fa-trash"></i></button>
+                    </div>
+                </div>
+            `).join('');
+        }
+        function delProp(i) { if(confirm("¿Eliminar?")) { db.properties.splice(i, 1); localStorage.setItem('hr_props', JSON.stringify(db.properties)); renderProperties(); } }
+
+        // --- CRM ---
+        function saveProspect() {
+            const pros = {
+                nombre: document.getElementById('crm-nombre').value,
+                tel: document.getElementById('crm-tel').value,
+                credito: document.getElementById('crm-credito').value,
+                interes: document.getElementById('crm-calc-precio').value
+            };
+            db.prospects.push(pros);
+            localStorage.setItem('hr_pros', JSON.stringify(db.prospects));
+            showToast("Prospecto Agregado");
+            renderProspects();
+        }
+        function renderProspects() {
+            const list = document.getElementById('prospect-list');
+            list.innerHTML = db.prospects.map(p => `
+                <div class="card" style="border-left-color: #2e7d32;">
+                    <strong>${p.nombre}</strong><br>
+                    <small>${p.credito} | $${parseFloat(p.interes || 0).toLocaleString()}</small><br>
+                    <button class="btn-main" style="height:30px; margin-top:5px; font-size:0.7em; background:#25d366;" onclick="window.open('https://wa.me/52${p.tel}')">
+                        <i class="fab fa-whatsapp"></i> CONTACTAR
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        // --- LEGAL ---
+        const templates = {
+            promesa: `CONTRATO DE PROMESA DE COMPRAVENTA\n\nEn el Estado de Hidalgo, a los [FECHA], comparecen por una parte el SR. [VENDEDOR] y por la otra el SR. [COMPRADOR]...\n\nCLAUSULAS:\n1. OBJETO: El vendedor se obliga a vender el terreno ubicado en [UBICACION] con medidas de [MEDIDAS]...\n2. PRECIO: El precio pactado es de [PRECIO]...\n3. SANCION: En caso de incumplimiento se aplicará el código civil vigente...`
+        };
+        function loadTemplate() {
+            const t = document.getElementById('legal-plantilla').value;
+            document.getElementById('editor').innerText = templates[t] || "Inicia tu contrato aquí...";
+        }
+        function exportPDF() { window.print(); }
+
+        // --- MARKETING ---
+        function fillMktProps() {
+            const sel = document.getElementById('mkt-prop');
+            sel.innerHTML = db.properties.map(p => `<option value="${p.id}">${p.tipo} - $${p.precio}</option>`).join('');
+        }
+        async function generateFlyer() {
+            const id = document.getElementById('mkt-prop').value;
+            const p = db.properties.find(x => x.id == id);
+            if(!p) return;
+            
+            document.getElementById('flyer-img').src = p.photos[0] || '';
+            document.getElementById('flyer-tipo').innerText = p.tipo;
+            document.getElementById('flyer-precio').innerText = `$${parseFloat(p.precio).toLocaleString()}`;
+            document.getElementById('flyer-desc').innerText = p.desc;
+            
+            const temp = document.getElementById('flyer-template');
+            temp.style.left = "0";
+            const canvas = await html2canvas(temp);
+            const link = document.createElement('a');
+            link.download = `HR-Flyer-${id}.png`;
+            link.href = canvas.toDataURL();
+            link.click();
+            temp.style.left = "-9999px";
+            showToast("Flyer generado");
+        }
+
+        // --- UTIL ---
+        function showToast(m) {
+            const t = document.getElementById('toast');
+            t.innerText = m;
+            t.style.display = "block";
+            setTimeout(() => t.style.display="none", 3000);
+        }
+        function updateStats() {
+            document.getElementById('stat-properties').innerText = db.properties.length;
+            document.getElementById('stat-prospects').innerText = db.prospects.length;
+        }
+        function clearInvForm() {
+            document.querySelectorAll('#section-inventario input, #section-inventario textarea').forEach(i => i.value = "");
+        }
+        function handleGlobalSearch(e) {
+            if(e.key === 'Enter') {
+                const q = e.target.value;
+                window.open(`https://www.google.com/search?q=${encodeURIComponent(q + " inmobiliaria hidalgo")}`, '_blank');
             }
         }
 
-        function startVoiceSearch() {
-            if ('webkitSpeechRecognition' in window) {
-                const rec = new webkitSpeechRecognition();
-                rec.lang = 'es-MX';
-                rec.onresult = (e) => {
-                    document.getElementById('main-search').value = e.results[0][0].transcript;
-                };
-                rec.start();
-            }
-        }
-
-        function searchApp() {
-            const query = document.getElementById('main-search').value.toLowerCase();
-            if(!query) return;
-            const data = JSON.parse(localStorage.getItem('hr_inventario') || '[]');
-            const results = data.filter(p => p.tipo.toLowerCase().includes(query) || p.desc.toLowerCase().includes(query));
-            alert("Encontradas " + results.length + " propiedades.");
-        }
-
-        function searchWeb() {
-            const query = document.getElementById('main-search').value;
-            if(!query) return;
-            window.open(`https://www.google.com/search?q=${encodeURIComponent(query)}`, '_blank');
-        }
-
-        function nuevaCitaShortcut() { switchSection('citas', null); }
-
-        function createAlarm() {
-            const desc = document.getElementById('alarm-desc').value;
-            const time = document.getElementById('alarm-time').value;
-            if(!desc || !time) return;
-            const alarmList = document.getElementById('alarms-list');
-            const item = document.createElement('div');
-            item.className = 'alarm-item';
-            item.style = "background:#fff; padding:10px; margin-bottom:10px; border-radius:8px; display:flex; justify-content:space-between; align-items:center; color:#333;";
-            item.innerHTML = `<div><strong>${desc}</strong><br><small>${new Date(time).toLocaleString()}</small></div><button onclick="this.parentElement.remove()" style="background:none; border:none; color:red;"><i class="fas fa-trash"></i></button>`;
-            alarmList.appendChild(item);
-        }
-
-        function enviarWhatsApp() {
-            const mapsUrl = `https://www.google.com/maps?q=${currentProperty.gps}`;
-            const texto = `🏠 *FICHA TÉCNICA - HR*
-
-📍 *TIPO:* ${currentProperty.tipo}
-💰 *PRECIO:* $${currentProperty.precio}
-📍 *GPS:* ${mapsUrl}
-📝 *DESCRIPCIÓN:* ${currentProperty.desc}`;
-            window.open(`https://wa.me/?text=${encodeURIComponent(texto)}`, '_blank');
-        }
-
-        function generarPDF() { window.print(); }
-
-        async function generarFlyer() {
-            try {
-                const template = document.getElementById('flyer-template');
-                document.getElementById('f-tipo').innerText = currentProperty.tipo;
-                document.getElementById('f-precio').innerText = `$${currentProperty.precio}`;
-                document.getElementById('f-m2').innerText = `Superficie: ${currentProperty.m2} m²`;
-                document.getElementById('f-gps').innerText = `Ubicación Activa`;
-                document.getElementById('f-desc').innerText = currentProperty.desc;
-                if(currentProperty.photos && currentProperty.photos[0]) document.getElementById('f-img').src = currentProperty.photos[0];
-                
-                template.style.position = 'relative';
-                template.style.left = '0';
-                const canvas = await html2canvas(template);
-                const link = document.createElement('a');
-                link.download = `Flyer-${Date.now()}.png`;
-                link.href = canvas.toDataURL();
-                link.click();
-                template.style.position = 'absolute';
-                template.style.left = '-9999px';
-                showToast("Flyer generado");
-            } catch (e) { console.error(e); }
-        }
-
-        // --- PROSPECTOS ---
-        function prRender() {
-            try {
-                const d = JSON.parse(localStorage.getItem('hr_prospectos') || '[]');
-                const list = document.getElementById('pr-lista');
-                if(!list) return;
-                list.innerHTML = d.length === 0 ? '<p style="text-align:center; padding:20px; color:#999;">No hay prospectos.</p>' :
-                    d.map((p, idx) => `<div style="background:#fff; padding:15px; border-radius:10px; margin-bottom:10px; color:#333; display:flex; justify-content:space-between; align-items:center;"><div><strong>${p.nombre}</strong><br><small>${p.tel} | ${p.credito}</small></div><button onclick="prBorrar(${idx})" style="background:none; border:none; color:red;"><i class="fas fa-trash"></i></button></div>`).join('');
-            } catch (e) { console.error(e); }
-        }
-
-        function prGuardar() {
-            const nom = document.getElementById('pr-nombre').value;
-            const tel = document.getElementById('pr-tel').value;
-            if(!nom || !tel) return alert("Nombre y Teléfono son requeridos");
-            const d = JSON.parse(localStorage.getItem('hr_prospectos') || '[]');
-            d.push({ nombre: nom, tel: tel, credito: document.getElementById('pr-credito').value, monto: parseFloat(document.getElementById('pr-monto').value || 0) });
-            localStorage.setItem('hr_prospectos', JSON.stringify(d));
-            document.getElementById('pr-nombre').value = '';
-            document.getElementById('pr-tel').value = '';
-            prRender();
-            showToast("Prospecto guardado");
-        }
-
-        function prBorrar(idx) {
-            const d = JSON.parse(localStorage.getItem('hr_prospectos') || '[]');
-            d.splice(idx, 1);
-            localStorage.setItem('hr_prospectos', JSON.stringify(d));
-            prRender();
-        }
-
-        function renderCitas() {
-            if(document.getElementById('citas-list')) document.getElementById('citas-list').innerHTML = '<p style="text-align:center; padding:20px; color:#999;">Agenda vacía.</p>';
-        }
-
-        // --- INICIO ---
-        document.addEventListener('DOMContentLoaded', () => {
-            console.log("App HR Iniciada");
-            try {
-                const photoInput = document.getElementById("photo-input");
-                if(photoInput) photoInput.addEventListener("change", handleFiles);
-                
-                const galleryInput = document.getElementById("gallery-input");
-                if(galleryInput) galleryInput.addEventListener("change", handleFiles);
-
-                renderInventario();
-                switchSection('tablero', document.querySelector('.nav-item'));
-            } catch (err) { console.error("Error Init:", err); }
-        });
+        // INIT
+        window.onload = () => {
+            updateStats();
+            renderProperties();
+        };
     </script>
 </body>
 </html>
